@@ -8,7 +8,11 @@
 
 | | Desktop | Touch |
 |---|---|---|
-| Move | WASD / arrow keys, or click the ground | Tap the ground |
+| Move hero | WASD / arrow keys, or click the ground | Tap the ground |
+| Command units | Select them, then click the ground to move or an enemy to attack | Same, with taps |
+| Select many | Left-drag a box (Shift adds) | Hold a finger, then drag a box |
+| Quick select | E hero · Q whole army | Hero / Army buttons |
+| Look around | Right-drag | Drag with one finger |
 | Select | Click anything | Tap anything: buildings, units, camps, trees, rocks |
 | Auto-explore | X | Auto-explore button |
 | Gather | Space next to trees, rocks or gold | Tap a tree, rock or gold vein |
@@ -19,10 +23,11 @@
 | Train | V villager · T soldier · Y archer · U knight | Tap a Barracks |
 | Attack | Walk up to enemies or click them | Tap enemies |
 | Zoom | Mouse wheel or +/− | Pinch or +/− |
-| Travel | Click an explored spot on the minimap | Tap the minimap |
+| Jump camera | Click the minimap | Tap the minimap |
 
 - **Explore:** the map starts in fog. Auto-explore sends your hero to the nearest unexplored edge and any chests or shrines it can see. It stays away from enemy camps and walks home to heal when badly hurt. Moving or tapping the map takes back control. Chests hold loot, maps or a free soldier. Purple shrines make your hero permanently stronger.
 - **Villagers:** hire them at the Town Hall and split them between wood, stone, gold and farming. They carry what they gather to the Town Hall or the nearest Lumber Camp, Quarry or Gold Mine, and run home when attacked.
+- **Command units separately:** whatever you select takes your orders. Troops sent somewhere hold that spot and fight anything within about 5 tiles. Tap an enemy to attack it, or use Follow hero to regroup. Villagers can be sent to any spot, tree, rock, gold vein or farm.
 - **Tap to act:** every building, unit, camp and resource opens a panel with its stats and actions. From there you can upgrade, demolish, train, attack, gather or send a villager.
 - **Development tree:** 14 technologies in six branches (Economy, Farming, Defense, Military, Arms, Exploration). Research runs at the Town Hall, one at a time.
 - **Upgrades:** buildings go up to level 3 for more output, health and range. Your hero gains experience from fights and levels up.
