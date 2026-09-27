@@ -1,6 +1,6 @@
 # explorers
 
-**Shardlands**: a small explore-build-conquer game drawn only with squares and triangles. It's one file (`index.html`) with no build step and no dependencies.
+**Shardlands**: a small explore-build-conquer game in a low-poly 3/4 view, drawn only with flat-shaded triangles and boxes. It's one file (`index.html`) with no build step and no dependencies.
 
 **Play:** open `index.html` in any browser. It works on desktop and on phones.
 
@@ -46,6 +46,14 @@
 
 Progress saves automatically in your browser.
 
+## Look
+
+The camera looks north from high up. Every face is flat-shaded by one light from the north-west, so the ground is a mesh of lit and shaded triangles, and slopes toward hills and mountains catch or lose the light. Trees, rocks, peaks and buildings stand up out of their tiles and cast short shadows down and to the right. People are seen from above and shaded on the side away from the light as they turn.
+
 ## Performance
 
-Terrain is drawn once into cached 16×16-tile chunks. Each frame only redraws units, buildings, fog and effects. The pixel ratio is capped at 1.5×, and each world is 160×160 tiles, so it runs smoothly on modest hardware.
+Terrain, trees, rocks and peaks are drawn once into cached 16×16-tile chunks. Each frame only redraws units, buildings, fog and effects. After a zoom, the old chunks are shown stretched while new ones are drawn a few per frame, so zooming never stalls. The pixel ratio is capped at 1.5×, and each world is 160×160 tiles, so it runs smoothly on modest hardware.
+
+## Publishing
+
+`.github/workflows/pages.yml` deploys `index.html` to GitHub Pages on every push to `main`. Pages has to be switched on once by hand: Settings → Pages → Build and deployment → Source: **GitHub Actions**. On a free account the repository must be public for Pages to be available.
