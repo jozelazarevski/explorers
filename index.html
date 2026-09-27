@@ -97,7 +97,9 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 #logo{display:block;width:100%;height:auto;max-width:100%}
 #card h1{margin:4px 0 2px;font-size:40px;line-height:1;font-weight:700;letter-spacing:.14em;text-wrap:balance}
 #card .tag{margin:0 0 18px;color:var(--brass);font-weight:600}
-#card dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0 0 20px;font-size:13px}
+#card dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:12px 0 0;font-size:13px}
+#howto{margin-top:18px;padding-top:12px;border-top:1px solid var(--edge)}
+#howto summary{cursor:pointer;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--brass)}
 #card dt{color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-size:11px;padding-top:2px}
 #card dd{margin:0}
 #card .btns{display:flex;gap:8px;flex-wrap:wrap}
@@ -106,6 +108,14 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 .big.warn{border-color:var(--red);color:#ffb3ad}
 #msg{margin:0 0 14px;font-size:15px}
 #msg:empty{display:none}
+#stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:0 0 16px}
+#stats div{padding:6px 9px;background:var(--panel-2);border:1px solid var(--edge);border-radius:4px}
+#stats b{display:block;font-size:18px;font-variant-numeric:tabular-nums}
+#stats span{display:block;font-size:11px;line-height:1.25;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.seg{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px;font-size:12px;color:var(--muted)}
+.seg button{padding:6px 10px;border-radius:4px;border:1px solid var(--edge);background:var(--panel-2);font-size:12px;font-weight:600}
+.seg button[aria-pressed=true]{background:var(--brass);border-color:var(--brass);color:#1a1408}
+.res.raid{border-color:var(--red);color:#ffb3ad;font-weight:700}
 
 /* Selection panel */
 #sel{position:fixed;left:16px;bottom:calc(140px + env(safe-area-inset-bottom,0px));width:330px;max-width:calc(100% - 32px);max-height:48vh;overflow:auto;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
@@ -163,6 +173,9 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
   #toasts{top:auto;bottom:calc(210px + env(safe-area-inset-bottom,0px))}
   #card{padding:20px 18px}
   #card h1{font-size:30px}
+  #stats div{padding:5px 6px}
+  #stats b{font-size:15px}
+  #stats span{font-size:10px;letter-spacing:.02em}
 }
 @media (prefers-reduced-motion:reduce){.toast{animation:none}}
 </style>
@@ -177,6 +190,7 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
   <div class="res" title="Troops / population cap"><i class="ic pop"></i><b id="r-pop">0/5</b></div>
   <div class="res camps" title="Enemy camps conquered"><i class="ic flag"></i><b id="r-camps">0/0</b></div>
   <div class="res" title="Days survived"><span id="r-day">Day 1</span></div>
+  <div class="res raid" id="r-raid" title="Time until the next raid leaves its camp" hidden></div>
   <div class="res" id="r-techw" title="Current research" hidden><span id="r-tech"></span></div>
   <button class="res idle" id="r-idle" title="Select villagers with nothing to do" hidden></button>
   <div id="quest" class="res" title="Current goal"><span class="qlabel">Goal</span><span id="q-text"></span><span id="q-rew" class="cost"></span></div>
@@ -217,25 +231,36 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
     <h1>SHARDLANDS</h1>
     <p class="tag">Lift the fog. Raise a realm. Take every red camp.</p>
     <p id="msg"></p>
-    <dl>
-      <dt>Move</dt><dd>WASD or arrow keys, or tap the ground</dd>
-      <dt>Explore</dt><dd>X or Auto-explore: your hero scouts the fog and grabs treasure, avoiding camps</dd>
-      <dt>Gather</dt><dd>Space next to trees, rocks or gold, or tap them</dd>
-      <dt>Select</dt><dd>Tap any building, unit, camp or resource to see what it does and act on it</dd>
-      <dt>Command</dt><dd>With units selected, tap the map to move them or an enemy to attack. Drag (or hold, then drag on a phone) to box-select. Q selects the army, E the hero.</dd>
-      <dt>Camera</dt><dd>Drag with one finger or the right mouse button to look around. E or the Hero button brings it back.</dd>
-      <dt>Villagers</dt><dd>Hire them at the Town Hall (H) and set their jobs. They gather and farm for you.</dd>
-      <dt>Goals</dt><dd>Follow the goal under the resource bar for rewards. Z makes your hero spin-attack everything nearby.</dd>
-      <dt>Grow</dt><dd>Research in the tech tree (R), upgrade buildings to level 3, level up your hero. F changes game speed.</dd>
-      <dt>Build</dt><dd>Keys 1–8 or the bar below, then click a green square inside your blue border</dd>
-      <dt>Train</dt><dd>T soldier, Y archer, U knight. Needs a Barracks. Troops follow you.</dd>
-      <dt>Fight</dt><dd>Walk up to enemies or tap them. Your hero attacks on its own.</dd>
-      <dt>Conquer</dt><dd>Break a red camp to claim its land and loot. Take them all to win. Raiders come for your Town Hall after the first nights.</dd>
-    </dl>
+    <div id="stats" hidden></div>
+    <div class="seg" role="group" aria-label="Difficulty of a new world"><span>New world difficulty</span>
+      <button data-diff="0" title="Fewer, smaller and later raids, rams from day 6, more to start with">Relaxed</button>
+      <button data-diff="1" title="The standard game">Normal</button>
+      <button data-diff="2" title="Earlier, bigger and more frequent raids, rams from day 3, camps grow faster">Hard</button>
+    </div>
     <div class="btns">
       <button class="big primary" id="playbtn">Start</button>
       <button class="big" id="newbtn">New world</button>
+      <button class="big" id="soundbtn" title="Sound effects (M)">Sound: on</button>
     </div>
+    <details id="howto">
+      <summary>How to play</summary>
+      <dl>
+        <dt>Move</dt><dd>WASD or arrow keys, or tap the ground</dd>
+        <dt>Explore</dt><dd>X or Auto-explore: your hero scouts the fog and grabs treasure, avoiding camps</dd>
+        <dt>Gather</dt><dd>Space next to trees, rocks or gold, or tap them</dd>
+        <dt>Select</dt><dd>Tap any building, unit, camp or resource to see what it does and act on it</dd>
+        <dt>Command</dt><dd>With units selected, tap the map to move them or an enemy to attack. Drag (or hold, then drag on a phone) to box-select. Q selects the army, E the hero.</dd>
+        <dt>Camera</dt><dd>Drag with one finger or the right mouse button to look around. E or the Hero button brings it back.</dd>
+        <dt>Villagers</dt><dd>Hire them at the Town Hall (H) and set their jobs. They gather and farm for you.</dd>
+        <dt>Goals</dt><dd>Follow the goal under the resource bar for rewards. Z makes your hero spin-attack everything nearby.</dd>
+        <dt>Grow</dt><dd>Research in the tech tree (R), upgrade buildings to level 3, level up your hero. F changes game speed.</dd>
+        <dt>Build</dt><dd>Keys 1–8 or the bar below, then click a green square inside your blue border</dd>
+        <dt>Train</dt><dd>T soldier, Y archer, U knight. Needs a Barracks. Troops follow you.</dd>
+        <dt>Fight</dt><dd>Walk up to enemies or tap them. Your hero attacks on its own.</dd>
+        <dt>Conquer</dt><dd>Break a red camp to claim its land and loot. Take them all to win. Raiders come for your Town Hall after the first nights. Later raids bring battering rams (from day 4 on Normal).</dd>
+        <dt>Sound</dt><dd>M or the Sound button turns effects on and off</dd>
+      </dl>
+    </details>
   </div>
 </div>
 
@@ -250,6 +275,13 @@ const PASS =      [0,0,1,1,1,1,1,0,0,1];
 const BUILDABLE = [0,0,1,1,1,1,0,0,0,1];
 const ZOOMS = [0.5, 0.65, 0.8, 1, 1.25, 1.6];
 const SAVE_KEY = 'shardlands-save-v1'; // save format v2 lives under the same key
+const PREF_KEY = 'shardlands-prefs';
+const DIFFS = [
+  { name:'Relaxed', firstRaid:1.6,  gap:[240,120], size:.7,   grow:3,   res:1.4, ramDay:6 },
+  { name:'Normal',  firstRaid:1.15, gap:[170,90],  size:1,    grow:2,   res:1,   ramDay:4 },
+  { name:'Hard',    firstRaid:.9,   gap:[130,70],  size:1.35, grow:1.5, res:.85, ramDay:3 },
+];
+const DF = () => DIFFS[G.diff] || DIFFS[1];
 
 const PAL = [
   ['#1b4880','#1e4d86','#21528b','#245790'],
@@ -292,6 +324,7 @@ const UD = {
   brute:   { hp:50,  atk:6,  range:1.1,  rate:1.0, spd:3.0 },
   slinger: { hp:30,  atk:5,  range:4.0,  rate:1.4, spd:3.0, ranged:1 },
   warlord: { hp:650, atk:22, range:1.3,  rate:1.1, spd:3.3 },
+  ram:     { hp:260, atk:32, range:1.3,  rate:2.5, spd:1.7, siege:1 },
 };
 const TRAIN = ['soldier','archer','knight'];
 const JOBS = ['wood','stone','gold','food'];
@@ -334,6 +367,8 @@ function afford(c){ for(const k in c) if(G.res[k] < c[k]) return false; return t
 function pay(c){ for(const k in c) G.res[k] -= c[k]; }
 function costHTML(c){ return Object.keys(c).map(k=>`<span><i class="ic ${k}"></i>${c[k]}</span>`).join(''); }
 function costText(c){ return Object.keys(c).map(k=>`${c[k]} ${k}`).join(', '); }
+const newStats = () => ({ kills:0, lost:0, raised:0, built:0, gathered:0, found:0 });
+function earn(k,n){ G.res[k]+=n; G.stats.gathered+=n; }
 
 // ---------- state ----------
 let G = null;
@@ -342,8 +377,8 @@ let terrT = new Uint8Array(N);
 const cache = new Map();
 
 // ---------- world generation ----------
-function genWorld(seed){
-  const rnd = mulberry(seed);
+function genWorld(seed,diff=1){
+  const rnd = mulberry(seed), df = DIFFS[diff];
   const terr=new Uint8Array(N), amt=new Uint8Array(N), shade=new Uint8Array(N), expl=new Uint8Array(N);
   const elev=new Float32Array(N), moist=new Float32Array(N);
   for(let y=0;y<H;y++) for(let x=0;x<W;x++){
@@ -421,9 +456,10 @@ function genWorld(seed){
   G = {
     seed, terr, amt, shade, expl, reachStart:start,
     units:[], blds:[], feats, proj:[], parts:[], texts:[],
-    res:{wood:120,stone:40,gold:20,food:80},
-    time:0, nextRaid:DAY*1.15, conquered:0, totalCamps:camps.length, upg:0,
-    heroBuff:{hp:0,atk:0}, nid:1, over:false, won:false, marker:null, tech:{}, research:null, speed:1, quest:0, growT:DAY*2,
+    res:{wood:Math.round(120*df.res),stone:Math.round(40*df.res),gold:Math.round(20*df.res),food:Math.round(80*df.res)},
+    time:0, nextRaid:DAY*df.firstRaid, conquered:0, totalCamps:camps.length, upg:0,
+    heroBuff:{hp:0,atk:0}, nid:1, over:false, won:false, marker:null, tech:{}, research:null, speed:1, quest:0, growT:DAY*df.grow,
+    diff, stats:newStats(),
   };
   resetGrids();
   addBuilding('hall', sx, sy, 0);
@@ -460,7 +496,7 @@ function mkUnit(kind,team,x,y,lvl=1){
   else if(kind==='hero'){ hp+=G.heroBuff.hp; atk+=G.heroBuff.atk; }
   else if(kind!=='villager'){ const m=1+.2*G.upg; hp*=m; atk*=m; }
   const spd=d.spd*(team===0&&has('carto')?1.15:1), vis=(d.vis||0)+(kind==='hero'&&has('carto')?4:0);
-  return { id:G.nid++, kind, team, x, y, hp, maxhp:hp, atk, range:d.range, rate:d.rate, spd, vis, ranged:!!d.ranged, pop:d.pop||0,
+  return { id:G.nid++, kind, team, x, y, hp, maxhp:hp, atk, range:d.range, rate:d.rate, spd, vis, ranged:!!d.ranged, siege:!!d.siege, pop:d.pop||0,
     cd:0, rt:Math.random()*.3, face:Math.PI/2, flash:0, path:null, pi:0, pt:0, tgt:null, home:-1, mode:'', lvl, lastHit:-99, dead:false, wx:x, wy:y, wt:0, gather:null, gt:0, respawn:0, moving:false,
     abT:0, spin:0, job:'', carry:0, ctype:'', tile:-1, work:-1, pgoal:-1, fr:0, working:false, hl:1, xp:0, order:'', ox:0, oy:0, otgt:null, post:null };
 }
@@ -558,7 +594,7 @@ function setPath(u,tx,ty,adj,maxN){ const p=findPath(u.x,u.y,tx,ty,u.team,adj,ma
 
 function nearestFoe(u,r,ax,ay,ar){
   let best=null, bd=r;
-  for(const o of G.units){
+  if(!u.siege) for(const o of G.units){
     if(o.team===u.team||o.dead) continue;
     const d=Math.hypot(o.x-u.x,o.y-u.y);
     if(d<bd && (ax===undefined||Math.hypot(o.x-ax,o.y-ay)<ar)){ bd=d; best=o; }
@@ -581,8 +617,8 @@ function engage(u,o,dt){
   }
 }
 function strike(u,o){
-  if(u.ranged) G.proj.push({x:u.x,y:u.y-.2,t:o,dmg:u.atk,team:u.team,spd:12});
-  else { hurt(o,u.atk,u); burst(ox_(o),oy_(o)-.1,o.team===0?'#cfe0ff':'#ffd1cc',4); }
+  if(u.ranged){ G.proj.push({x:u.x,y:u.y-.2,t:o,dmg:u.atk,team:u.team,spd:12}); sfx('shoot',u.x,u.y); }
+  else { hurt(o,u.atk,u); burst(ox_(o),oy_(o)-.1,o.team===0?'#cfe0ff':'#ffd1cc',u.siege?12:4); sfx(u.siege?'crash':'hit',u.x,u.y); }
 }
 function hurt(o,d,src){
   if(o.dead) return;
@@ -590,15 +626,16 @@ function hurt(o,d,src){
   if(o.hp<=0){ if(o.isB) destroyB(o); else killU(o); }
 }
 function killU(u){
-  u.dead=true; burst(u.x,u.y,u.team===0?TEAM[0].c:TEAM[1].c,10);
-  if(u.kind==='hero'){ u.respawn=6; u.path=null; u.tgt=null; u.gather=null; toast('Your hero fell. Returning to the Town Hall…','bad'); }
-  else if(u.team===1){ const g=Math.round(1+u.lvl*.8); G.res.gold+=g; floatText(u.x,u.y-.5,'+'+g,'#f5c542');
+  u.dead=true; burst(u.x,u.y,u.team===0?TEAM[0].c:TEAM[1].c,u.siege?18:10);
+  sfx(u.siege?'crash':'die',u.x,u.y);
+  if(u.kind==='hero'){ u.respawn=6; u.path=null; u.tgt=null; u.gather=null; toast('Your hero fell. Returning to the Town Hall…','bad'); sfx('bad'); }
+  else if(u.team===1){ const g=Math.round((u.siege?6:1)+u.lvl*.8); G.res.gold+=g; G.stats.kills++; floatText(u.x,u.y-.5,'+'+g,'#f5c542');
     const h=G.hero; if(!h.dead&&Math.hypot(h.x-u.x,h.y-u.y)<10) gainXP(4+u.lvl*3); }
-  else if(u.kind==='villager') toast('A villager was killed.','bad');
+  else { G.stats.lost++; if(u.kind==='villager') toast('A villager was killed.','bad'); }
 }
 function destroyB(b){
   if(b.type==='camp'){ conquer(b); return; }
-  b.dead=true; bgrid[b.y*W+b.x]=null; burst(b.cx,b.cy,'#b8ad97',16);
+  b.dead=true; bgrid[b.y*W+b.x]=null; burst(b.cx,b.cy,'#b8ad97',16); sfx('crash',b.cx,b.cy);
   if(b.type==='hall'){ gameOver(); return; }
   toast(`Raiders destroyed your ${BD[b.type].name}.`,'bad');
   recomputeTerr();
@@ -612,6 +649,7 @@ function conquer(b){
   burst(b.cx,b.cy,TEAM[0].l,24);
   recomputeTerr(); reveal(b.cx,b.cy,9);
   toast(b.lvl===6?`The fortress is yours. +${g} gold, +${w} wood, +${s} stone.`:`Camp conquered. +${g} gold, +${w} wood, +${s} stone.`,'good');
+  sfx('fanfare');
   if(G.conquered>=G.totalCamps) victory();
   save();
 }
@@ -619,7 +657,7 @@ function conquer(b){
 const xpNeed = l => 30+20*l;
 function gainXP(n){
   const h=G.hero; h.xp+=n;
-  while(h.xp>=xpNeed(h.hl)){ h.xp-=xpNeed(h.hl); h.hl++; h.maxhp+=12; h.atk+=2; h.hp=h.maxhp; burst(h.x,h.y-.3,'#f3c64b',18); toast(`Your hero reached level ${h.hl}: +12 health, +2 damage.`,'good'); }
+  while(h.xp>=xpNeed(h.hl)){ h.xp-=xpNeed(h.hl); h.hl++; h.maxhp+=12; h.atk+=2; h.hp=h.maxhp; burst(h.x,h.y-.3,'#f3c64b',18); toast(`Your hero reached level ${h.hl}: +12 health, +2 damage.`,'good'); sfx('good'); }
 }
 
 // ---------- fx ----------
@@ -630,6 +668,59 @@ function toast(msg,kind=''){
   const box=$('toasts'); box.appendChild(el); while(box.children.length>4) box.firstChild.remove();
   setTimeout(()=>el.remove(),3800);
 }
+
+// ---------- sound (synthesized, no files) ----------
+const prefs={ sound:true, diff:1 };
+try{ Object.assign(prefs,JSON.parse(localStorage.getItem(PREF_KEY)||'{}')); }catch(e){}
+if(!DIFFS[prefs.diff]) prefs.diff=1;
+function savePrefs(){ try{ localStorage.setItem(PREF_KEY,JSON.stringify(prefs)); }catch(e){} }
+let AC=null, MG=null, noiseBuf=null; const sndLast={};
+function audio(){
+  if(!AC){ const C=window.AudioContext||window.webkitAudioContext; if(!C) return null;
+    try{ AC=new C(); MG=AC.createGain(); MG.gain.value=.5; MG.connect(AC.destination); }catch(e){ AC=null; return null; } }
+  if(AC.state==='suspended') AC.resume().catch(()=>{});
+  return AC;
+}
+function tone(a,t,f0,f1,dur,type,vol){
+  const o=a.createOscillator(), g=a.createGain(); o.type=type;
+  o.frequency.setValueAtTime(f0,t); if(f1!==f0) o.frequency.exponentialRampToValueAtTime(f1,t+dur);
+  g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(vol,t+.012); g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(g); g.connect(MG); o.start(t); o.stop(t+dur+.02);
+}
+function noise(a,t,dur,freq,q,vol,f1){
+  if(!noiseBuf){ noiseBuf=a.createBuffer(1,a.sampleRate>>1,a.sampleRate); const d=noiseBuf.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1; }
+  const s=a.createBufferSource(), f=a.createBiquadFilter(), g=a.createGain();
+  s.buffer=noiseBuf; f.type='bandpass'; f.frequency.setValueAtTime(freq,t); if(f1) f.frequency.exponentialRampToValueAtTime(f1,t+dur); f.Q.value=q;
+  g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  s.connect(f); f.connect(g); g.connect(MG); s.start(t); s.stop(t+dur+.02);
+}
+// name: [minimum gap in seconds, player]
+const SFX={
+  hit:    [.07, (a,t,v)=>noise(a,t,.07,1100,1.4,.55*v)],
+  shoot:  [.09, (a,t,v)=>noise(a,t,.1,2600,4,.3*v,900)],
+  crash:  [.12, (a,t,v)=>{ noise(a,t,.22,260,.8,.9*v); tone(a,t,120,50,.2,'triangle',.25*v); }],
+  die:    [.1,  (a,t,v)=>tone(a,t,420,110,.18,'triangle',.16*v)],
+  chop:   [.1,  (a,t,v)=>noise(a,t,.06,1500,3,.45*v)],
+  clink:  [.1,  (a,t,v)=>tone(a,t,1760,1640,.09,'triangle',.12*v)],
+  build:  [.2,  (a,t,v)=>{ noise(a,t,.09,340,1,.7*v); noise(a,t+.13,.09,420,1,.6*v); }],
+  coin:   [.08, (a,t,v)=>{ tone(a,t,988,988,.07,'square',.05*v); tone(a,t+.07,1319,1319,.16,'square',.05*v); }],
+  ready:  [.15, (a,t,v)=>{ tone(a,t,523,523,.09,'triangle',.14*v); tone(a,t+.08,784,784,.14,'triangle',.14*v); }],
+  good:   [.3,  (a,t,v)=>[523,659,784].forEach((f,k)=>tone(a,t+k*.09,f,f,.28,'triangle',.18*v))],
+  fanfare:[.6,  (a,t,v)=>[392,523,659,784,1047].forEach((f,k)=>tone(a,t+k*.1,f,f,k===4?.7:.22,'square',.06*v))],
+  horn:   [2,   (a,t,v)=>{ tone(a,t,110,98,1.2,'sawtooth',.12*v); tone(a,t+.02,165,147,1.2,'sawtooth',.06*v); }],
+  bad:    [.4,  (a,t,v)=>{ tone(a,t,262,247,.18,'sawtooth',.07*v); tone(a,t+.18,196,185,.34,'sawtooth',.07*v); }],
+  whirl:  [.3,  (a,t,v)=>noise(a,t,.45,500,2,.6*v,2400)],
+};
+// Sounds with a position fade with distance from the view and stay quiet off screen.
+function sfx(name,x,y){
+  if(!prefs.sound||paused) return;
+  let v=1;
+  if(x!==undefined){ const d=Math.max(Math.abs(x-cam.x)/(cw/S/2+3),Math.abs(y-cam.y)/(chh/S/2+3)); if(d>1) return; v=1-.6*d; }
+  const a=audio(); if(!a||a.state!=='running') return;
+  const s=SFX[name], now=a.currentTime; if(now-(sndLast[name]??-9)<s[0]) return;
+  sndLast[name]=now; s[1](a,now+.01,v);
+}
+function setSound(on){ prefs.sound=on; savePrefs(); $('soundbtn').textContent=on?'Sound: on':'Sound: off'; if(on) audio(); if($('overlay').hidden) toast(on?'Sound on.':'Sound off.'); }
 
 // ---------- gathering ----------
 const RES_OF={[T.FOREST]:'wood',[T.HILL]:'stone',[T.GOLD]:'gold'};
@@ -646,7 +737,7 @@ function nearestRes(x,y,r,type){
 }
 function harvest(i){
   const t=G.terr[i], r=RES_OF[t], n=r==='wood'?3:2, cx=i%W+.5, cy=((i/W)|0)+.5;
-  G.res[r]+=n;
+  earn(r,n); sfx(r==='wood'?'chop':'clink',cx,cy);
   floatText(cx,cy-.5,`+${n} ${r}`,RES_COL[r]);
   burst(cx,cy-.2,r==='wood'?'#6b4a2b':r==='gold'?'#f5c542':'#bdb5a5',4);
   if(deplete(i)){ const nx=nearestRes(G.hero.x,G.hero.y,3.5,t); G.hero.gather = nx>=0 ? nx : null; }
@@ -680,7 +771,7 @@ function checkQuest(){
   if(!ok) return;
   for(const k in q.rew) G.res[k]+=q.rew[k];
   toast(`Goal complete: ${q.text.replace(/ \(.*\)$/,'')}. Reward: ${costText(q.rew)}.`,'good');
-  G.quest++; burst(G.hero.x,G.hero.y-.4,'#f3c64b',14);
+  G.quest++; burst(G.hero.x,G.hero.y-.4,'#f3c64b',14); sfx('good');
 }
 function questHUD(){
   const q=QUESTS[G.quest], el=$('quest');
@@ -694,7 +785,7 @@ const WHIRL_CD=20;
 function whirlwind(){
   const h=G.hero; if(h.dead) return;
   if(h.abT>0){ toast(`Whirlwind is ready in ${Math.ceil(h.abT)}s.`); return; }
-  h.abT=WHIRL_CD; h.cd=0; h.spin=.5; let n=0;
+  h.abT=WHIRL_CD; h.cd=0; h.spin=.5; let n=0; sfx('whirl');
   for(const o of G.units){ if(o.team!==1||o.dead) continue; if(Math.hypot(o.x-h.x,o.y-h.y)<2.4){ hurt(o,h.atk*2.5,h); n++; } }
   for(const b of G.blds){ if(b.team!==1||b.dead) continue; if(Math.hypot(b.cx-h.x,b.cy-h.y)<2.2){ hurt(b,h.atk*2.5,h); n++; } }
   for(let k=0;k<24;k++){ const a=k/24*6.283; G.parts.push({x:h.x+Math.cos(a)*.6,y:h.y-.2+Math.sin(a)*.6,vx:Math.cos(a)*5,vy:Math.sin(a)*5,life:.4,max:.4,c:'#f3e6b0',s:.1}); }
@@ -710,7 +801,7 @@ const TRADES={
   'buy-stone':{give:{gold:35},get:{stone:50},label:'Buy 50 stone'},
   'buy-food':{give:{gold:30},get:{food:50},label:'Buy 50 food'},
 };
-function trade(id){ const tr=TRADES[id]; if(!afford(tr.give)){ toast(`You need ${costText(tr.give)} for that trade.`,'bad'); return; } pay(tr.give); for(const k in tr.get) G.res[k]+=tr.get[k]; }
+function trade(id){ const tr=TRADES[id]; if(!afford(tr.give)){ toast(`You need ${costText(tr.give)} for that trade.`,'bad'); return; } pay(tr.give); for(const k in tr.get) G.res[k]+=tr.get[k]; sfx('coin'); }
 
 // ---------- idle villagers ----------
 const isIdle=u=>u.kind==='villager'&&!u.dead&&((!u.job&&u.order!=='move')||(u.job&&u.job!=='food'&&u.fr>0&&u.tile<0&&!u.carry)||(u.job==='food'&&u.work<0));
@@ -810,7 +901,7 @@ function tryPlace(type,x,y){
     G.terr[i]=tt===T.FOREST?T.GRASS:T.DIRT; G.amt[i]=0; invalidate(i); mmPixel(i);
   }
   const b=addBuilding(type,x,y,0);
-  burst(b.cx,b.cy,'#e9d8b4',10);
+  burst(b.cx,b.cy,'#e9d8b4',10); sfx('build'); G.stats.built++;
   if(type==='lumber'&&countAround(x,y,2,[T.FOREST])===0) toast('No forest nearby, so this camp will make nothing.','bad');
   if(type==='quarry'&&countAround(x,y,2,[T.HILL,T.GOLD])===0) toast('No hills nearby, so this quarry will make nothing.','bad');
   updateHud();
@@ -848,6 +939,7 @@ function train(kind,b,job){
 }
 function spawnFrom(b,q){
   const u=mkUnit(q.kind,0,b.cx+(Math.random()-.5)*.6,b.cy+.8); G.units.push(u); burst(u.x,u.y,TEAM[0].l,8);
+  G.stats.raised++; sfx('ready',u.x,u.y);
   if(u.kind==='villager') u.job=q.job||autoJob();
   else if(b.rally){ u.order='move'; u.ox=b.rally.x+(Math.random()-.5)*.8; u.oy=b.rally.y+(Math.random()-.5)*.8; }
 }
@@ -913,7 +1005,7 @@ function villagerAI(u,dt){
   if(u.carry>0&&(u.carry>=carryCap()||u.ctype!==j||(!j&&!u.post)||u.fr>0)){
     const d=nearestDrop(u,u.ctype);
     if(!d) return;
-    if(Math.hypot(u.x-d.cx,u.y-d.cy)<1.6){ G.res[u.ctype]+=u.carry; floatText(d.cx,d.cy-.9,`+${u.carry} ${u.ctype}`,RES_COL[u.ctype]); u.carry=0; }
+    if(Math.hypot(u.x-d.cx,u.y-d.cy)<1.6){ earn(u.ctype,u.carry); floatText(d.cx,d.cy-.9,`+${u.carry} ${u.ctype}`,RES_COL[u.ctype]); u.carry=0; }
     else goTo(u,d.x,d.y,dt);
     return;
   }
@@ -927,7 +1019,7 @@ function villagerAI(u,dt){
     if(!f){ if(hall&&Math.hypot(u.x-hall.cx,u.y-hall.cy)>2.5) goTo(u,hall.x,hall.y,dt); return; }
     if(Math.hypot(u.x-f.cx,u.y-f.cy)>1.1){ goTo(u,f.x,f.y,dt); return; }
     u.working=true; u.face=Math.atan2(f.cy-u.y,f.cx-u.x); u.gt-=dt;
-    if(u.gt<=0){ u.gt=2; G.res.food+=.9*farmMult()*lvlMult(f); }
+    if(u.gt<=0){ u.gt=2; earn('food',.9*farmMult()*lvlMult(f)); }
     return;
   }
   if(u.fr>0){ u.fr-=dt; return; }
@@ -955,7 +1047,7 @@ function upgradeB(b){
   const c=upCost(b); if(!afford(c)){ toast(`Upgrading costs ${costText(c)}.`,'bad'); return; }
   pay(c); b.lvl++;
   b.maxhp=BD[b.type].hp*(1+.5*(b.lvl-1))*(has('masonry')?1.5:1); b.hp=b.maxhp;
-  recomputeTerr(); burst(b.cx,b.cy,'#f3c64b',16);
+  recomputeTerr(); burst(b.cx,b.cy,'#f3c64b',16); sfx('build'); sfx('good');
   toast(`${BD[b.type].name} upgraded to level ${b.lvl}.`,'good');
 }
 function demolish(b){
@@ -987,7 +1079,7 @@ function finishResearch(id){
   if(id.startsWith('arms')){ G.upg++; for(const u of G.units) if(u.team===0&&u.kind!=='hero'&&u.kind!=='villager'){ const d=UD[u.kind], m=1+.2*G.upg, f=u.hp/u.maxhp; u.maxhp=d.hp*m; u.hp=u.maxhp*f; u.atk=d.atk*m; } }
   if(id==='carto'){ h.vis+=4; for(const u of G.units) if(u.team===0) u.spd*=1.15; }
   if(id==='heroic'){ G.heroBuff.hp+=40; G.heroBuff.atk+=5; h.maxhp+=40; h.hp+=40; h.atk+=5; }
-  toast(`Research done: ${TECH[id].name}. ${TECH[id].desc}.`,'good');
+  toast(`Research done: ${TECH[id].name}. ${TECH[id].desc}.`,'good'); sfx('good');
 }
 
 // ---------- update ----------
@@ -1041,7 +1133,7 @@ function update(dt){
     if(b.team===0){
       if((b.type==='tower'||b.type==='hall'||(b.type==='outpost'&&b.lvl===6)) && b.cd<=0){
         const tw=b.type==='tower', r=tw?towerRange(b):5, f=nearestFoe({x:b.cx,y:b.cy,team:0},r);
-        if(f&&!f.isB){ b.cd=tw?1.1/(1+.2*(b.lvl-1)):1.5; G.proj.push({x:b.cx,y:b.cy-.8,t:f,dmg:tw?towerDmg(b):6,team:0,spd:13}); }
+        if(f&&!f.isB){ b.cd=tw?1.1/(1+.2*(b.lvl-1)):1.5; G.proj.push({x:b.cx,y:b.cy-.8,t:f,dmg:tw?towerDmg(b):6,team:0,spd:13}); sfx('shoot',b.cx,b.cy); }
       }
       if(b.queue&&b.queue.length){ const q=b.queue[0]; q.t-=dt; if(q.t<=0){ b.queue.shift(); spawnFrom(b,q); } }
       if(G.time-b.lastHit>8 && b.hp<b.maxhp) b.hp=Math.min(b.maxhp,b.hp+2*dt);
@@ -1063,26 +1155,29 @@ function update(dt){
   if(h.abT>0) h.abT-=dt; if(h.spin>0) h.spin-=dt;
   // enemy camps grow stronger every two days
   if(G.time>G.growT){
-    G.growT=G.time+DAY*2; let n=0;
+    G.growT=G.time+DAY*DF().grow; let n=0;
     for(const b of G.blds) if(b.type==='camp'&&b.team===1&&!b.dead&&b.lvl<5){ b.lvl++; const f=b.hp/b.maxhp; b.maxhp=160+130*b.lvl; b.hp=b.maxhp*f; n++; }
     if(n) toast(`${n} enemy camp${n>1?'s':''} grew stronger. Strike before they grow again.`,'bad');
   }
   // raids
   if(G.time>G.nextRaid){
-    G.nextRaid=G.time+170+Math.random()*90;
+    const df=DF(); G.nextRaid=G.time+df.gap[0]+Math.random()*df.gap[1];
     const camps=G.blds.filter(b=>b.type==='camp'&&b.team===1&&!b.dead&&b.lvl<6);
     const hall=G.blds.find(b=>b.type==='hall'&&!b.dead);
     if(camps.length&&hall){
       camps.sort((a,b)=>Math.hypot(a.cx-hall.cx,a.cy-hall.cy)-Math.hypot(b.cx-hall.cx,b.cy-hall.cy));
       const c=camps[Math.floor(Math.random()*Math.min(3,camps.length))];
-      const size=2+Math.floor(c.lvl*.8)+Math.floor(G.conquered/2)+Math.floor(G.time/(DAY*3));
+      const size=Math.max(2,Math.round((2+Math.floor(c.lvl*.8)+Math.floor(G.conquered/2)+Math.floor(G.time/(DAY*3)))*df.size));
+      // later raids bring battering rams, which only go for buildings
+      const r0=DAY*(df.ramDay-1), rams=G.time<r0?0:Math.min(3,1+Math.floor((G.time-r0)/(DAY*4)));
       const path=findPath(c.x,c.y,hall.x,hall.y,1,true,30000);
-      for(let k=0;k<size;k++){
-        const u=mkUnit(k%3===2?'slinger':'brute',1,c.cx+(Math.random()-.5),c.cy+(Math.random()-.5),c.lvl);
+      for(let k=0;k<size+rams;k++){
+        const u=mkUnit(k>=size?'ram':k%3===2?'slinger':'brute',1,c.cx+(Math.random()-.5),c.cy+(Math.random()-.5),c.lvl);
         u.mode='raid'; u.path=path?path.slice():null; u.pi=0; G.units.push(u);
       }
       const a=Math.atan2(c.cy-hall.cy,c.cx-hall.cx), dirs=['east','southeast','south','southwest','west','northwest','north','northeast'];
-      toast(`A raid of ${size} is marching on your Town Hall from the ${dirs[(Math.round(a/(Math.PI/4))+8)%8]}.`,'bad');
+      toast(`A raid of ${size}${rams?` with ${rams>1?rams+' battering rams':'a battering ram'}`:''} is marching on your Town Hall from the ${dirs[(Math.round(a/(Math.PI/4))+8)%8]}.`,'bad');
+      sfx('horn');
     }
   }
 
@@ -1201,11 +1296,11 @@ function rates(b){
   return {};
 }
 function produce(){
-  for(const b of G.blds){ if(b.team!==0||b.dead) continue; const r=rates(b); for(const k in r) G.res[k]+=r[k]; }
+  for(const b of G.blds){ if(b.team!==0||b.dead) continue; const r=rates(b); for(const k in r) earn(k,r[k]); }
 }
 function pickup(f){
   f.taken=true; const h=G.hero, cx=f.x+.5, cy=f.y+.5;
-  burst(cx,cy,f.type==='chest'?'#f5c542':'#b89cff',16);
+  burst(cx,cy,f.type==='chest'?'#f5c542':'#b89cff',16); G.stats.found++; sfx(f.type==='chest'?'coin':'good');
   if(f.type==='shrine'){
     G.heroBuff.hp+=20; G.heroBuff.atk+=3; h.maxhp+=20; h.atk+=3; h.hp=h.maxhp;
     toast('The shrine blesses your hero: +20 health, +3 damage.','good'); return;
@@ -1405,6 +1500,7 @@ const STYLE={
   brute:   {sc:1.05, team:1, head:'bald', weapon:'club'},
   slinger: {sc:.95,  team:1, light:1, head:'hood', weapon:'sling'},
   warlord: {sc:1.7,  team:1, dark:1, head:'horns', weapon:'axe', cape:1, pads:'#3a2a26'},
+  ram:     {sc:1.3,  machine:1},
 };
 const CARRY_COL={wood:'#8b5a2b',stone:'#c9c1b2',gold:'#f5c542'};
 function quad(g,a,b,c,d,e,f,h,k,col){ g.fillStyle=col; g.beginPath(); g.moveTo(a,b); g.lineTo(c,d); g.lineTo(e,f); g.lineTo(h,k); g.closePath(); g.fill(); }
@@ -1460,11 +1556,22 @@ function drawPerson(g,u,x,y,t,fl){
   }
   g.restore();
 }
+// A battering ram from above: a hide-covered shed on four wheels, the log's iron head pointing forward.
+function drawRam(g,u,x,y,t,fl){
+  const F=c=>fl?'#fff':c, jab=u.cd>u.rate-.35?Math.sin((u.rate-u.cd)/.35*Math.PI)*.16:0, roll=u.moving?Math.sin(t*8+u.id)*.02:0;
+  g.save(); g.translate(x,y); g.rotate(u.face+Math.PI/2); g.scale(1.25,1.25);
+  rect(g,-.26,-.3,.54,.66,'rgba(0,0,0,.25)');
+  for(const [wx,wy] of [[-.33,-.24],[.23,-.24],[-.33,.16],[.23,.16]]) rect(g,wx,wy+roll,.1,.16,'#2c211a');
+  rect(g,-.05,-.5-jab,.1,.5,F('#7a5230')); rect(g,-.08,-.58-jab,.16,.1,F('#5d6670')); rect(g,-.05,-.63-jab,.1,.06,F('#8f99a5'));
+  roof(g,-.25,-.28,.5,.62,fl?['#fff','#eee','#ddd','#eee']:RP.dark);
+  rect(g,-.25,-.28,.5,.05,F(TEAM[1].d)); rect(g,-.25,.29,.5,.05,F(TEAM[1].d));
+  g.restore();
+}
 function drawUnit(g,u,t){
-  const x=u.x, y=u.y, fl=u.flash>0, sc=STYLE[u.kind].sc;
-  const bob=u.moving?Math.abs(Math.sin(t*14+u.id))*.04:0;
+  const x=u.x, y=u.y, fl=u.flash>0, st=STYLE[u.kind], sc=st.sc;
+  const bob=u.moving&&!st.machine?Math.abs(Math.sin(t*14+u.id))*.04:0;
   g.fillStyle='rgba(0,0,0,.24)'; g.fillRect(x-.2*sc,y+.1,.4*sc,.08);
-  drawPerson(g,u,x,y-bob-.14,t,fl);
+  (st.machine?drawRam:drawPerson)(g,u,x,y-bob-.14,t,fl);
   if(u.hp<u.maxhp){
     const w=.5*Math.max(1,sc*.8), top=y-.14-.42*sc-.1;
     rect(g,x-w/2,top,w,.07,'rgba(0,0,0,.6)'); rect(g,x-w/2,top,w*clamp(u.hp/u.maxhp,0,1),.07,u.team?'#ff6b5e':'#7fd37a');
@@ -1670,6 +1777,8 @@ function updateHud(){
   $('r-pop').textContent=`${popUsed()}/${popCap()}`; $('r-camps').textContent=`${G.conquered}/${G.totalCamps}`;
   $('r-day').textContent=`Day ${1+Math.floor(G.time/DAY)}${NIGHT>.3?' · night':''}`;
   for(const k of BUILD_ORDER) $('bb-'+k).classList.toggle('no',!afford(BD[k].cost));
+  const nr=G.nextRaid-G.time, rc=$('r-raid'), soon=nr<30&&!!hallB()&&G.blds.some(b=>b.type==='camp'&&b.team===1&&!b.dead&&b.lvl<6);
+  rc.hidden=!soon; if(soon) rc.textContent=`Raid in ${Math.max(0,Math.ceil(nr))}s`;
   $('r-techw').hidden=!G.research;
   if(G.research) $('r-tech').textContent=`${TECH[G.research.id].name} ${Math.ceil(G.research.t)}s`;
   $('speedbtn').textContent=(G.speed||1)+'×';
@@ -1795,8 +1904,8 @@ function selHTML(o){
     body=hp+`<p class="sub">Damage ${Math.round(o.atk)} · Range ${o.range}</p><p>${st}. Tap the map to move it, or an enemy to attack.</p>`;
     acts=btn('follow','Follow hero',{on:!o.order})+btn('hold','Hold here',{on:o.order==='hold'})+btn('dismiss',armed('dis'+o.id)?'Tap again to dismiss':'Dismiss',{on:armed('dis'+o.id)});
   } else {
-    head=`${{brute:'Brute',slinger:'Slinger',warlord:'Warlord'}[o.kind]} <span class="chip bad">Level ${o.lvl}</span>`;
-    body=hp+`<p class="sub">Damage ${Math.round(o.atk)}${o.mode==='raid'?' · Raiding your town':''}</p>`;
+    head=`${{brute:'Brute',slinger:'Slinger',warlord:'Warlord',ram:'Battering ram'}[o.kind]} <span class="chip bad">Level ${o.lvl}</span>`;
+    body=hp+`<p class="sub">Damage ${Math.round(o.atk)}${o.mode==='raid'?' · Raiding your town':''}</p>`+(o.siege?'<p>Smashes walls and buildings but ignores people. Slow, so troops can catch it on the road.</p>':'');
     acts=btn('attack','Attack with hero');
   }
   return `<header><h3>${head}</h3><button class="x" data-act="close" aria-label="Close">×</button></header>${body}<div class="acts">${acts}</div>${extra}`;
@@ -1875,9 +1984,11 @@ function save(){
   try{
     const d={ v:2, seed:G.seed, terr:enc(G.terr), amt:enc(G.amt), shade:enc(G.shade), expl:enc(G.expl),
       blds:G.blds.filter(b=>!b.dead).map(b=>[b.id,b.type,b.x,b.y,b.team,Math.round(b.hp),b.maxhp,b.lvl,b.queue||[],b.rally||null]),
-      units:G.units.filter(u=>!u.dead||u.kind==='hero').map(u=>[u.kind,u.team,+u.x.toFixed(2),+u.y.toFixed(2),Math.max(1,Math.round(u.hp)),u.maxhp,u.atk,u.home,u.mode,u.lvl,u.job,u.xp,u.hl,u.carry,u.ctype]),
+      units:G.units.filter(u=>!u.dead||u.kind==='hero').map(u=>{ const atk=u.order==='attack';
+        return [u.kind,u.team,+u.x.toFixed(2),+u.y.toFixed(2),Math.max(1,Math.round(u.hp)),u.maxhp,u.atk,u.home,u.mode,u.lvl,u.job,u.xp,u.hl,u.carry,u.ctype,
+          atk?'hold':u.order,+(atk?u.x:u.ox).toFixed(2),+(atk?u.y:u.oy).toFixed(2),u.post,u.work,u.abT>0?+u.abT.toFixed(1):0]; }),
       feats:G.feats, res:G.res, time:G.time, nextRaid:G.nextRaid, conquered:G.conquered, totalCamps:G.totalCamps, upg:G.upg, heroBuff:G.heroBuff, nid:G.nid, won:G.won,
-      tech:G.tech, research:G.research, speed:G.speed, quest:G.quest, growT:G.growT };
+      tech:G.tech, research:G.research, speed:G.speed, quest:G.quest, growT:G.growT, diff:G.diff, stats:G.stats };
     localStorage.setItem(SAVE_KEY,JSON.stringify(d));
   }catch(e){}
 }
@@ -1887,11 +1998,14 @@ function load(){
   try{
     G={ seed:d.seed, terr:dec(d.terr), amt:dec(d.amt), shade:dec(d.shade), expl:dec(d.expl), units:[], blds:[], feats:d.feats, proj:[], parts:[], texts:[],
       res:d.res, time:d.time, nextRaid:d.nextRaid, conquered:d.conquered, totalCamps:d.totalCamps, upg:d.upg, heroBuff:d.heroBuff, nid:d.nid, over:false, won:!!d.won, marker:null,
-      tech:d.tech||{}, research:d.research||null, speed:d.speed||1, quest:d.quest||0, growT:d.growT||d.time+DAY*2 };
+      tech:d.tech||{}, research:d.research||null, speed:d.speed||1, quest:d.quest||0, growT:d.growT||d.time+DAY*2,
+      diff:DIFFS[d.diff]?d.diff:1, stats:Object.assign(newStats(),d.stats) };
     resetGrids();
     for(const [id,type,x,y,team,hp,maxhp,lvl,queue,rally] of d.blds){ const b={id,isB:true,type,x,y,cx:x+.5,cy:y+.5,team,hp,maxhp,lvl,cd:0,spawnT:20,flash:0,lastHit:-99,dead:false,queue:queue||[],rally:rally||null}; G.blds.push(b); bgrid[y*W+x]=b; }
-    for(const [kind,team,x,y,hp,maxhp,atk,home,mode,lvl,job,xp,hl,carry,ctype] of d.units){ const u=mkUnit(kind,team,x,y,lvl); u.hp=hp; u.maxhp=maxhp; u.atk=atk; u.home=home; u.mode=mode;
-      u.job=job||''; u.xp=xp||0; u.hl=hl||1; u.carry=carry||0; u.ctype=ctype||''; G.units.push(u); if(kind==='hero') G.hero=u; }
+    for(const [kind,team,x,y,hp,maxhp,atk,home,mode,lvl,job,xp,hl,carry,ctype,order,ox,oy,post,work,abT] of d.units){ const u=mkUnit(kind,team,x,y,lvl); u.hp=hp; u.maxhp=maxhp; u.atk=atk; u.home=home; u.mode=mode;
+      u.job=job||''; u.xp=xp||0; u.hl=hl||1; u.carry=carry||0; u.ctype=ctype||'';
+      u.order=order||''; u.ox=ox??x; u.oy=oy??y; u.post=post||null; u.work=work??-1; u.abT=abT||0;
+      G.units.push(u); if(kind==='hero') G.hero=u; }
     if(!G.hero) return false;
     const hall=G.blds.find(b=>b.type==='hall'&&b.team===0);
     if(d.v===1&&hall) for(const j of ['wood','stone']){ const v=mkUnit('villager',0,hall.cx,hall.cy+1.1); v.job=j; G.units.push(v); }
@@ -1902,11 +2016,24 @@ function load(){
 
 // ---------- flow ----------
 let paused=true;
-function newGame(){ genWorld((Math.random()*1e9)|0); cam.x=G.hero.x; cam.y=G.hero.y; buildSel=null; selectBuild(null); select(null); closeTech(); if(autoOn) setAuto(false); save(); updateHud(); }
-function showOverlay(msg){ paused=true; $('msg').textContent=msg||''; $('overlay').hidden=false; $('playbtn').textContent=G&&!G.over?(G.time>1?'Continue':'Start'):'Start'; $('playbtn').hidden=!!(G&&G.over); armNew(false); }
-function hideOverlay(){ $('overlay').hidden=true; paused=false; last=performance.now(); }
-function gameOver(){ G.over=true; try{ localStorage.removeItem(SAVE_KEY); }catch(e){} showOverlay(`Your Town Hall fell on day ${1+Math.floor(G.time/DAY)}. You held ${G.conquered} of ${G.totalCamps} camps.`); }
+function newGame(){ genWorld((Math.random()*1e9)|0,prefs.diff); cam.x=G.hero.x; cam.y=G.hero.y; buildSel=null; selectBuild(null); select(null); closeTech(); if(autoOn) setAuto(false); save(); updateHud(); }
+function statsHTML(){
+  const s=G.stats, tile=(v,l)=>`<div><b>${v}</b><span>${l}</span></div>`;
+  return tile(`Day ${1+Math.floor(G.time/DAY)}`,DF().name)+tile(`${G.conquered}/${G.totalCamps}`,'Camps taken')+tile(s.kills,'Enemies defeated')+tile(s.lost,'Units lost')+
+    tile(s.raised,'Units raised')+tile(s.built,'Buildings')+tile(Math.floor(s.gathered).toLocaleString(),'Resources gathered')+tile(s.found,'Treasures found');
+}
+function showOverlay(msg){
+  paused=true; $('msg').textContent=msg||''; $('overlay').hidden=false;
+  const st=$('stats'), show=!!(G&&G.time>1); st.hidden=!show; if(show) st.innerHTML=statsHTML(); $('howto').open=!show;
+  $('playbtn').textContent=G&&!G.over?(G.time>1?'Continue':'Start'):'Start'; $('playbtn').hidden=!!(G&&G.over); armNew(false); setDiffBtns();
+}
+function hideOverlay(){ $('overlay').hidden=true; paused=false; last=performance.now(); if(prefs.sound) audio(); }
+function gameOver(){ G.over=true; try{ localStorage.removeItem(SAVE_KEY); }catch(e){} sfx('bad'); showOverlay(`Your Town Hall fell on day ${1+Math.floor(G.time/DAY)}. You held ${G.conquered} of ${G.totalCamps} camps.`); }
 function victory(){ G.won=true; const m=Math.floor(G.time/60); setTimeout(()=>showOverlay(`Victory. Every camp flies your banner after ${m} minutes. Keep building, or start a new world.`),600); }
+function setDiffBtns(){ document.querySelectorAll('[data-diff]').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.diff===prefs.diff)); }
+document.querySelectorAll('[data-diff]').forEach(b=>b.addEventListener('click',()=>{ prefs.diff=+b.dataset.diff; savePrefs(); setDiffBtns(); }));
+$('soundbtn').addEventListener('click',()=>setSound(!prefs.sound));
+$('soundbtn').textContent=prefs.sound?'Sound: on':'Sound: off';
 let newArmed=false;
 function armNew(v){ newArmed=v; $('newbtn').textContent=v?'Tap again to replace this world':'New world'; $('newbtn').classList.toggle('warn',v); }
 $('playbtn').addEventListener('click',hideOverlay);
@@ -1924,6 +2051,7 @@ addEventListener('keydown',e=>{
   if(e.target.tagName==='INPUT') return;
   const k=e.key.toLowerCase();
   if(k==='escape'){ if(techOpen) closeTech(); else if(buildSel) selectBuild(null); else if(sel) select(null); else if($('overlay').hidden) showOverlay(); else if(!G.over) hideOverlay(); return; }
+  if(k==='m'&&!e.repeat){ setSound(!prefs.sound); return; }
   if(!$('overlay').hidden) return;
   if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright',' '].includes(k)) e.preventDefault();
   keys.add(k);
@@ -2065,7 +2193,7 @@ const hadSave=load();
 if(!hadSave) genWorld((Math.random()*1e9)|0);
 cam.x=G.hero.x; cam.y=G.hero.y;
 setSpeed(G.speed||1); drawIcons(); updateHud(); drawMinimap();
-showOverlay(hadSave?`Welcome back. Day ${1+Math.floor(G.time/DAY)}, ${G.conquered} of ${G.totalCamps} camps taken.`:'');
+showOverlay(hadSave?'Welcome back. Your realm so far:':'');
 if(document.fonts&&document.fonts.ready) document.fonts.ready.then(drawIcons);
 requestAnimationFrame(frame);
 })();

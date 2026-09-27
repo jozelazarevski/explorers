@@ -25,7 +25,9 @@
 | Attack | Walk up to enemies or click them | Tap enemies |
 | Zoom | Mouse wheel or +/− | Pinch or +/− |
 | Jump camera | Click the minimap | Tap the minimap |
+| Sound on/off | M | Sound button on the pause screen |
 
+- **Difficulty:** pick Relaxed, Normal or Hard on the title screen before starting a new world. It sets how early, how often and how big raids are, when rams join them, how fast camps grow, and your starting resources.
 - **Goals:** a chain of 13 goals under the resource bar guides the early game and pays out resources for each one.
 - **Market:** the Town Hall trades wood, stone and food for gold and back.
 - **Rally points:** set one on a Barracks and new troops march there and hold.
@@ -38,7 +40,9 @@
 - **Upgrades:** buildings go up to level 3 for more output, health and range. Your hero gains experience from fights and levels up.
 - **Build:** Farms make food. Lumber Camps and Quarries collect from nearby forest and hills. Gold Mines must touch a gold vein. Houses raise troop capacity. Towers shoot raiders and widen your land. Walls slow raiders down.
 - **Conquer:** red camps get tougher the farther they are from home, and the farthest one is a fortress with a warlord. Destroy a camp to claim its land and loot. Take every camp to win.
-- **Defend:** after the first nights, camps send raids at your Town Hall. Red arrows at the screen edge and red dots on the minimap show where they are. Every two days the remaining camps grow a level stronger. If your Town Hall falls, the game is over.
+- **Defend:** after the first nights, camps send raids at your Town Hall. A red chip at the top counts down the last 30 seconds before each raid sets out. Red arrows at the screen edge and red dots on the minimap show where raiders are. From day 4 (on Normal) raids bring battering rams: slow, tough machines that ignore people and smash walls and buildings, so meet them on the road. Every two days (on Normal) the remaining camps grow a level stronger. If your Town Hall falls, the game is over.
+- **Sound:** every hit, arrow, harvest, build and fanfare is synthesized in the browser, with no audio files. Sounds fade with distance from the view.
+- **Stats:** the pause screen and the end screen show the day, camps taken, enemies defeated, units raised and lost, buildings, resources gathered and treasures found.
 
 Progress saves automatically in your browser.
 
