@@ -46,6 +46,12 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 .ic.pop{background:var(--blue)}
 .ic.flag{background:var(--red);clip-path:polygon(0 0,100% 30%,0 60%)}
 .res.camps b{color:var(--brass)}
+#top{pointer-events:none}
+#top .idle{pointer-events:auto;cursor:pointer;color:#1a1408;background:var(--brass);border-color:var(--brass);font-weight:700}
+#quest{flex-basis:100%;max-width:min(560px,100%);flex-wrap:wrap;gap:4px 8px;font-size:13px}
+#quest .qlabel{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--brass);font-weight:700}
+#quest .cost{display:flex;gap:6px;color:var(--muted);font-size:12px}
+.act.cool{opacity:.55}
 
 /* Minimap */
 #mmwrap{position:fixed;right:16px;top:calc(10px + env(safe-area-inset-top,0px));display:flex;flex-direction:column;gap:6px;align-items:stretch;width:160px}
@@ -79,7 +85,7 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 .bb:hover{background:var(--panel-2)}
 .bb.sel{background:var(--panel-2);border-color:var(--brass)}
 
-#toasts{position:fixed;left:50%;top:calc(58px + env(safe-area-inset-top,0px));transform:translateX(-50%);display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none;width:min(420px,calc(100% - 32px))}
+#toasts{position:fixed;left:50%;top:calc(96px + env(safe-area-inset-top,0px));transform:translateX(-50%);display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none;width:min(420px,calc(100% - 32px))}
 .toast{padding:7px 14px;background:var(--panel);border:1px solid var(--edge);border-left:3px solid var(--brass);border-radius:4px;font-size:13px;animation:tin .25s ease-out}
 .toast.bad{border-left-color:var(--red)}
 .toast.good{border-left-color:var(--good)}
@@ -172,6 +178,8 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
   <div class="res camps" title="Enemy camps conquered"><i class="ic flag"></i><b id="r-camps">0/0</b></div>
   <div class="res" title="Days survived"><span id="r-day">Day 1</span></div>
   <div class="res" id="r-techw" title="Current research" hidden><span id="r-tech"></span></div>
+  <button class="res idle" id="r-idle" title="Select villagers with nothing to do" hidden></button>
+  <div id="quest" class="res" title="Current goal"><span class="qlabel">Goal</span><span id="q-text"></span><span id="q-rew" class="cost"></span></div>
 </div>
 
 <div id="mmwrap">
@@ -194,6 +202,7 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
     <button class="act" id="herobtn" title="Select your hero and center the camera on him (E)">Hero <kbd>E</kbd></button>
     <button class="act" id="armybtn" title="Select all your troops (Q)">Army <kbd>Q</kbd></button>
     <button class="act" id="townbtn" title="Open the Town Hall: hire villagers and set their jobs (H)">Town <kbd>H</kbd></button>
+    <button class="act" id="whirlbtn" title="Hero spin attack: hits every enemy close by (Z)">Whirlwind <kbd>Z</kbd></button>
     <button class="act" id="techbtn" title="Open the development tree (R)">Tech tree <kbd>R</kbd></button>
   </div>
   <div id="bar"></div>
@@ -216,6 +225,7 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
       <dt>Command</dt><dd>With units selected, tap the map to move them or an enemy to attack. Drag (or hold, then drag on a phone) to box-select. Q selects the army, E the hero.</dd>
       <dt>Camera</dt><dd>Drag with one finger or the right mouse button to look around. E or the Hero button brings it back.</dd>
       <dt>Villagers</dt><dd>Hire them at the Town Hall (H) and set their jobs. They gather and farm for you.</dd>
+      <dt>Goals</dt><dd>Follow the goal under the resource bar for rewards. Z makes your hero spin-attack everything nearby.</dd>
       <dt>Grow</dt><dd>Research in the tech tree (R), upgrade buildings to level 3, level up your hero. F changes game speed.</dd>
       <dt>Build</dt><dd>Keys 1–8 or the bar below, then click a green square inside your blue border</dd>
       <dt>Train</dt><dd>T soldier, Y archer, U knight. Needs a Barracks. Troops follow you.</dd>
@@ -413,7 +423,7 @@ function genWorld(seed){
     units:[], blds:[], feats, proj:[], parts:[], texts:[],
     res:{wood:120,stone:40,gold:20,food:80},
     time:0, nextRaid:DAY*1.15, conquered:0, totalCamps:camps.length, upg:0,
-    heroBuff:{hp:0,atk:0}, nid:1, over:false, won:false, marker:null, tech:{}, research:null, speed:1,
+    heroBuff:{hp:0,atk:0}, nid:1, over:false, won:false, marker:null, tech:{}, research:null, speed:1, quest:0, growT:DAY*2,
   };
   resetGrids();
   addBuilding('hall', sx, sy, 0);
@@ -452,7 +462,7 @@ function mkUnit(kind,team,x,y,lvl=1){
   const spd=d.spd*(team===0&&has('carto')?1.15:1), vis=(d.vis||0)+(kind==='hero'&&has('carto')?4:0);
   return { id:G.nid++, kind, team, x, y, hp, maxhp:hp, atk, range:d.range, rate:d.rate, spd, vis, ranged:!!d.ranged, pop:d.pop||0,
     cd:0, rt:Math.random()*.3, face:Math.PI/2, flash:0, path:null, pi:0, pt:0, tgt:null, home:-1, mode:'', lvl, lastHit:-99, dead:false, wx:x, wy:y, wt:0, gather:null, gt:0, respawn:0, moving:false,
-    job:'', carry:0, ctype:'', tile:-1, work:-1, pgoal:-1, fr:0, working:false, hl:1, xp:0, order:'', ox:0, oy:0, otgt:null, post:null };
+    abT:0, spin:0, job:'', carry:0, ctype:'', tile:-1, work:-1, pgoal:-1, fr:0, working:false, hl:1, xp:0, order:'', ox:0, oy:0, otgt:null, post:null };
 }
 function spawnGuard(b,k){
   const kind = k%3===2 ? 'slinger' : 'brute';
@@ -646,6 +656,65 @@ function deplete(i){
   if(G.amt[i]<=0){ G.terr[i]= G.terr[i]===T.FOREST ? T.GRASS : T.DIRT; G.amt[i]=0; invalidate(i); mmPixel(i); if(sel&&sel.res===i) sel=null; return true; }
   invalidate(i); return false;
 }
+// ---------- goals ----------
+const troopCount=()=>G.units.filter(u=>u.team===0&&!u.dead&&u.kind!=='hero'&&u.kind!=='villager').length;
+const villCount=()=>G.units.filter(u=>u.kind==='villager'&&!u.dead).length;
+const QUESTS=[
+  {text:'Build a Farm (key 2)', done:()=>myB('farm').length>0, rew:{wood:40}},
+  {text:'Have 4 villagers (hire at the Town Hall)', prog:()=>[villCount(),4], rew:{food:60}},
+  {text:'Build a House', done:()=>myB('house').length>0, rew:{wood:40,stone:20}},
+  {text:'Research Better Tools in the tech tree', done:()=>has('tools'), rew:{gold:40}},
+  {text:'Build a Lumber Camp or a Quarry', done:()=>myB('lumber').length+myB('quarry').length>0, rew:{stone:40}},
+  {text:'Build a Barracks', done:()=>myB('barracks').length>0, rew:{food:60,gold:30}},
+  {text:'Train 3 troops at the Barracks', prog:()=>[troopCount(),3], rew:{gold:50}},
+  {text:'Conquer an enemy camp', prog:()=>[G.conquered,1], rew:{wood:100,stone:100}},
+  {text:'Upgrade your Town Hall to level 2', done:()=>(hallB()||{}).lvl>=2, rew:{gold:100}},
+  {text:'Build a Tower', done:()=>myB('tower').length>0, rew:{stone:80}},
+  {text:'Get your hero to level 5', prog:()=>[G.hero.hl,5], rew:{gold:120}},
+  {text:'Conquer 5 camps', prog:()=>[G.conquered,5], rew:{wood:200,stone:200,gold:200}},
+  {text:'Conquer every camp, fortress included', prog:()=>[G.conquered,G.totalCamps], rew:{gold:500}},
+];
+function checkQuest(){
+  const q=QUESTS[G.quest]; if(!q) return;
+  const ok=q.done?q.done():(()=>{ const [a,b]=q.prog(); return a>=b; })();
+  if(!ok) return;
+  for(const k in q.rew) G.res[k]+=q.rew[k];
+  toast(`Goal complete: ${q.text.replace(/ \(.*\)$/,'')}. Reward: ${costText(q.rew)}.`,'good');
+  G.quest++; burst(G.hero.x,G.hero.y-.4,'#f3c64b',14);
+}
+function questHUD(){
+  const q=QUESTS[G.quest], el=$('quest');
+  if(!q){ $('q-text').textContent='All goals done. The realm is yours.'; $('q-rew').innerHTML=''; return; }
+  let t=q.text; if(q.prog){ const [a,b]=q.prog(); t+=` · ${Math.min(a,b)}/${b}`; }
+  $('q-text').textContent=`${G.quest+1}/${QUESTS.length} ${t}`; $('q-rew').innerHTML=costHTML(q.rew);
+}
+
+// ---------- hero ability ----------
+const WHIRL_CD=20;
+function whirlwind(){
+  const h=G.hero; if(h.dead) return;
+  if(h.abT>0){ toast(`Whirlwind is ready in ${Math.ceil(h.abT)}s.`); return; }
+  h.abT=WHIRL_CD; h.cd=0; h.spin=.5; let n=0;
+  for(const o of G.units){ if(o.team!==1||o.dead) continue; if(Math.hypot(o.x-h.x,o.y-h.y)<2.4){ hurt(o,h.atk*2.5,h); n++; } }
+  for(const b of G.blds){ if(b.team!==1||b.dead) continue; if(Math.hypot(b.cx-h.x,b.cy-h.y)<2.2){ hurt(b,h.atk*2.5,h); n++; } }
+  for(let k=0;k<24;k++){ const a=k/24*6.283; G.parts.push({x:h.x+Math.cos(a)*.6,y:h.y-.2+Math.sin(a)*.6,vx:Math.cos(a)*5,vy:Math.sin(a)*5,life:.4,max:.4,c:'#f3e6b0',s:.1}); }
+  if(!n) floatText(h.x,h.y-.8,'Whirlwind','#f3e6b0');
+}
+
+// ---------- market ----------
+const TRADES={
+  'sell-wood':{give:{wood:50},get:{gold:15},label:'Sell 50 wood'},
+  'sell-stone':{give:{stone:50},get:{gold:20},label:'Sell 50 stone'},
+  'sell-food':{give:{food:50},get:{gold:15},label:'Sell 50 food'},
+  'buy-wood':{give:{gold:30},get:{wood:50},label:'Buy 50 wood'},
+  'buy-stone':{give:{gold:35},get:{stone:50},label:'Buy 50 stone'},
+  'buy-food':{give:{gold:30},get:{food:50},label:'Buy 50 food'},
+};
+function trade(id){ const tr=TRADES[id]; if(!afford(tr.give)){ toast(`You need ${costText(tr.give)} for that trade.`,'bad'); return; } pay(tr.give); for(const k in tr.get) G.res[k]+=tr.get[k]; }
+
+// ---------- idle villagers ----------
+const isIdle=u=>u.kind==='villager'&&!u.dead&&((!u.job&&u.order!=='move')||(u.job&&u.job!=='food'&&u.fr>0&&u.tile<0&&!u.carry)||(u.job==='food'&&u.work<0));
+
 // ---------- auto-explore ----------
 let autoOn=false;
 const bPrev=new Int32Array(N), bSeen=new Int32Array(N), bQ=new Int32Array(N); let bStamp=0;
@@ -780,7 +849,9 @@ function train(kind,b,job){
 function spawnFrom(b,q){
   const u=mkUnit(q.kind,0,b.cx+(Math.random()-.5)*.6,b.cy+.8); G.units.push(u); burst(u.x,u.y,TEAM[0].l,8);
   if(u.kind==='villager') u.job=q.job||autoJob();
+  else if(b.rally){ u.order='move'; u.ox=b.rally.x+(Math.random()-.5)*.8; u.oy=b.rally.y+(Math.random()-.5)*.8; }
 }
+let rallyPick=null;
 
 // villager jobs
 function jobCount(j){ let n=0; for(const u of G.units) if(u.kind==='villager'&&!u.dead&&u.job===j) n++; return n; }
@@ -921,7 +992,7 @@ function finishResearch(id){
 
 // ---------- update ----------
 const keys=new Set();
-let accProd=0, accExpl=0, accHud=0, accSave=0, accMM=0;
+let accProd=0, accExpl=0, accHud=0, accSave=0, accMM=0, accQ=0;
 function update(dt){
   G.time+=dt;
   const h=G.hero;
@@ -988,6 +1059,14 @@ function update(dt){
   // research
   if(G.research){ G.research.t-=dt; if(G.research.t<=0) finishResearch(G.research.id); }
 
+  // hero ability cooldown
+  if(h.abT>0) h.abT-=dt; if(h.spin>0) h.spin-=dt;
+  // enemy camps grow stronger every two days
+  if(G.time>G.growT){
+    G.growT=G.time+DAY*2; let n=0;
+    for(const b of G.blds) if(b.type==='camp'&&b.team===1&&!b.dead&&b.lvl<5){ b.lvl++; const f=b.hp/b.maxhp; b.maxhp=160+130*b.lvl; b.hp=b.maxhp*f; n++; }
+    if(n) toast(`${n} enemy camp${n>1?'s':''} grew stronger. Strike before they grow again.`,'bad');
+  }
   // raids
   if(G.time>G.nextRaid){
     G.nextRaid=G.time+170+Math.random()*90;
@@ -1041,6 +1120,7 @@ function update(dt){
   accProd+=dt; if(accProd>=1){ accProd-=1; produce(); }
   accExpl+=dt; if(accExpl>=.2){ accExpl=0; for(const u of G.units) if(u.team===0&&!u.dead) reveal(u.x,u.y,u.vis); }
   accSave+=dt; if(accSave>=15){ accSave=0; save(); }
+  accQ+=dt; if(accQ>=.5){ accQ=0; checkQuest(); }
 }
 
 function walkTo(u,x,y,dt){
@@ -1329,6 +1409,7 @@ const STYLE={
 const CARRY_COL={wood:'#8b5a2b',stone:'#c9c1b2',gold:'#f5c542'};
 function quad(g,a,b,c,d,e,f,h,k,col){ g.fillStyle=col; g.beginPath(); g.moveTo(a,b); g.lineTo(c,d); g.lineTo(e,f); g.lineTo(h,k); g.closePath(); g.fill(); }
 function drawPerson(g,u,x,y,t,fl){
+  if(u.spin>0) u={...u,face:u.face+(.5-u.spin)*25};
   const st=STYLE[u.kind], tc=TEAM[u.team], F=c=>fl?'#fff':c;
   const step=u.moving?Math.sin(t*13+u.id):0;
   let swing=u.cd>u.rate-.18?1-(u.rate-u.cd)/.18:0;
@@ -1492,6 +1573,9 @@ function render(t){
     } else if(o.kind) drawUnit(ctx,o,t);
     else drawFeature(ctx,o,t);
   }
+  // rally flags of selected barracks
+  if(sel&&sel.isB&&sel.rally){ const f=sel.rally; ctx.strokeStyle='rgba(255,255,255,.4)'; ctx.lineWidth=.04; ctx.setLineDash([.15,.12]); ctx.beginPath(); ctx.moveTo(sel.cx,sel.cy); ctx.lineTo(f.x,f.y); ctx.stroke(); ctx.setLineDash([]);
+    rect(ctx,f.x-.02,f.y-.5,.04,.5,'#3a2a1c'); tri(ctx,f.x+.02,f.y-.5,f.x+.3,f.y-.42,f.x+.02,f.y-.34,'#f3c64b'); }
   // selection outline
   if(sel&&selAlive()){
     ctx.strokeStyle=`rgba(255,255,255,${.7+.3*Math.sin(t*5)})`; ctx.lineWidth=.06;
@@ -1534,6 +1618,12 @@ function render(t){
   ctx.font=`600 ${Math.round(13*DPR)}px "Chakra Petch", system-ui, sans-serif`; ctx.textAlign='center';
   for(const f of G.texts){ ctx.globalAlpha=clamp(f.life,0,1); ctx.fillStyle='rgba(0,0,0,.6)'; ctx.fillText(f.txt,OX+f.x*S+1,OY+f.y*S+1); ctx.fillStyle=f.c; ctx.fillText(f.txt,OX+f.x*S,OY+f.y*S); }
   ctx.globalAlpha=1;
+  // arrows at the screen edge pointing to raiders you can't see
+  { const groups=[]; for(const u of G.units){ if(u.dead||u.team!==1||u.mode!=='raid') continue; const gp=groups.find(q=>Math.hypot(q.x-u.x,q.y-u.y)<16); if(gp){ gp.n++; } else groups.push({x:u.x,y:u.y,n:1}); }
+    for(const gp of groups){ const sx=OX+gp.x*S, sy=OY+gp.y*S, m=40*DPR; if(sx>m&&sx<cw-m&&sy>m&&sy<chh-m) continue;
+      const cx=cw/2, cy=chh/2, a=Math.atan2(sy-cy,sx-cx), ex=clamp(sx,m,cw-m), ey=clamp(sy,m+50*DPR,chh-m-130*DPR), z=14*DPR, pulse=.7+.3*Math.sin(t*6);
+      ctx.globalAlpha=pulse; tri(ctx,ex+Math.cos(a)*z,ey+Math.sin(a)*z,ex+Math.cos(a+2.5)*z,ey+Math.sin(a+2.5)*z,ex+Math.cos(a-2.5)*z,ey+Math.sin(a-2.5)*z,'#ff5a4d');
+      ctx.globalAlpha=1; ctx.font=`700 ${Math.round(11*DPR)}px "Chakra Petch", system-ui, sans-serif`; ctx.fillStyle='#ffd0cb'; ctx.fillText(`${gp.n} raiders`,ex-Math.cos(a)*z*1.6,ey-Math.sin(a)*z*1.6+4*DPR); } }
   if(box){ const rc=cv.getBoundingClientRect(), k=cw/rc.width, x0=(Math.min(box.x0,box.x1)-rc.left)*k, y0=(Math.min(box.y0,box.y1)-rc.top)*k;
     ctx.fillStyle='rgba(224,169,59,.12)'; ctx.strokeStyle='rgba(224,169,59,.9)'; ctx.lineWidth=1.5*DPR;
     ctx.fillRect(x0,y0,Math.abs(box.x1-box.x0)*k,Math.abs(box.y1-box.y0)*k); ctx.strokeRect(x0,y0,Math.abs(box.x1-box.x0)*k,Math.abs(box.y1-box.y0)*k); }
@@ -1548,7 +1638,7 @@ function mmPixel(i){ if(!mmImg) return; const d=mmImg.data, o=i*4; if(!G.expl[i]
 function drawMinimap(){
   mctx.putImageData(mmImg,0,0);
   for(const b of G.blds){ if(!G.expl[b.y*W+b.x]) continue; mctx.fillStyle=b.team?'#ff5a4d':'#6aa4ff'; mctx.fillRect(b.x-1,b.y-1,b.type==='camp'||b.type==='outpost'||b.type==='hall'?4:2,b.type==='camp'||b.type==='outpost'||b.type==='hall'?4:2); }
-  for(const u of G.units){ if(u.dead||u.kind==='hero'||!G.expl[(u.y|0)*W+(u.x|0)]) continue; mctx.fillStyle=u.team?'#ff8f86':'#bcd5ff'; mctx.fillRect(u.x|0,u.y|0,1,1); }
+  for(const u of G.units){ if(u.dead||u.kind==='hero') continue; const raid=u.team===1&&u.mode==='raid'; if(!raid&&!G.expl[(u.y|0)*W+(u.x|0)]) continue; mctx.fillStyle=raid?'#ff3b30':u.team?'#ff8f86':'#bcd5ff'; if(raid) mctx.fillRect((u.x|0)-1,(u.y|0)-1,3,3); else mctx.fillRect(u.x|0,u.y|0,1,1); }
   if(!G.hero.dead){ mctx.fillStyle='#fff'; mctx.fillRect((G.hero.x|0)-1,(G.hero.y|0)-1,3,3); }
   const vw=cw/S, vh=chh/S; mctx.strokeStyle='rgba(255,255,255,.6)'; mctx.lineWidth=1; mctx.strokeRect(Math.round(cam.x-vw/2)+.5,Math.round(cam.y-vh/2)+.5,Math.round(vw),Math.round(vh));
 }
@@ -1583,7 +1673,10 @@ function updateHud(){
   $('r-techw').hidden=!G.research;
   if(G.research) $('r-tech').textContent=`${TECH[G.research.id].name} ${Math.ceil(G.research.t)}s`;
   $('speedbtn').textContent=(G.speed||1)+'×';
-  refreshSel(); renderTech();
+  const idle=G.units.filter(isIdle).length, ib=$('r-idle');
+  ib.hidden=!idle; if(idle) ib.textContent=`${idle} idle villager${idle>1?'s':''}`;
+  const wb=$('whirlbtn'), cd=G.hero.abT>0; wb.classList.toggle('cool',cd); wb.firstChild.textContent=cd?`Whirlwind ${Math.ceil(G.hero.abT)}s `:'Whirlwind ';
+  questHUD(); refreshSel(); renderTech();
 }
 
 // ---------- selection panel ----------
@@ -1635,7 +1728,7 @@ const armed = k => armKey===k&&performance.now()-armT<3000;
 function rateText(r){ const ks=Object.keys(r).filter(k=>r[k]>0); return ks.length?ks.map(k=>`${r[k].toFixed(1)} ${k}/s`).join(', '):'nothing right now'; }
 function queueHTML(b){ if(!b.queue.length) return ''; const q=b.queue[0]; return `<p class="q"><span>Training ${UD[q.kind].name}</span>${meter(q.tt-q.t,q.tt)}<span>${Math.ceil(q.t)}s${b.queue.length>1?` +${b.queue.length-1}`:''}</span></p>`; }
 function selHTML(o){
-  let head='', body='', acts='';
+  let head='', body='', acts='', extra='';
   const hp=o.maxhp?`${meter(o.hp,o.maxhp,o.team?'bad':'good')}<p class="sub">Health ${Math.ceil(o.hp)} / ${Math.round(o.maxhp)}</p>`:'';
   if(o.group){
     const c={}; for(const u of o.group) c[u.kind]=(c[u.kind]||0)+1;
@@ -1664,11 +1757,13 @@ function selHTML(o){
           JOBS.map(j=>`<div class="job"><span>${JOB_NAME[j]}</span><b>${jobCount(j)}</b>${btn('job-','−',{arg:j,title:'Take one villager off this job'})}${btn('job+','+',{arg:j,title:'Put a villager on this job'})}</div>`).join('')+'</div>';
         body+=queueHTML(o);
         if(G.research){ const t=TECH[G.research.id]; body+=`<p class="q"><span>Researching ${t.name}</span>${meter(G.research.tt-G.research.t,G.research.tt)}<span>${Math.ceil(G.research.t)}s</span></p>`; }
+        extra=`<p class="sub">Market</p><div class="acts">`+Object.keys(TRADES).map(id=>{ const tr=TRADES[id]; return btn('trade',`${tr.label}`,{arg:id,cost:id.startsWith('sell')?tr.get:tr.give,off:!afford(tr.give)}); }).join('')+`</div>`;
         acts=btn('train','Hire villager',{arg:'villager',cost:UD.villager.cost,off:!afford(UD.villager.cost)||popUsed()>=popCap()})+btn('tech','Development tree');
         break; }
       case 'barracks':
-        body+=queueHTML(o)+`<p class="sub">Troops follow your hero. Arms level ${G.upg}.</p>`;
-        acts=TRAIN.map(k=>{ const lk=(k==='archer'&&!has('archery'))||(k==='knight'&&!has('chivalry'));
+        body+=queueHTML(o)+`<p class="sub">${o.rally?'New troops march to the rally flag and hold there.':'New troops follow your hero.'} Arms level ${G.upg}.</p>`;
+        if(rallyPick===o) body+=`<p><b>Tap the map where new troops should gather.</b></p>`;
+        acts=btn('rally',o.rally?'Move rally point':'Set rally point',{on:rallyPick===o})+(o.rally?btn('unrally','Clear rally point'):'')+TRAIN.map(k=>{ const lk=(k==='archer'&&!has('archery'))||(k==='knight'&&!has('chivalry'));
           return btn('train',lk?`${UD[k].name}: needs ${k==='archer'?'Archery':'Chivalry'}`:UD[k].name,{arg:k,cost:lk?null:UD[k].cost,off:lk||!afford(UD[k].cost)}); }).join('');
         break;
       case 'house': body+=`<p>Adds ${4*o.lvl} population.</p>`; break;
@@ -1687,7 +1782,7 @@ function selHTML(o){
   } else if(o.kind==='hero'){
     head=`Hero <span class="chip">Level ${o.hl}</span>`;
     body=hp+meter(o.xp,xpNeed(o.hl),'xp')+`<p class="sub">Experience ${o.xp}/${xpNeed(o.hl)} · Damage ${Math.round(o.atk)}</p><p>Levels up by defeating enemies and taking camps.</p>`;
-    acts=btn('auto',autoOn?'Stop exploring':'Auto-explore',{on:autoOn})+btn('home','Go home');
+    acts=btn('whirl',o.abT>0?`Whirlwind (${Math.ceil(o.abT)}s)`:'Whirlwind',{off:o.abT>0})+btn('auto',autoOn?'Stop exploring':'Auto-explore',{on:autoOn})+btn('home','Go home');
   } else if(o.kind==='villager'){
     head='Villager';
     const what=!o.job?'Idle at the Town Hall':o.job==='food'?(o.working?'Working a farm':'Heading to a farm'):o.working?`Gathering ${o.job}`:o.carry>=carryCap()?`Carrying ${o.ctype} home`:`Heading out for ${o.job}`;
@@ -1704,7 +1799,7 @@ function selHTML(o){
     body=hp+`<p class="sub">Damage ${Math.round(o.atk)}${o.mode==='raid'?' · Raiding your town':''}</p>`;
     acts=btn('attack','Attack with hero');
   }
-  return `<header><h3>${head}</h3><button class="x" data-act="close" aria-label="Close">×</button></header>${body}<div class="acts">${acts}</div>`;
+  return `<header><h3>${head}</h3><button class="x" data-act="close" aria-label="Close">×</button></header>${body}<div class="acts">${acts}</div>${extra}`;
 }
 function doAct(a,arg){
   const o=sel, h=G.hero; if(!o) return;
@@ -1727,6 +1822,10 @@ function doAct(a,arg){
       if(!best){ toast('You have no villagers yet. Hire them at the Town Hall.'); break; }
       assign(best,j); best.tile=o.res; toast(`A villager is on the way to gather ${j}.`); break; }
     case 'auto': setAuto(!autoOn); break;
+    case 'rally': rallyPick=rallyPick===o?null:o; break;
+    case 'unrally': o.rally=null; rallyPick=null; toast('New troops will follow your hero.'); break;
+    case 'trade': trade(arg); break;
+    case 'whirl': whirlwind(); break;
     case 'home': { const hall=hallB(); if(hall&&!h.dead){ if(autoOn) setAuto(false); h.tgt=null; h.gather=null; setPath(h,hall.x,hall.y,true,25000); } break; }
   }
   panelHold=false; selSig=''; refreshSel(); updateHud();
@@ -1761,6 +1860,8 @@ $('tclose').addEventListener('click',closeTech);
 $('techs').addEventListener('click',e=>{ if(e.target.id==='techs') closeTech(); });
 $('herobtn').addEventListener('click',()=>{ if(!G.hero.dead) select(G.hero); cam.follow=true; });
 $('armybtn').addEventListener('click',selectTroops);
+$('whirlbtn').addEventListener('click',whirlwind);
+$('r-idle').addEventListener('click',()=>{ const v=G.units.filter(isIdle); if(v.length) select(v.length===1?v[0]:{group:v}); if(v[0]){ cam.x=v[0].x; cam.y=v[0].y; cam.follow=false; } });
 $('townbtn').addEventListener('click',()=>{ const b=hallB(); if(b) select(b); });
 $('techbtn').addEventListener('click',()=>techOpen?closeTech():openTech());
 function setSpeed(v){ G.speed=v; $('speedbtn').textContent=v+'×'; }
@@ -1773,10 +1874,10 @@ function save(){
   if(!G||G.over) return;
   try{
     const d={ v:2, seed:G.seed, terr:enc(G.terr), amt:enc(G.amt), shade:enc(G.shade), expl:enc(G.expl),
-      blds:G.blds.filter(b=>!b.dead).map(b=>[b.id,b.type,b.x,b.y,b.team,Math.round(b.hp),b.maxhp,b.lvl,b.queue||[]]),
+      blds:G.blds.filter(b=>!b.dead).map(b=>[b.id,b.type,b.x,b.y,b.team,Math.round(b.hp),b.maxhp,b.lvl,b.queue||[],b.rally||null]),
       units:G.units.filter(u=>!u.dead||u.kind==='hero').map(u=>[u.kind,u.team,+u.x.toFixed(2),+u.y.toFixed(2),Math.max(1,Math.round(u.hp)),u.maxhp,u.atk,u.home,u.mode,u.lvl,u.job,u.xp,u.hl,u.carry,u.ctype]),
       feats:G.feats, res:G.res, time:G.time, nextRaid:G.nextRaid, conquered:G.conquered, totalCamps:G.totalCamps, upg:G.upg, heroBuff:G.heroBuff, nid:G.nid, won:G.won,
-      tech:G.tech, research:G.research, speed:G.speed };
+      tech:G.tech, research:G.research, speed:G.speed, quest:G.quest, growT:G.growT };
     localStorage.setItem(SAVE_KEY,JSON.stringify(d));
   }catch(e){}
 }
@@ -1786,9 +1887,9 @@ function load(){
   try{
     G={ seed:d.seed, terr:dec(d.terr), amt:dec(d.amt), shade:dec(d.shade), expl:dec(d.expl), units:[], blds:[], feats:d.feats, proj:[], parts:[], texts:[],
       res:d.res, time:d.time, nextRaid:d.nextRaid, conquered:d.conquered, totalCamps:d.totalCamps, upg:d.upg, heroBuff:d.heroBuff, nid:d.nid, over:false, won:!!d.won, marker:null,
-      tech:d.tech||{}, research:d.research||null, speed:d.speed||1 };
+      tech:d.tech||{}, research:d.research||null, speed:d.speed||1, quest:d.quest||0, growT:d.growT||d.time+DAY*2 };
     resetGrids();
-    for(const [id,type,x,y,team,hp,maxhp,lvl,queue] of d.blds){ const b={id,isB:true,type,x,y,cx:x+.5,cy:y+.5,team,hp,maxhp,lvl,cd:0,spawnT:20,flash:0,lastHit:-99,dead:false,queue:queue||[]}; G.blds.push(b); bgrid[y*W+x]=b; }
+    for(const [id,type,x,y,team,hp,maxhp,lvl,queue,rally] of d.blds){ const b={id,isB:true,type,x,y,cx:x+.5,cy:y+.5,team,hp,maxhp,lvl,cd:0,spawnT:20,flash:0,lastHit:-99,dead:false,queue:queue||[],rally:rally||null}; G.blds.push(b); bgrid[y*W+x]=b; }
     for(const [kind,team,x,y,hp,maxhp,atk,home,mode,lvl,job,xp,hl,carry,ctype] of d.units){ const u=mkUnit(kind,team,x,y,lvl); u.hp=hp; u.maxhp=maxhp; u.atk=atk; u.home=home; u.mode=mode;
       u.job=job||''; u.xp=xp||0; u.hl=hl||1; u.carry=carry||0; u.ctype=ctype||''; G.units.push(u); if(kind==='hero') G.hero=u; }
     if(!G.hero) return false;
@@ -1828,6 +1929,7 @@ addEventListener('keydown',e=>{
   keys.add(k);
   if(k===' ') tryGather();
   if(k==='x') setAuto(!autoOn);
+  if(k==='z') whirlwind();
   const bi='12345678'.indexOf(k); if(bi>=0) selectBuild(BUILD_ORDER[bi]);
   if(k==='t') train('soldier'); if(k==='y') train('archer'); if(k==='u') train('knight'); if(k==='v') train('villager');
   if(k==='r') techOpen?closeTech():openTech();
@@ -1889,6 +1991,7 @@ function onTap(wx,wy,add){
   const h=G.hero, tx=Math.floor(wx), ty=Math.floor(wy);
   if(tx<0||ty<0||tx>=W||ty>=H) return;
   if(buildSel){ tryPlace(buildSel,tx,ty); return; }
+  if(rallyPick){ if(!rallyPick.dead){ rallyPick.rally={x:wx,y:wy}; toast('Rally point set. New troops will gather there.'); } rallyPick=null; G.marker={x:tx,y:ty,t:.5}; selSig=''; refreshSel(); return; }
   const i=ty*W+tx;
   let hit=null, bd=.6;
   for(const u of G.units){ if(u.dead) continue; if(u.team===1&&!G.expl[(u.y|0)*W+(u.x|0)]) continue; const d=Math.hypot(u.x-wx,u.y-.2-wy); if(d<bd){ bd=d; hit=u; } }

@@ -15,6 +15,7 @@
 | Look around | Right-drag | Drag with one finger |
 | Select | Click anything | Tap anything: buildings, units, camps, trees, rocks |
 | Auto-explore | X | Auto-explore button |
+| Hero Whirlwind | Z (20 s cooldown) | Whirlwind button |
 | Gather | Space next to trees, rocks or gold | Tap a tree, rock or gold vein |
 | Build | Keys 1–8, then click a green square | Tap a building, then tap a green square |
 | Town Hall | H: hire villagers, set jobs | Town button |
@@ -25,6 +26,10 @@
 | Zoom | Mouse wheel or +/− | Pinch or +/− |
 | Jump camera | Click the minimap | Tap the minimap |
 
+- **Goals:** a chain of 13 goals under the resource bar guides the early game and pays out resources for each one.
+- **Market:** the Town Hall trades wood, stone and food for gold and back.
+- **Rally points:** set one on a Barracks and new troops march there and hold.
+- **Idle villagers:** a chip at the top counts villagers with nothing to do; tap it to select them.
 - **Explore:** the map starts in fog. Auto-explore sends your hero to the nearest unexplored edge and any chests or shrines it can see. It stays away from enemy camps and walks home to heal when badly hurt. Moving or tapping the map takes back control. Chests hold loot, maps or a free soldier. Purple shrines make your hero permanently stronger.
 - **Villagers:** hire them at the Town Hall and split them between wood, stone, gold and farming. They carry what they gather to the Town Hall or the nearest Lumber Camp, Quarry or Gold Mine, and run home when attacked.
 - **Command units separately:** whatever you select takes your orders. Troops sent somewhere hold that spot and fight anything within about 5 tiles. Tap an enemy to attack it, or use Follow hero to regroup. Villagers can be sent to any spot, tree, rock, gold vein or farm.
@@ -33,7 +38,7 @@
 - **Upgrades:** buildings go up to level 3 for more output, health and range. Your hero gains experience from fights and levels up.
 - **Build:** Farms make food. Lumber Camps and Quarries collect from nearby forest and hills. Gold Mines must touch a gold vein. Houses raise troop capacity. Towers shoot raiders and widen your land. Walls slow raiders down.
 - **Conquer:** red camps get tougher the farther they are from home, and the farthest one is a fortress with a warlord. Destroy a camp to claim its land and loot. Take every camp to win.
-- **Defend:** after the first nights, camps send raids at your Town Hall. If it falls, the game is over.
+- **Defend:** after the first nights, camps send raids at your Town Hall. Red arrows at the screen edge and red dots on the minimap show where they are. Every two days the remaining camps grow a level stronger. If your Town Hall falls, the game is over.
 
 Progress saves automatically in your browser.
 
