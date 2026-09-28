@@ -2,6 +2,14 @@
 <meta charset="utf-8">
 <title>Shardlands</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#10151c">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Shardlands">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&display=swap">
@@ -76,6 +84,11 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 .act.on{background:var(--brass);border-color:var(--brass);color:#1a1408}
 .act.on kbd{color:#1a1408;border-color:#1a1408}
 .act kbd,.bb kbd{font:600 10px/1 "Chakra Petch",monospace;color:var(--muted);border:1px solid var(--edge);border-radius:3px;padding:2px 4px}
+.act .ai{width:20px;height:20px;flex:none;margin-left:-2px}
+.act .ls,#buildbtn{display:none}
+#quest{pointer-events:auto;cursor:pointer}
+.touch .kb,html:not(.touch) .tc{display:none}
+#installtip{margin:12px 0 0;font-size:12px;color:var(--muted)}
 #queue{font-size:12px;color:var(--muted);align-self:center;font-variant-numeric:tabular-nums}
 #bar{display:flex;gap:4px;padding:5px;max-width:100%;overflow-x:auto;scrollbar-width:thin;background:var(--panel);border:1px solid var(--edge);border-radius:6px}
 .bb{flex:none;width:70px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 2px 5px;border-radius:4px;background:transparent;border:1px solid transparent;position:relative}
@@ -156,26 +169,54 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 .tn.active{border-color:var(--blue)}.tn.active b{color:var(--blue)}
 .tn.locked,.tn.poor{opacity:.55}
 
-@media (max-width:700px){
-  #sel{right:16px;width:auto;bottom:calc(128px + env(safe-area-inset-bottom,0px));max-height:42vh}
-  #top{right:124px;gap:4px}
-  .res{padding:3px 7px 3px 6px;font-size:12px}
+/* Phones, upright or sideways: one row of big icon buttons at the bottom, the build tray on demand,
+   a slim top bar, the minimap tucked in the corner and the selection panel as a bottom sheet. */
+@media (max-width:700px), (max-height:500px){
+  #top{right:calc(104px + env(safe-area-inset-right,0px));padding:calc(8px + env(safe-area-inset-top,0px)) 6px 0 calc(8px + env(safe-area-inset-left,0px));gap:4px}
+  .res{padding:3px 6px 3px 5px;font-size:12px;gap:4px;border-radius:5px}
   .res small{display:none}
-  #mmwrap{width:108px}
-  #mm{width:108px;height:108px}
-  .sq{height:30px;font-size:13px}
-  #mmwrap .row{gap:4px}
-  .bb{width:58px}
-  .bb canvas{width:32px;height:32px}
-  .bb kbd,.act kbd{display:none}
-  .act{padding:5px 8px;font-size:12px;flex:none}
-  #army{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;width:100%;scrollbar-width:none}
-  #toasts{top:auto;bottom:calc(210px + env(safe-area-inset-bottom,0px))}
+  #quest{flex-wrap:nowrap;min-width:0;max-width:100%;gap:6px}
+  #quest .qlabel{font-size:10px}
+  #q-text{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #q-rew{flex:none}
+  #mmwrap{right:calc(8px + env(safe-area-inset-right,0px));top:calc(8px + env(safe-area-inset-top,0px));width:88px;gap:4px}
+  #mm{width:88px;height:88px}
+  #mmwrap .row{grid-template-columns:repeat(2,1fr);gap:4px}
+  .sq{height:36px;font-size:15px;border-radius:6px}
+  #bottom{padding:0 calc(6px + env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) calc(6px + env(safe-area-inset-left,0px));gap:6px}
+  #hint{font-size:12px;order:0}
+  #bar{order:1;display:none;flex-wrap:wrap;justify-content:center;overflow:visible;max-width:560px;padding:4px}
+  .tray #bar{display:flex}
+  #army{order:2;display:grid;grid-template-columns:repeat(8,1fr);gap:4px;width:100%;max-width:560px}
+  #army .act{flex-direction:column;justify-content:center;gap:2px;padding:5px 0 4px;min-height:54px;font-size:10px;letter-spacing:-.01em;font-weight:600;border-radius:8px;min-width:0}
+  #army .act .ai{width:24px;height:24px;margin:0}
+  #army .lb,.bb kbd,.act kbd{display:none}
+  #army .ls{display:block;white-space:nowrap;overflow:hidden;max-width:100%}
+  #army #buildbtn{display:flex}
+  .bb{width:calc(25% - 4px);min-width:64px;max-width:86px;padding:5px 2px}
+  .bb canvas{width:34px;height:34px}
+  #sel{left:calc(6px + env(safe-area-inset-left,0px));right:calc(6px + env(safe-area-inset-right,0px));width:auto;max-width:none;bottom:calc(68px + env(safe-area-inset-bottom,0px));max-height:44vh;border-radius:10px;padding:10px 12px}
+  #sel .act{min-height:40px}
+  .x{width:40px;height:40px}
+  #toasts{top:calc(var(--hudb,96px) + 6px);left:calc(8px + env(safe-area-inset-left,0px));right:calc(104px + env(safe-area-inset-right,0px));width:auto;transform:none;align-items:stretch}
+  .toast{font-size:12px;padding:6px 10px}
   #card{padding:20px 18px}
   #card h1{font-size:30px}
   #stats div{padding:5px 6px}
   #stats b{font-size:15px}
   #stats span{font-size:10px;letter-spacing:.02em}
+}
+/* Sideways phones are short: smaller map corner, and the selection panel sits to the left. */
+@media (max-height:500px){
+  #mmwrap{width:76px}
+  #mm{width:76px;height:76px}
+  .sq{height:30px}
+  #top,#toasts{right:calc(92px + env(safe-area-inset-right,0px))}
+  #sel{right:auto;width:min(380px,calc(100% - 120px));max-height:calc(100vh - 150px)}
+  #army .act{min-height:46px}
+  #army .act .ai{width:20px;height:20px}
+  .bb{width:auto;min-width:60px}
+  .bb canvas{width:28px;height:28px}
 }
 @media (prefers-reduced-motion:reduce){.toast{animation:none}}
 </style>
@@ -211,13 +252,14 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 <div id="bottom">
   <div id="hint"></div>
   <div id="army">
-    <button class="act gather" id="gatherbtn" title="Gather the nearest tree, rock or gold vein (Space)">Gather <kbd>Space</kbd></button>
-    <button class="act gather" id="autobtn" aria-pressed="false" title="Let your hero explore on its own (X)">Auto-explore <kbd>X</kbd></button>
-    <button class="act" id="herobtn" title="Select your hero and center the camera on him (E)">Hero <kbd>E</kbd></button>
-    <button class="act" id="armybtn" title="Select all your troops (Q)">Army <kbd>Q</kbd></button>
-    <button class="act" id="townbtn" title="Open the Town Hall: hire villagers and set their jobs (H)">Town <kbd>H</kbd></button>
-    <button class="act" id="whirlbtn" title="Hero spin attack: hits every enemy close by (Z)">Whirlwind <kbd>Z</kbd></button>
-    <button class="act" id="techbtn" title="Open the development tree (R)">Tech tree <kbd>R</kbd></button>
+    <button class="act gather" id="gatherbtn" title="Gather the nearest tree, rock or gold vein (Space)"><canvas class="ai"></canvas><span class="lb">Gather</span><span class="ls">Gather</span><kbd>Space</kbd></button>
+    <button class="act gather" id="autobtn" aria-pressed="false" title="Let your hero explore on its own (X)"><canvas class="ai"></canvas><span class="lb">Auto-explore</span><span class="ls">Explore</span><kbd>X</kbd></button>
+    <button class="act" id="herobtn" title="Select your hero and center the camera on him (E)"><canvas class="ai"></canvas><span class="lb">Hero</span><span class="ls">Hero</span><kbd>E</kbd></button>
+    <button class="act" id="armybtn" title="Select all your troops (Q)"><canvas class="ai"></canvas><span class="lb">Army</span><span class="ls">Army</span><kbd>Q</kbd></button>
+    <button class="act" id="townbtn" title="Open the Town Hall: hire villagers and set their jobs (H)"><canvas class="ai"></canvas><span class="lb">Town</span><span class="ls">Town</span><kbd>H</kbd></button>
+    <button class="act" id="whirlbtn" title="Hero spin attack: hits every enemy close by (Z)"><canvas class="ai"></canvas><span class="lb">Whirlwind</span><span class="ls">Spin</span><kbd>Z</kbd></button>
+    <button class="act" id="techbtn" title="Open the development tree (R)"><canvas class="ai"></canvas><span class="lb">Tech tree</span><span class="ls">Tech</span><kbd>R</kbd></button>
+    <button class="act" id="buildbtn" aria-pressed="false" title="Show the buildings you can place"><canvas class="ai"></canvas><span class="ls">Build</span></button>
   </div>
   <div id="bar"></div>
 </div>
@@ -245,22 +287,23 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
     <details id="howto">
       <summary>How to play</summary>
       <dl>
-        <dt>Move</dt><dd>WASD or arrow keys, or tap the ground</dd>
-        <dt>Explore</dt><dd>X or Auto-explore: your hero scouts the fog and grabs treasure, avoiding camps</dd>
-        <dt>Gather</dt><dd>Space next to trees, rocks or gold, or tap them</dd>
+        <dt>Move</dt><dd><span class="kb">WASD or arrow keys, or click the ground</span><span class="tc">Tap the ground</span></dd>
+        <dt>Explore</dt><dd><span class="kb">X or Auto-explore</span><span class="tc">Explore</span>: your hero scouts the fog and grabs treasure, avoiding camps</dd>
+        <dt>Gather</dt><dd><span class="kb">Space next to trees, rocks or gold, or click them</span><span class="tc">Tap a tree, rock or gold vein</span></dd>
         <dt>Select</dt><dd>Tap any building, unit, camp or resource to see what it does and act on it</dd>
-        <dt>Command</dt><dd>With units selected, tap the map to move them or an enemy to attack. Drag (or hold, then drag on a phone) to box-select. Q selects the army, E the hero.</dd>
-        <dt>Camera</dt><dd>Drag with one finger or the right mouse button to look around. E or the Hero button brings it back.</dd>
-        <dt>Villagers</dt><dd>Hire them at the Town Hall (H) and set their jobs. They gather and farm for you.</dd>
-        <dt>Goals</dt><dd>Follow the goal under the resource bar for rewards. Z makes your hero spin-attack everything nearby.</dd>
-        <dt>Grow</dt><dd>Research in the tech tree (R), upgrade buildings to level 3, level up your hero. F changes game speed.</dd>
-        <dt>Build</dt><dd>Keys 1–8 or the bar below, then click a green square inside your blue border</dd>
-        <dt>Train</dt><dd>T soldier, Y archer, U knight. Needs a Barracks. Troops follow you.</dd>
+        <dt>Command</dt><dd>With units selected, tap the map to move them or an enemy to attack. <span class="kb">Drag to box-select. Q selects the army, E the hero.</span><span class="tc">Hold a finger, then drag, to box-select. Army and Hero select them.</span></dd>
+        <dt>Camera</dt><dd><span class="kb">Right-drag to look around, wheel or +/− to zoom. E brings it back.</span><span class="tc">Drag with one finger to look around, pinch to zoom. Hero brings it back.</span></dd>
+        <dt>Villagers</dt><dd>Hire them at the Town Hall<span class="kb"> (H)</span> and set their jobs. They gather and farm for you.</dd>
+        <dt>Goals</dt><dd>Follow the goal under the resource bar for rewards<span class="tc">; tap it to read it in full</span>. <span class="kb">Z</span><span class="tc">Spin</span> makes your hero spin-attack everything nearby.</dd>
+        <dt>Grow</dt><dd>Research in the tech tree<span class="kb"> (R)</span>, upgrade buildings to level 3, level up your hero. <span class="kb">F</span><span class="tc">The 1× button</span> changes game speed.</dd>
+        <dt>Build</dt><dd><span class="kb">Keys 1–8 or the bar below, then click a green square</span><span class="tc">Tap Build, pick a building, then tap a green square</span> inside your blue border</dd>
+        <dt>Train</dt><dd><span class="kb">T soldier, Y archer, U knight. Needs a Barracks.</span><span class="tc">Tap a Barracks to train soldiers, archers and knights.</span> Troops follow you.</dd>
         <dt>Fight</dt><dd>Walk up to enemies or tap them. Your hero attacks on its own.</dd>
         <dt>Conquer</dt><dd>Break a red camp to claim its land and loot. Take them all to win. Raiders come for your Town Hall after the first nights. Later raids bring battering rams (from day 4 on Normal).</dd>
-        <dt>Sound</dt><dd>M or the Sound button turns effects on and off</dd>
+        <dt>Sound</dt><dd><span class="kb">M or the </span><span class="tc">The </span>Sound button turns effects on and off</dd>
       </dl>
     </details>
+    <p id="installtip" hidden></p>
   </div>
 </div>
 
@@ -355,6 +398,9 @@ const lvlMult = b => 1+.6*((b.lvl||1)-1);
 
 // ---------- utilities ----------
 const $ = id => document.getElementById(id);
+const TOUCH = matchMedia('(hover:none) and (pointer:coarse)').matches;
+document.documentElement.classList.toggle('touch',TOUCH);
+const kh = s => TOUCH ? s.replace(/ \(keys? [^)]*\)/g,'') : s; // keyboard hints mean nothing on a touch screen
 function mulberry(a){ return () => { a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
 function hash2(x,y,s){ let h=(Math.imul(x,374761393)+Math.imul(y,668265263)+Math.imul(s,982451653))|0; h=Math.imul(h^(h>>>13),1274126177); h^=h>>>16; return (h>>>0)/4294967296; }
 function vnoise(x,y,s){ const xi=Math.floor(x), yi=Math.floor(y), xf=x-xi, yf=y-yi; const u=xf*xf*(3-2*xf), v=yf*yf*(3-2*yf);
@@ -664,7 +710,7 @@ function gainXP(n){
 function burst(x,y,c,n){ for(let k=0;k<n;k++){ const a=Math.random()*6.283, s=1+Math.random()*3; G.parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-1,life:.5+Math.random()*.4,max:.9,c,s:.06+Math.random()*.08}); } }
 function floatText(x,y,txt,c){ G.texts.push({x,y,txt,c,life:1.2}); }
 function toast(msg,kind=''){
-  const el=document.createElement('div'); el.className='toast '+kind; el.textContent=msg;
+  const el=document.createElement('div'); el.className='toast '+kind; el.textContent=kh(msg);
   const box=$('toasts'); box.appendChild(el); while(box.children.length>4) box.firstChild.remove();
   setTimeout(()=>el.remove(),3800);
 }
@@ -776,7 +822,7 @@ function checkQuest(){
 function questHUD(){
   const q=QUESTS[G.quest], el=$('quest');
   if(!q){ $('q-text').textContent='All goals done. The realm is yours.'; $('q-rew').innerHTML=''; return; }
-  let t=q.text; if(q.prog){ const [a,b]=q.prog(); t+=` · ${Math.min(a,b)}/${b}`; }
+  let t=kh(q.text); if(q.prog){ const [a,b]=q.prog(); t+=` · ${Math.min(a,b)}/${b}`; }
   $('q-text').textContent=`${G.quest+1}/${QUESTS.length} ${t}`; $('q-rew').innerHTML=costHTML(q.rew);
 }
 
@@ -814,7 +860,7 @@ function setAuto(v){
   h.autoT=-1; h.ept=0; h.retreat=false;
   if(v){ h.gather=null; h.tgt=null; h.path=null; toast('Auto-explore on. Move or tap the map to take over.'); }
   const b=$('autobtn'); b.classList.toggle('on',v); b.setAttribute('aria-pressed',v);
-  b.firstChild.textContent=v?'Exploring… ':'Auto-explore ';
+  b.querySelector('.lb').textContent=v?'Exploring…':'Auto-explore'; b.querySelector('.ls').textContent=v?'Stop':'Explore';
 }
 function isFrontier(i){
   const x=i%W, y=(i/W)|0, E=G.expl;
@@ -1685,6 +1731,7 @@ const cv=$('game'), ctx=cv.getContext('2d',{alpha:false});
 let DPR=1, cw=0, chh=0, zi=3, chunkPx=0, S=0, OX=0, OY=0, padPx=0;
 const PADT=1.6; // chunk canvases reach this many tiles above their ground, for peaks and treetops
 const cam={x:0,y:0,follow:true};
+let focusY=.5, focusT=.5; // where on screen (0 top, 1 bottom) the camera's point sits
 let lastRect='';
 function resize(){
   const r=cv.getBoundingClientRect(), d=Math.min(window.devicePixelRatio||1,1.5);
@@ -1737,7 +1784,7 @@ function nightFactor(){ const p=(G.time%DAY)/DAY; const ss=(a,b,v)=>clamp((v-a)/
 function render(t){
   const h=G.hero;
   NIGHT=nightFactor();
-  OX=Math.round(cw/2-cam.x*S); OY=Math.round(chh*(innerWidth<700?.4:.5)-cam.y*S);
+  OX=Math.round(cw/2-cam.x*S); OY=Math.round(chh*focusY-cam.y*S);
   ctx.setTransform(1,0,0,1,0,0); ctx.fillStyle='#17304f'; ctx.fillRect(0,0,cw,chh);
   const x0=Math.max(0,Math.floor(-OX/S)), y0=Math.max(0,Math.floor(-OY/S)), x1=Math.min(W-1,Math.floor((cw-OX)/S)), y1=Math.min(H-1,Math.floor((chh-OY)/S));
   regenEnd=performance.now()+6; regenN=0; pending=false;
@@ -1868,7 +1915,7 @@ function drawMinimap(){
   for(const b of G.blds){ if(!G.expl[b.y*W+b.x]) continue; mctx.fillStyle=b.team?'#ff5a4d':'#6aa4ff'; mctx.fillRect(b.x-1,b.y-1,b.type==='camp'||b.type==='outpost'||b.type==='hall'?4:2,b.type==='camp'||b.type==='outpost'||b.type==='hall'?4:2); }
   for(const u of G.units){ if(u.dead||u.kind==='hero') continue; const raid=u.team===1&&u.mode==='raid'; if(!raid&&!G.expl[(u.y|0)*W+(u.x|0)]) continue; mctx.fillStyle=raid?'#ff3b30':u.team?'#ff8f86':'#bcd5ff'; if(raid) mctx.fillRect((u.x|0)-1,(u.y|0)-1,3,3); else mctx.fillRect(u.x|0,u.y|0,1,1); }
   if(!G.hero.dead){ mctx.fillStyle='#fff'; mctx.fillRect((G.hero.x|0)-1,(G.hero.y|0)-1,3,3); }
-  const vw=cw/S, vh=chh/S; mctx.strokeStyle='rgba(255,255,255,.6)'; mctx.lineWidth=1; mctx.strokeRect(Math.round(cam.x-vw/2)+.5,Math.round(cam.y-vh/2)+.5,Math.round(vw),Math.round(vh));
+  const vw=cw/S, vh=chh/S; mctx.strokeStyle='rgba(255,255,255,.6)'; mctx.lineWidth=1; mctx.strokeRect(Math.round(cam.x-vw/2)+.5,Math.round(cam.y-vh*focusY)+.5,Math.round(vw),Math.round(vh));
 }
 
 // ---------- HUD ----------
@@ -1887,7 +1934,23 @@ function drawIcons(){
     const g=c.getContext('2d'), k=c.parentElement.dataset.t; g.setTransform(1,0,0,1,0,0); g.clearRect(0,0,76,76);
     const tp=bTop(k,1), z=Math.min(50,64/(1+tp)); g.setTransform(z,0,0,z,(76-z)/2,(76-z*(1+tp))/2+z*tp); drawBuilding(g,k,0,0,0,1,0,k==='wall'?10:0);
   });
+  document.querySelectorAll('#army .ai').forEach(c=>{
+    const g=c.getContext('2d'); c.width=c.height=48; g.setTransform(48,0,0,48,0,0); ACT_ICONS[c.parentElement.id](g);
+  });
 }
+// Icons for the action buttons, drawn with the same art as the world (in a 1×1 box).
+const pose = kind => ({kind,team:0,face:-Math.PI/2,spin:0,moving:false,cd:0,rate:1,id:1,working:false,carry:0});
+const ACT_ICONS={
+  gatherbtn:g=>{ pine(g,.32,.94,1.7,'#347a3a'); rect(g,.64,.3,.07,.64,'#8b5a2b'); quad(g,.71,.28,.95,.2,.95,.5,.71,.44,'#cfd6de'); },
+  autobtn:g=>{ oct(g,.5,.5,.44,.44,'#9aa4b0'); oct(g,.5,.5,.35,.35,'#1b2330'); tri(g,.5,.14,.62,.5,.38,.5,'#e0483e'); tri(g,.38,.5,.62,.5,.5,.86,'#efe6cf'); },
+  herobtn:g=>drawPerson(g,pose('hero'),.5,.56,0,false),
+  armybtn:g=>{ g.translate(.5,.52); g.scale(.8,.8); drawPerson(g,pose('soldier'),-.28,.06,0,false); drawPerson(g,pose('archer'),.3,-.04,0,false); },
+  townbtn:g=>{ g.translate(.16,.36); g.scale(.68,.68); drawBuilding(g,'hall',0,0,0,1,0); },
+  whirlbtn:g=>{ g.translate(.5,.5); for(let k=0;k<3;k++){ g.rotate(2.094); quad(g,.04,-.05,.46,-.22,.36,.06,.06,.08,k?'#e0a93b':'#f3e6b0'); } oct(g,0,0,.1,.1,'#efe6cf'); },
+  techbtn:g=>{ rect(g,.49,.34,.03,.16,'#9aa4b0'); rect(g,.24,.48,.54,.03,'#9aa4b0'); rect(g,.24,.48,.03,.12,'#9aa4b0'); rect(g,.75,.48,.03,.12,'#9aa4b0');
+    box(g,.37,.16,.28,.2,.08,'#e0a93b'); box(g,.1,.62,.3,.22,.08,'#4f8ff7'); box(g,.6,.62,.3,.22,.08,'#7fd37a'); },
+  buildbtn:g=>{ g.save(); g.translate(.06,.22); g.scale(.74,.74); drawBuilding(g,'house',0,0,0,1,0); g.restore(); oct(g,.78,.26,.2,.2,'#e0a93b'); rect(g,.69,.245,.18,.035,'#1a1408'); rect(g,.7625,.17,.035,.18,'#1a1408'); },
+};
 $('gatherbtn').addEventListener('click',tryGather);
 $('autobtn').addEventListener('click',()=>{ if(!G.hero.dead||!autoOn) setAuto(!autoOn); });
 
@@ -1905,14 +1968,28 @@ function updateHud(){
   $('speedbtn').textContent=(G.speed||1)+'×';
   const idle=G.units.filter(isIdle).length, ib=$('r-idle');
   ib.hidden=!idle; if(idle) ib.textContent=`${idle} idle villager${idle>1?'s':''}`;
-  const wb=$('whirlbtn'), cd=G.hero.abT>0; wb.classList.toggle('cool',cd); wb.firstChild.textContent=cd?`Whirlwind ${Math.ceil(G.hero.abT)}s `:'Whirlwind ';
+  const wb=$('whirlbtn'), cd=G.hero.abT>0, ws=Math.ceil(G.hero.abT); wb.classList.toggle('cool',cd);
+  wb.querySelector('.lb').textContent=cd?`Whirlwind ${ws}s`:'Whirlwind'; wb.querySelector('.ls').textContent=cd?`${ws}s`:'Spin';
+  // keep the hero framed between the top bar and the bottom controls, and toasts just under the top bar
+  // a selection sheet across the bottom of a phone also counts, so the hero stays in view above it
+  const tb=$('top').getBoundingClientRect().bottom, sr=selEl.getBoundingClientRect(), wide=!selEl.hidden&&sr.width>innerWidth*.7;
+  const bt=Math.min($('bottom').getBoundingClientRect().top,wide?sr.top:1e9);
+  focusT=clamp((tb+bt)/2/innerHeight,.25,.6); document.documentElement.style.setProperty('--hudb',Math.round(tb)+'px');
   questHUD(); refreshSel(); renderTech();
 }
 
 // ---------- selection panel ----------
 let sel=null, selSig='', panelHold=false, armKey='', armT=0;
 const selEl=$('sel');
-function select(o){ sel=o; armKey=''; selSig=''; if(o&&o.kind==='hero') cam.follow=true; refreshSel(); }
+function select(o){ sel=o; armKey=''; selSig=''; if(o&&o.kind==='hero') cam.follow=true; if(o&&tray) setTray(false); refreshSel(); }
+// On phones the buildings live in a tray that the Build button opens; it and the selection panel take turns.
+let tray=false;
+function setTray(v){
+  tray=v; document.body.classList.toggle('tray',v); const b=$('buildbtn'); b.classList.toggle('on',v); b.setAttribute('aria-pressed',v);
+  if(v) select(null); else if(buildSel) selectBuild(null);
+}
+$('buildbtn').addEventListener('click',()=>setTray(!tray));
+$('quest').addEventListener('click',()=>{ const q=QUESTS[G.quest]; if(q) toast(`Goal: ${q.text}. Reward: ${costText(q.rew)}.`); });
 const isTroop = u => u.team===0&&!u.dead&&u.kind!=='hero'&&u.kind!=='villager';
 function cmdUnits(){
   if(!sel) return [];
@@ -2155,6 +2232,11 @@ function setDiffBtns(){ document.querySelectorAll('[data-diff]').forEach(b=>b.se
 document.querySelectorAll('[data-diff]').forEach(b=>b.addEventListener('click',()=>{ prefs.diff=+b.dataset.diff; savePrefs(); setDiffBtns(); }));
 $('soundbtn').addEventListener('click',()=>setSound(!prefs.sound));
 $('soundbtn').textContent=prefs.sound?'Sound: on':'Sound: off';
+{ // on a phone in the browser, point out that the game runs full screen from the home screen
+  const full=navigator.standalone||matchMedia('(display-mode: standalone), (display-mode: fullscreen)').matches, ios=/iPhone|iPad|iPod/.test(navigator.userAgent)||(/Mac/.test(navigator.userAgent)&&navigator.maxTouchPoints>1);
+  if(TOUCH&&!full){ const it=$('installtip'); it.hidden=false;
+    it.textContent=ios?'Tip: tap Share, then “Add to Home Screen”, to play full screen.':'Tip: choose “Add to Home screen” or “Install app” in your browser menu to play full screen.'; }
+}
 let newArmed=false;
 function armNew(v){ newArmed=v; $('newbtn').textContent=v?'Tap again to replace this world':'New world'; $('newbtn').classList.toggle('warn',v); }
 $('playbtn').addEventListener('click',hideOverlay);
@@ -2221,7 +2303,7 @@ function endPtr(e){
   if(p.mode!==''||ptrs.size>0||paused) return;
   if(performance.now()-p.t>600) return;
   if(p.btn===2){ if(buildSel) selectBuild(null); else select(null); return; }
-  const w=toWorld(e.clientX,e.clientY); onTap(w.x,w.y,p.shift);
+  const w=toWorld(e.clientX,e.clientY); onTap(w.x,w.y,p.shift,p.type!=='mouse');
 }
 function finishBox(add){
   const a=toWorld(Math.min(dragBox.x0,dragBox.x1),Math.min(dragBox.y0,dragBox.y1)), b=toWorld(Math.max(dragBox.x0,dragBox.x1),Math.max(dragBox.y0,dragBox.y1));
@@ -2236,13 +2318,13 @@ cv.addEventListener('contextmenu',e=>e.preventDefault());
 cv.addEventListener('wheel',e=>{ e.preventDefault(); zoom(e.deltaY<0?1:-1); },{passive:false});
 cv.addEventListener('pointerleave',()=>{ hover=null; });
 
-function onTap(wx,wy,add){
+function onTap(wx,wy,add,finger){
   const h=G.hero, tx=Math.floor(wx), ty=Math.floor(wy);
   if(tx<0||ty<0||tx>=W||ty>=H) return;
   if(buildSel){ tryPlace(buildSel,tx,ty); return; }
   if(rallyPick){ if(!rallyPick.dead){ rallyPick.rally={x:wx,y:wy}; toast('Rally point set. New troops will gather there.'); } rallyPick=null; G.marker={x:tx,y:ty,t:.5}; selSig=''; refreshSel(); return; }
   const i=ty*W+tx;
-  let hit=null, bd=.6;
+  let hit=null, bd=finger?Math.max(.6,22*DPR/S):.6; // a fingertip covers about 22 px
   for(const u of G.units){ if(u.dead) continue; if(u.team===1&&!G.expl[(u.y|0)*W+(u.x|0)]) continue; const d=Math.hypot(u.x-wx,u.y-.2-wy); if(d<bd){ bd=d; hit=u; } }
   // buildings stand up out of their tile, so tap what is drawn: the frontmost one under the finger
   if(!hit){ let fy=-1; for(const b of G.blds){ if(b.dead||!G.expl[b.y*W+b.x]) continue; const [bx,by,bw,bh]=bBox(b); if(wx>=bx&&wx<=bx+bw&&wy>=by&&wy<=by+bh&&b.y>fy){ fy=b.y; hit=b; } } }
@@ -2299,6 +2381,7 @@ function frame(now){
   const dt=Math.min(.05,(now-last)/1000); last=now;
   if(!paused&&!G.over){ const n=G.speed||1; for(let k=0;k<n;k++) update(dt); }
   if(cam.follow&&!G.hero.dead){ cam.x+=(G.hero.x-cam.x)*Math.min(1,dt*6); cam.y+=(G.hero.y-cam.y)*Math.min(1,dt*6); }
+  focusY+=(focusT-focusY)*Math.min(1,dt*4);
   cam.x=clamp(cam.x,0,W); cam.y=clamp(cam.y,0,H);
   render(now/1000);
   accHud+=dt; if(accHud>=.25){ accHud=0; updateHud(); }

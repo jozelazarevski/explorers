@@ -2,7 +2,7 @@
 
 **Shardlands**: a small explore-build-conquer game in a low-poly 3/4 view, drawn only with flat-shaded triangles and boxes. It's one file (`index.html`) with no build step and no dependencies.
 
-**Play:** open `index.html` in any browser. It works on desktop and on phones.
+**Play:** https://jozelazarevski.github.io/explorers/, or open `index.html` in any browser. It works on desktop and on phones.
 
 ## How to play
 
@@ -14,12 +14,12 @@
 | Quick select | E hero · Q whole army | Hero / Army buttons |
 | Look around | Right-drag | Drag with one finger |
 | Select | Click anything | Tap anything: buildings, units, camps, trees, rocks |
-| Auto-explore | X | Auto-explore button |
-| Hero Whirlwind | Z (20 s cooldown) | Whirlwind button |
+| Auto-explore | X | Explore button |
+| Hero Whirlwind | Z (20 s cooldown) | Spin button |
 | Gather | Space next to trees, rocks or gold | Tap a tree, rock or gold vein |
-| Build | Keys 1–8, then click a green square | Tap a building, then tap a green square |
+| Build | Keys 1–8, then click a green square | Build, pick a building, then tap a green square |
 | Town Hall | H: hire villagers, set jobs | Town button |
-| Tech tree | R | Tech tree button |
+| Tech tree | R | Tech button |
 | Game speed | F cycles 1× / 2× / 4× | Speed button by the minimap |
 | Train | V villager · T soldier · Y archer · U knight | Tap a Barracks |
 | Attack | Walk up to enemies or click them | Tap enemies |
@@ -46,6 +46,15 @@
 
 Progress saves automatically in your browser.
 
+## On phones
+
+- One row of eight icon buttons along the bottom: Gather, Explore, Hero, Army, Town, Spin, Tech and Build. Build opens a tray of buildings above the row and closes it again.
+- The top bar keeps to one line per row, and the goal fits on one line. Tap the goal to read it in full.
+- Tapping something opens its panel as a sheet above the buttons. Units are easier to hit with a finger than with a mouse.
+- The camera keeps your hero centred between the top bar and the buttons, in portrait and landscape, around notches and home bars.
+- The how-to-play list shows touch instructions instead of keys.
+- Add it to your home screen (Share → Add to Home Screen on iPhone, or Install app in Chrome) and it runs full screen, without the browser bars.
+
 ## Look
 
 The camera looks north from high up. Every face is flat-shaded by one light from the north-west, so the ground is a mesh of lit and shaded triangles, and slopes toward hills and mountains catch or lose the light. Trees, rocks, peaks and buildings stand up out of their tiles and cast short shadows down and to the right. People are seen from above and shaded on the side away from the light as they turn.
@@ -56,4 +65,4 @@ Terrain, trees, rocks and peaks are drawn once into cached 16×16-tile chunks. E
 
 ## Publishing
 
-`.github/workflows/pages.yml` deploys `index.html` to GitHub Pages on every push to `main`. Pages has to be switched on once by hand: Settings → Pages → Build and deployment → Source: **GitHub Actions**. On a free account the repository must be public for Pages to be available.
+`.github/workflows/pages.yml` deploys `index.html`, `manifest.webmanifest` and the `icon-*.png` home-screen icons to GitHub Pages on every push to `main`. Pages has to be switched on once by hand: Settings → Pages → Build and deployment → Source: **GitHub Actions**. On a free account the repository must be public for Pages to be available.

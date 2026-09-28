@@ -1,0 +1,16 @@
+{
+  "name": "Shardlands",
+  "short_name": "Shardlands",
+  "description": "Lift the fog. Raise a realm. Take every red camp.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#10151c",
+  "theme_color": "#10151c",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
