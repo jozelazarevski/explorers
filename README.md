@@ -6,21 +6,21 @@
 
 ## How to play
 
-You are the lord. You rule from your keep: villagers gather, scouts explore, and the army fights on your orders. The camera stays on your realm instead of chasing anyone around.
+You run the realm by handing out missions instead of steering anyone around. Your hero takes missions alone, generals lead your troops, the Builders' Guild puts up what you order, scouts explore and villagers gather. Everyone reports back when a mission is done, and the camera stays on your realm instead of chasing anyone.
 
 | | Desktop | Touch |
 |---|---|---|
 | Look around | WASD / arrow keys or right-drag | Drag with one finger |
-| Back to your keep | Space | Home button |
+| Back to your town | Space | Home button |
 | Select | Click anything | Tap anything: buildings, units, camps, trees, rocks |
-| Send the army | Click an enemy camp, then Send the army | Same, with taps |
+| Missions board | O | Missions button |
 | Command units | Select them, then click the ground to move or an enemy to attack | Same, with taps |
 | Select many | Left-drag a box (Shift adds) | Hold a finger, then drag a box |
-| Quick select | Q whole army · E your lord | Army / Lord buttons |
-| Your lord | Select them, then click where to ride or an enemy to charge; Z Whirlwind | Same, with taps |
-| Send a scout | X | Scout button |
+| Quick select | Q whole army · E your hero | Army / Hero buttons |
+| Take a camp | Click a camp, then Send the hero or Send General … | Same, with taps |
+| Steer the hero yourself | Select them, then click the map; Z Whirlwind | Same, with taps |
 | Build | Keys 1–8, then click a green square | Build, pick a building, then tap a green square |
-| Town Hall | H: hire villagers and scouts, set jobs, trade | Town button |
+| Town Hall | H: hire villagers, scouts, builders and the Builders' Guild, set jobs, trade | Town button |
 | Tech tree | R | Tech button |
 | Game speed | F cycles 1× / 2× / 4× | Speed button by the minimap |
 | Train | V villager · T soldier · Y archer · U knight | Tap a Barracks |
@@ -29,17 +29,19 @@ You are the lord. You rule from your keep: villagers gather, scouts explore, and
 | Sound on/off | M | Sound button on the pause screen |
 
 - **Difficulty:** pick Relaxed, Normal or Hard on the title screen before starting a new world. It sets how early, how often and how big raids are, when rams join them, how fast camps grow, and your starting resources.
-- **Goals:** a chain of 14 goals under the resource bar guides the early game and pays out resources for each one.
+- **Goals:** a chain of 16 goals under the resource bar guides the early game and pays out resources for each one.
 - **Market:** the Town Hall trades wood, stone and food for gold and back.
 - **Rally points:** set one on a Barracks and new troops march there and hold.
 - **Idle villagers:** a chip at the top counts villagers with nothing to do; tap it to select them.
-- **Scouts:** the map starts in fog. You begin with one scout, and more can be sent from the Town Hall. Each rides on its own to the nearest unexplored edge or treasure, spreads out from the others, keeps away from enemy camps and runs home to heal when anything hurts it. Chests hold loot, maps or a free soldier. Purple shrines make your lord permanently stronger.
+- **Scouts:** the map starts in fog. You begin with one scout, and more can be sent from the Town Hall or the Missions board (X). Each rides on its own to the nearest unexplored edge or treasure, spreads out from the others, keeps away from enemy camps and runs home to heal when anything hurts it. Chests hold loot, maps or a free soldier. Purple shrines make your hero permanently stronger.
 - **Villagers:** hire them at the Town Hall and split them between wood, stone, gold and farming. They carry what they gather to the Town Hall or the nearest Lumber Camp, Quarry or Gold Mine, and run home when attacked.
-- **War:** tap an enemy camp or raider and choose Send the army. Your troops march out, deal with defenders on the way, take the camp and come home to guard your lord. Or ride out yourself.
-- **Command units separately:** whatever you select takes your orders. Troops sent somewhere hold that spot and fight anything within about 5 tiles. Tap an enemy to attack it, or use Back to the lord to regroup. Villagers can be sent to any spot, tree, rock, gold vein or farm.
-- **Tap to act:** every building, unit, camp and resource opens a panel with its stats and actions. From there you can upgrade, demolish, train, send the army or send a villager.
+- **Missions:** the Missions board (O) lists your hero, generals, Builders' Guild and scouts, shows what each is doing, and offers their missions. A red dot on the Missions button means someone is waiting for orders.
+- **Hero:** takes one mission at a time: explore the fog, take a camp alone, defend the town, or gather wood, stone or gold. They fight back, go home to heal when badly hurt, then carry on, and level up from battles and conquests. Select them and tap the map to send them somewhere yourself.
+- **Generals:** hire up to three at a Barracks. Give one a camp to take or the town to defend and they take the town guard along as their warband (up to 12 troops), deal with defenders on the way, take the camp and march home. Troops without a general guard the town.
+- **Builders' Guild:** hire it at the Town Hall to get two builders; hire more later. Every building is now a construction site that builders put up over a few seconds. Order a building on the Missions board and the builders choose the spot (farms and houses near the hall, lumber camps by forest, quarries by hills, towers facing the nearest camp), or pick one from the build bar and place it yourself.
+- **Command units separately:** whatever you select takes your orders. Troops sent somewhere hold that spot and fight anything within about 5 tiles. Tap an enemy to attack it, or use Back to their post to regroup. Villagers can be sent to any spot, tree, rock, gold vein or farm.
+- **Tap to act:** every building, unit, camp and resource opens a panel with its stats and actions. From there you can upgrade, demolish, train, hire, give missions or send a villager.
 - **Development tree:** 14 technologies in six branches (Economy, Farming, Defense, Military, Arms, Exploration). Research runs at the Town Hall, one at a time.
-- **Your lord:** wears the crown and stays at the keep, where the troops guard them. Select them to ride out or lead a charge; they ride home once the fight is won. They gain experience from battles near them and from every camp you take.
 - **Upgrades:** buildings go up to level 3 for more output, health and range.
 - **Build:** Farms make food. Lumber Camps and Quarries collect from nearby forest and hills. Gold Mines must touch a gold vein. Houses raise troop capacity. Towers shoot raiders and widen your land. Walls slow raiders down.
 - **Conquer:** red camps get tougher the farther they are from home, and the farthest one is a fortress with a warlord. Destroy a camp to claim its land and loot. Take every camp to win.
@@ -51,7 +53,7 @@ Progress saves automatically in your browser.
 
 ## On phones
 
-- One row of seven icon buttons along the bottom: Town, Scout, Army, Lord, Home, Tech and Build. Build opens a tray of buildings above the row and closes it again.
+- One row of seven icon buttons along the bottom: Town, Missions, Hero, Army, Home, Tech and Build. Build opens a tray of buildings above the row and closes it again.
 - The top bar keeps to one line per row, and the goal fits on one line. Tap the goal to read it in full.
 - Tapping something opens its panel as a sheet above the buttons. Units are easier to hit with a finger than with a mouse.
 - The view is framed between the top bar and the buttons, in portrait and landscape, around notches and home bars.

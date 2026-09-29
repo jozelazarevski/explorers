@@ -150,7 +150,16 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 .cost span{display:inline-flex;gap:3px;align-items:center}
 
 /* Development tree */
-#techs{position:fixed;inset:0;display:grid;place-items:center;padding:16px;background:rgba(8,11,16,.62);overflow:auto}
+#techs,#missions{position:fixed;inset:0;display:grid;place-items:center;padding:16px;background:rgba(8,11,16,.62);overflow:auto}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:12px;margin-top:12px}
+.mcard{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:6px;background:var(--panel-2);border:1px solid var(--edge)}
+.mcard header{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.mcard h4{margin:0;font-size:15px}
+.mcard p{margin:0;font-size:13px}
+.mcard .now,.now{color:var(--brass);font-weight:600}
+.mcard .gen{display:flex;flex-direction:column;gap:6px;padding-top:8px;border-top:1px solid var(--edge)}
+.act{position:relative}
+.act.alert::after{content:'';position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:var(--red)}
 .tcard{width:min(980px,100%);max-height:100%;overflow:auto;padding:18px;background:#121821}
 .tcard h2{margin:0;font-size:20px;letter-spacing:.1em;text-transform:uppercase}
 .tgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-top:12px}
@@ -251,10 +260,10 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
   <div id="hint"></div>
   <div id="army">
     <button class="act" id="townbtn" title="Open the Town Hall: hire villagers and scouts, set jobs, trade (H)"><canvas class="ai"></canvas><span class="lb">Town</span><span class="ls">Town</span><kbd>H</kbd></button>
-    <button class="act" id="scoutbtn" title="Send a scout to explore the fog (X)"><canvas class="ai"></canvas><span class="lb">Send scout</span><span class="ls">Scout</span><kbd>X</kbd></button>
+    <button class="act" id="missionsbtn" title="Hand out missions to your hero, generals, builders and scouts (O)"><canvas class="ai"></canvas><span class="lb">Missions</span><span class="ls">Missions</span><kbd>O</kbd></button>
+    <button class="act" id="herobtn" title="Select your hero and follow them (E)"><canvas class="ai"></canvas><span class="lb">Hero</span><span class="ls">Hero</span><kbd>E</kbd></button>
     <button class="act" id="armybtn" title="Select all your troops (Q)"><canvas class="ai"></canvas><span class="lb">Army</span><span class="ls">Army</span><kbd>Q</kbd></button>
-    <button class="act" id="herobtn" title="Select your lord and follow them (E)"><canvas class="ai"></canvas><span class="lb">Lord</span><span class="ls">Lord</span><kbd>E</kbd></button>
-    <button class="act" id="homebtn" title="Look at your keep (Space)"><canvas class="ai"></canvas><span class="lb">Home</span><span class="ls">Home</span><kbd>Space</kbd></button>
+    <button class="act" id="homebtn" title="Look at your town (Space)"><canvas class="ai"></canvas><span class="lb">Home</span><span class="ls">Home</span><kbd>Space</kbd></button>
     <button class="act" id="techbtn" title="Open the development tree (R)"><canvas class="ai"></canvas><span class="lb">Tech tree</span><span class="ls">Tech</span><kbd>R</kbd></button>
     <button class="act" id="buildbtn" aria-pressed="false" title="Show the buildings you can place"><canvas class="ai"></canvas><span class="ls">Build</span></button>
   </div>
@@ -262,6 +271,7 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 </div>
 
 <div id="sel" class="panel" hidden></div>
+<div id="missions" hidden><div class="tcard panel"><header><h2>Missions</h2><button class="x" id="mclose" aria-label="Close">×</button></header><div id="mbody"></div></div></div>
 <div id="techs" hidden><div class="tcard panel"><header><h2>Development tree</h2><button class="x" id="tclose" aria-label="Close">×</button></header><div id="tbody"></div></div></div>
 
 <div id="overlay">
@@ -284,18 +294,18 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
     <details id="howto">
       <summary>How to play</summary>
       <dl>
-        <dt>Rule</dt><dd>You are the lord. You stay at your keep and give orders: villagers gather, scouts explore, the army fights.</dd>
-        <dt>Look</dt><dd><span class="kb">WASD, arrow keys or right-drag to look around, wheel or +/− to zoom. Space returns to your keep.</span><span class="tc">Drag to look around, pinch to zoom. Home returns to your keep.</span></dd>
-        <dt>Explore</dt><dd>Scouts roam the fog on their own, bring back treasure and flee from danger. You start with one; send more from the Town Hall<span class="kb"> or with X</span>.</dd>
+        <dt>Missions</dt><dd>You don't steer anyone around. Open Missions<span class="kb"> (O)</span> and hand out jobs: your hero explores, takes camps, defends the town or gathers; generals lead your troops; the Builders' Guild puts up buildings. Everyone reports back when done.</dd>
+        <dt>Look</dt><dd><span class="kb">WASD, arrow keys or right-drag to look around, wheel or +/− to zoom. Space returns to your town.</span><span class="tc">Drag to look around, pinch to zoom. Home returns to your town.</span></dd>
+        <dt>Explore</dt><dd>Scouts roam the fog on their own, bring back treasure and flee from danger. You start with one; send more from the Town Hall<span class="kb"> or with X</span>. Your hero can explore too.</dd>
         <dt>Select</dt><dd>Tap any building, unit, camp or resource to see what it does and act on it</dd>
-        <dt>War</dt><dd>Tap an enemy camp and send the army: your troops march, take it and come home. Or select troops and tap where they should go. <span class="kb">Drag to box-select; Q selects the army.</span><span class="tc">Hold a finger, then drag, to box-select.</span></dd>
-        <dt>Your lord</dt><dd>Select your lord<span class="kb"> (E)</span> and tap the map to ride out, or an enemy to lead the charge. They ride home after the fight. <span class="kb">Z</span><span class="tc">Their Whirlwind</span> hits everything close by.</dd>
+        <dt>War</dt><dd>Tap an enemy camp and send your hero or a general. Generals take the town guard with them as their warband, take the camp and march home. Hire generals at a Barracks. <span class="kb">Drag to box-select troops; Q selects them all.</span><span class="tc">Hold a finger, then drag, to box-select troops.</span></dd>
+        <dt>Your hero</dt><dd>Takes one mission at a time, fights back, goes home to heal when hurt and levels up. To send them somewhere yourself, select them<span class="kb"> (E)</span> and tap the map. <span class="kb">Z</span><span class="tc">Their Whirlwind</span> hits everything close by.</dd>
         <dt>Villagers</dt><dd>Hire them at the Town Hall<span class="kb"> (H)</span> and set their jobs. They gather and farm for you.</dd>
         <dt>Goals</dt><dd>Follow the goal under the resource bar for rewards<span class="tc">; tap it to read it in full</span>.</dd>
-        <dt>Grow</dt><dd>Research in the tech tree<span class="kb"> (R)</span>, upgrade buildings to level 3, and your lord levels up from battles and conquests. <span class="kb">F</span><span class="tc">The 1× button</span> changes game speed.</dd>
-        <dt>Build</dt><dd><span class="kb">Keys 1–8 or the bar below, then click a green square</span><span class="tc">Tap Build, pick a building, then tap a green square</span> inside your blue border</dd>
-        <dt>Train</dt><dd><span class="kb">T soldier, Y archer, U knight. Needs a Barracks.</span><span class="tc">Tap a Barracks to train soldiers, archers and knights.</span> Troops follow you.</dd>
-        <dt>Defend</dt><dd>Troops guard your lord at the keep, and towers and the Town Hall shoot raiders.</dd>
+        <dt>Grow</dt><dd>Research in the tech tree<span class="kb"> (R)</span>, upgrade buildings to level 3, level up your hero. <span class="kb">F</span><span class="tc">The 1× button</span> changes game speed.</dd>
+        <dt>Build</dt><dd>Hire the Builders' Guild at the Town Hall. Then order buildings on the Missions board and the builders pick the spot, or choose one <span class="kb">with keys 1–8 or the bar below and click</span><span class="tc">with Build and tap</span> a green square inside your blue border. Builders put it up.</dd>
+        <dt>Train</dt><dd><span class="kb">T soldier, Y archer, U knight at a Barracks,</span><span class="tc">Tap a Barracks to train soldiers, archers and knights,</span> and hire generals there to lead them.</dd>
+        <dt>Defend</dt><dd>Troops that are not with a general guard the town. Towers and the Town Hall shoot raiders, and a hero or general on a defend mission meets them.</dd>
         <dt>Conquer</dt><dd>Break a red camp to claim its land and loot. Take them all to win. Raiders come for your Town Hall after the first nights. Later raids bring battering rams (from day 4 on Normal).</dd>
         <dt>Sound</dt><dd><span class="kb">M or the </span><span class="tc">The </span>Sound button turns effects on and off</dd>
       </dl>
@@ -352,6 +362,7 @@ const BD = {
   wall:    { name:'Wall',        key:'8', cost:{stone:5},                  hp:220, r:0, desc:'Raiders must break through' },
   camp:    { name:'Enemy camp', hp:0, r:0 },
   outpost: { name:'Outpost', hp:300, r:6 },
+  site:    { name:'Construction site', hp:60, r:0 },
 };
 const BUILD_ORDER = ['house','farm','lumber','quarry','mine','barracks','tower','wall'];
 
@@ -362,6 +373,8 @@ const UD = {
   knight:  { hp:160, atk:15, range:1.2,  rate:0.9, spd:4.6, vis:4, pop:2, cost:{food:40,gold:45}, name:'Knight', key:'U' },
   villager:{ hp:45,  atk:3,  range:1.1,  rate:1.2, spd:3.5, vis:3, pop:1, cost:{food:40}, name:'Villager', key:'V', time:5 },
   scout:   { hp:40,  atk:0,  range:1,    rate:1,   spd:4.8, vis:7, pop:1, cost:{food:30,gold:10}, name:'Scout', key:'X', time:6 },
+  builder: { hp:50,  atk:3,  range:1.1,  rate:1.2, spd:3.8, vis:3, pop:1, cost:{food:30,wood:20}, name:'Builder', time:5 },
+  general: { hp:150, atk:13, range:1.25, rate:0.8, spd:4.2, vis:6, pop:1, cost:{food:60,gold:60}, name:'General', time:10 },
   brute:   { hp:50,  atk:6,  range:1.1,  rate:1.0, spd:3.0 },
   slinger: { hp:30,  atk:5,  range:4.0,  rate:1.4, spd:3.0, ranged:1 },
   warlord: { hp:650, atk:22, range:1.3,  rate:1.1, spd:3.3 },
@@ -384,8 +397,8 @@ const TECHS = [
   {id:'arms1',   br:'Arms',        name:'Bronze Arms',   desc:'Troops get +20% health and damage',               cost:{stone:40,gold:50},          time:25, needB:'barracks'},
   {id:'arms2',   br:'Arms',        name:'Iron Arms',     desc:'Troops get another +20%',                         cost:{stone:80,gold:100},         time:35, req:['arms1']},
   {id:'arms3',   br:'Arms',        name:'Steel Arms',    desc:'Troops get another +20%',                         cost:{stone:120,gold:160},        time:45, req:['arms2']},
-  {id:'carto',   br:'Exploration', name:'Cartography',   desc:'Scouts and your lord see 4 tiles farther; units move 15% faster', cost:{wood:60,gold:30}, time:20},
-  {id:'heroic',  br:'Exploration', name:'Knighthood',    desc:'Your lord gets +40 health and +5 damage',         cost:{food:80,gold:60},           time:30, req:['carto']},
+  {id:'carto',   br:'Exploration', name:'Cartography',   desc:'Scouts and your hero see 4 tiles farther; units move 15% faster', cost:{wood:60,gold:30}, time:20},
+  {id:'heroic',  br:'Exploration', name:'Hero Training', desc:'Your hero gets +40 health and +5 damage',         cost:{food:80,gold:60},           time:30, req:['carto']},
 ];
 const TECH = Object.fromEntries(TECHS.map(t=>[t.id,t]));
 const has = id => !!(G && G.tech && G.tech[id]);
@@ -411,7 +424,7 @@ function afford(c){ for(const k in c) if(G.res[k] < c[k]) return false; return t
 function pay(c){ for(const k in c) G.res[k] -= c[k]; }
 function costHTML(c){ return Object.keys(c).map(k=>`<span><i class="ic ${k}"></i>${c[k]}</span>`).join(''); }
 function costText(c){ return Object.keys(c).map(k=>`${c[k]} ${k}`).join(', '); }
-const newStats = () => ({ kills:0, lost:0, raised:0, built:0, gathered:0, found:0 });
+const newStats = () => ({ kills:0, lost:0, raised:0, built:0, gathered:0, found:0, missions:0 });
 function earn(k,n){ G.res[k]+=n; G.stats.gathered+=n; }
 
 // ---------- state ----------
@@ -539,11 +552,11 @@ function mkUnit(kind,team,x,y,lvl=1){
   const d=UD[kind]; let hp=d.hp, atk=d.atk;
   if(team===1){ hp*=1+(lvl-1)*.45; atk*=1+(lvl-1)*.32; }
   else if(kind==='hero'){ hp+=G.heroBuff.hp; atk+=G.heroBuff.atk; }
-  else if(kind!=='villager'&&kind!=='scout'){ const m=1+.2*G.upg; hp*=m; atk*=m; }
+  else if(kind!=='villager'&&kind!=='scout'&&kind!=='builder'){ const m=1+.2*G.upg; hp*=m; atk*=m; }
   const spd=d.spd*(team===0&&has('carto')?1.15:1), vis=(d.vis||0)+((kind==='hero'||kind==='scout')&&has('carto')?4:0);
   return { id:G.nid++, kind, team, x, y, hp, maxhp:hp, atk, range:d.range, rate:d.rate, spd, vis, ranged:!!d.ranged, siege:!!d.siege, pop:d.pop||0,
     cd:0, rt:Math.random()*.3, face:Math.PI/2, flash:0, path:null, pi:0, pt:0, tgt:null, home:-1, mode:'', lvl, lastHit:-99, dead:false, wx:x, wy:y, wt:0, gt:0, respawn:0, moving:false,
-    abT:0, spin:0, job:'', carry:0, ctype:'', tile:-1, work:-1, pgoal:-1, fr:0, working:false, hl:1, xp:0, order:'', ox:0, oy:0, otgt:null, post:null, autoT:-1, ept:0, retreat:false, done:false };
+    abT:0, spin:0, job:'', carry:0, ctype:'', tile:-1, work:-1, pgoal:-1, fr:0, working:false, hl:1, xp:0, order:'', ox:0, oy:0, otgt:null, post:null, autoT:-1, ept:0, retreat:false, done:false, st:0, nm:'', leader:0, mission:null };
 }
 function spawnGuard(b,k){
   const kind = k%3===2 ? 'slinger' : 'brute';
@@ -632,7 +645,8 @@ function moveToward(u,tx,ty,dt,stop=.05){
 function followPath(u,dt){
   if(!u.path) return false;
   const i=u.path[u.pi];
-  if(moveToward(u,i%W+.5,((i/W)|0)+.5,dt,.15)){ u.pi++; if(u.pi>=u.path.length) u.path=null; }
+  // being inside the waypoint's tile is enough: two units sharing a path can never both reach its exact centre
+  if(((u.y|0)*W+(u.x|0))===i||moveToward(u,i%W+.5,((i/W)|0)+.5,dt,.15)){ u.pi++; if(u.pi>=u.path.length) u.path=null; }
   return true;
 }
 function setPath(u,tx,ty,adj,maxN){ const p=findPath(u.x,u.y,tx,ty,u.team,adj,maxN); u.path=p&&p.length?p:null; u.pi=0; return !!p; }
@@ -673,10 +687,10 @@ function hurt(o,d,src){
 function killU(u){
   u.dead=true; burst(u.x,u.y,u.team===0?TEAM[0].c:TEAM[1].c,u.siege?18:10);
   sfx(u.siege?'crash':'die',u.x,u.y);
-  if(u.kind==='hero'){ u.respawn=6; u.path=null; u.tgt=null; toast('Your lord has fallen. They will be back at the keep shortly…','bad'); sfx('bad'); }
+  if(u.kind==='hero'){ u.respawn=6; u.path=null; u.tgt=null; toast('Your hero has fallen. They will be back at the Town Hall shortly…','bad'); sfx('bad'); }
   else if(u.team===1){ const g=Math.round((u.siege?6:1)+u.lvl*.8); G.res.gold+=g; G.stats.kills++; floatText(u.x,u.y-.5,'+'+g,'#f5c542');
     const h=G.hero; if(!h.dead&&Math.hypot(h.x-u.x,h.y-u.y)<10) gainXP(4+u.lvl*3); }
-  else { G.stats.lost++; if(u.kind==='villager') toast('A villager was killed.','bad'); }
+  else { G.stats.lost++; if(u.kind==='villager') toast('A villager was killed.','bad'); if(u.kind==='general') toast(`General ${u.nm} has fallen. Their troops return to the town guard.`,'bad'); }
 }
 function destroyB(b){
   if(b.type==='camp'){ conquer(b); return; }
@@ -702,7 +716,7 @@ function conquer(b){
 const xpNeed = l => 30+20*l;
 function gainXP(n){
   const h=G.hero; h.xp+=n;
-  while(h.xp>=xpNeed(h.hl)){ h.xp-=xpNeed(h.hl); h.hl++; h.maxhp+=12; h.atk+=2; h.hp=h.maxhp; burst(h.x,h.y-.3,'#f3c64b',18); toast(`Your lord reached level ${h.hl}: +12 health, +2 damage.`,'good'); sfx('good'); }
+  while(h.xp>=xpNeed(h.hl)){ h.xp-=xpNeed(h.hl); h.hl++; h.maxhp+=12; h.atk+=2; h.hp=h.maxhp; burst(h.x,h.y-.3,'#f3c64b',18); toast(`Your hero reached level ${h.hl}: +12 health, +2 damage.`,'good'); sfx('good'); }
 }
 
 // ---------- fx ----------
@@ -781,18 +795,20 @@ const troopCount=()=>G.units.filter(isTroop).length;
 const scoutCount=()=>G.units.filter(u=>u.kind==='scout'&&!u.dead).length;
 const villCount=()=>G.units.filter(u=>u.kind==='villager'&&!u.dead).length;
 const QUESTS=[
-  {text:'Build a Farm (key 2)', done:()=>myB('farm').length>0, rew:{wood:40}},
-  {text:'Send out a second scout (Town Hall)', prog:()=>[scoutCount(),2], rew:{gold:30}},
+  {text:"Hire the Builders' Guild at the Town Hall", done:()=>G.guild, rew:{wood:30}},
+  {text:'Build a Farm (key 2, or order it on the Missions board)', done:()=>myB('farm').length>0, rew:{wood:40}},
+  {text:'Give your hero a mission (Missions)', done:()=>G.stats.missions>0, rew:{gold:30}},
   {text:'Have 4 villagers (hire at the Town Hall)', prog:()=>[villCount(),4], rew:{food:60}},
   {text:'Build a House', done:()=>myB('house').length>0, rew:{wood:40,stone:20}},
   {text:'Research Better Tools in the tech tree', done:()=>has('tools'), rew:{gold:40}},
   {text:'Build a Lumber Camp or a Quarry', done:()=>myB('lumber').length+myB('quarry').length>0, rew:{stone:40}},
   {text:'Build a Barracks', done:()=>myB('barracks').length>0, rew:{food:60,gold:30}},
+  {text:'Hire a general at the Barracks', done:()=>generals().length>0, rew:{gold:40}},
   {text:'Train 3 troops at the Barracks', prog:()=>[troopCount(),3], rew:{gold:50}},
-  {text:'Take an enemy camp: tap it and send the army', prog:()=>[G.conquered,1], rew:{wood:100,stone:100}},
+  {text:'Take an enemy camp: send your hero or a general', prog:()=>[G.conquered,1], rew:{wood:100,stone:100}},
   {text:'Upgrade your Town Hall to level 2', done:()=>(hallB()||{}).lvl>=2, rew:{gold:100}},
   {text:'Build a Tower', done:()=>myB('tower').length>0, rew:{stone:80}},
-  {text:'Get your lord to level 5', prog:()=>[G.hero.hl,5], rew:{gold:120}},
+  {text:'Get your hero to level 5', prog:()=>[G.hero.hl,5], rew:{gold:120}},
   {text:'Conquer 5 camps', prog:()=>[G.conquered,5], rew:{wood:200,stone:200,gold:200}},
   {text:'Conquer every camp, fortress included', prog:()=>[G.conquered,G.totalCamps], rew:{gold:500}},
 ];
@@ -877,19 +893,160 @@ function scoutAI(u,dt){
     if(u.hp>=u.maxhp*.95&&G.time-u.lastHit>5){ u.retreat=false; u.path=null; }
     else { if(hall&&Math.hypot(u.x-hall.cx,u.y-hall.cy)>2.5) goTo(u,hall.x,hall.y,dt); return; }
   }
+  const was=u.done;
+  if(exploreStep(u,dt)){ if(!u.done) G.allSeen=false; return; }
+  if(!was&&!G.allSeen){ G.allSeen=true; toast('Your scouts have seen all they safely can. Take camps to open up the rest.','good'); }
+  if(hall&&Math.hypot(u.x-hall.cx,u.y-hall.cy)>2.5) goTo(u,hall.x,hall.y,dt);
+}
+// One step of exploring for a scout or the hero; false once nothing safe is left to see.
+function exploreStep(u,dt){
   // the target came into view on the way: pick a fresher one
   if(u.path&&u.autoT>=0&&u.ept<=0){ u.ept=.8; const t=u.autoT; if(!isFrontier(t)&&!G.feats.some(f=>!f.taken&&f.y*W+f.x===t)) u.path=null; }
   if(!u.path&&u.ept<=0){
     u.ept=u.done?6:.8;
     const plan=planExplore(u);
-    if(plan){ u.done=false; G.allSeen=false; u.path=plan.path; u.pi=0; u.autoT=plan.t; }
-    else { u.autoT=-1; if(!u.done){ u.done=true;
-      if(!G.allSeen){ G.allSeen=true; toast('Your scouts have seen all they safely can. Take camps to open up the rest.','good'); } } }
+    if(plan){ u.done=false; u.path=plan.path; u.pi=0; u.autoT=plan.t; } else { u.autoT=-1; u.done=true; }
   }
-  if(u.path){ followPath(u,dt); return; }
-  if(u.done&&hall&&Math.hypot(u.x-hall.cx,u.y-hall.cy)>2.5) goTo(u,hall.x,hall.y,dt);
+  if(u.path){ followPath(u,dt); return true; }
+  return !u.done;
 }
 function sendScout(){ const b=hallB(); if(!b){ toast('You need a Town Hall to send scouts.','bad'); return; } train('scout',b); }
+
+// ---------- missions ----------
+// You don't steer anyone around: you hand out missions. The hero takes them alone, generals take them with a warband
+// of your troops, and the Builders' Guild puts up what you order. Everyone reports back when a mission is done.
+const GEN_NAMES=['Aldric','Brienne','Cato','Dagna','Edric','Freya','Gorm','Hilde','Ivo','Jora'];
+const GUILD_COST={food:40,wood:30};
+const BUILD_TIME={house:8,farm:8,lumber:10,quarry:10,mine:12,barracks:18,tower:18,wall:3};
+const MAX_GENERALS=3, WARBAND=12;
+const generals=()=>G.units.filter(u=>u.kind==='general'&&!u.dead);
+const builders=()=>G.units.filter(u=>u.kind==='builder'&&!u.dead);
+const unitById=id=>id?G.units.find(u=>u.id===id&&!u.dead):null;
+const leaderOf=u=>u.leader?unitById(u.leader):null;
+const warband=g=>G.units.filter(u=>isTroop(u)&&u.leader===g.id).length;
+const garrison=()=>G.units.filter(u=>isTroop(u)&&!u.order&&!leaderOf(u));
+const cap1=s=>s[0].toUpperCase()+s.slice(1);
+function dirWord(dx,dy){ return ['east','southeast','south','southwest','west','northwest','north','northeast'][(Math.round(Math.atan2(dy,dx)/(Math.PI/4))+8)%8]; }
+function campName(c){
+  if(!c) return 'a camp'; const hall=hallB(), what=c.lvl===6?'the fortress':`the level ${c.lvl} camp`;
+  return hall?`${what} ${Math.round(Math.hypot(c.x-hall.x,c.y-hall.y))} tiles ${dirWord(c.x-hall.x,c.y-hall.y)}`:what;
+}
+function knownCamps(){ const hall=hallB(), d=b=>hall?Math.hypot(b.x-hall.x,b.y-hall.y):0;
+  return G.blds.filter(b=>b.type==='camp'&&b.team===1&&!b.dead&&G.expl[b.y*W+b.x]).sort((a,b)=>d(a)-d(b)); }
+const who=u=>u.kind==='hero'?'Your hero':`General ${u.nm}`;
+function missionText(u){
+  const m=u.mission; if(u.dead) return 'Recovering at the Town Hall'; if(u.retreat) return 'Heading home to heal';
+  if(!m) return u.path?'On the move':'Waiting in town for a mission';
+  return m.type==='explore'?'Exploring the fog':m.type==='defend'?'Defending the town':m.type==='gather'?`Gathering ${m.res}`:`Taking ${campName(findB(m.id))}`;
+}
+function parseMission(s){ if(!s||s==='none') return null; const [t,v]=s.split(':'); return t==='gather'?{type:'gather',res:v}:t==='clear'?{type:'clear',id:+v}:{type:t}; }
+function giveMission(u,m){
+  if(!u||u.dead){ toast(u&&u.kind==='hero'?'Your hero is recovering. Try again in a moment.':'That general is no longer with you.'); return; }
+  u.mission=m; u.tgt=null; u.path=null; u.retreat=false; u.autoT=-1; u.ept=0; u.done=false; u.tile=-1; u.pgoal=-1;
+  if(!m){ toast(`${who(u)} stands down and heads home.`); rideHome(u,3); return; }
+  G.stats.missions++;
+  const band=u.kind==='general'&&m.type!=='gather'&&m.type!=='explore'?` with ${muster(u)} troops`:'';
+  toast(`${who(u)}: ${missionText(u).toLowerCase()}${band}.`);
+}
+// a general takes the town guard along, up to a full warband
+function muster(g){ let n=warband(g); for(const u of garrison()){ if(n>=WARBAND) break; u.leader=g.id; n++; } return n; }
+function endMission(u,msg){ u.mission=null; u.tgt=null; u.retreat=false; if(msg) toast(msg,'good'); rideHome(u,3); }
+function harvest(i){
+  const t=G.terr[i], r=RES_OF[t], n=r==='wood'?3:2, cx=i%W+.5, cy=((i/W)|0)+.5;
+  earn(r,n); sfx(r==='wood'?'chop':'clink',cx,cy);
+  floatText(cx,cy-.5,`+${n} ${r}`,RES_COL[r]); burst(cx,cy-.2,r==='wood'?'#6b4a2b':r==='gold'?'#f5c542':'#bdb5a5',4);
+  deplete(i);
+}
+// The hero and generals carry out their missions on their own.
+function missionAI(u,dt){
+  const hall=hallB(), m=u.mission;
+  u.ept-=dt;
+  // a fight in progress comes first
+  if(u.tgt){ if(u.tgt.dead||u.tgt.team===0) u.tgt=null; else { u.path=null; engage(u,u.tgt,dt); return; } }
+  // badly hurt on a mission: go home to heal, then carry on
+  if(m&&!u.retreat&&u.hp<u.maxhp*.4&&hall&&Math.hypot(u.x-hall.cx,u.y-hall.cy)>4){ u.retreat=true; u.path=null; toast(`${who(u)} is hurt and heading home to heal.`); }
+  if(u.retreat){ if(u.hp>=u.maxhp*.9){ u.retreat=false; u.path=null; } else { if(hall&&Math.hypot(u.x-hall.cx,u.y-hall.cy)>2.5) goTo(u,hall.x,hall.y,dt); return; } }
+  // whatever hits them gets hit back
+  if(G.time-u.lastHit<1.5){ const f=nearestFoe(u,5); if(f&&!f.isB){ u.tgt=f; return; } }
+  if(!m){ if(u.path){ followPath(u,dt); return; } if(u.kind==='general'&&hall&&Math.hypot(u.x-hall.cx,u.y-hall.cy)>3) goTo(u,hall.x,hall.y,dt); return; }
+  switch(m.type){
+    case 'explore': if(!exploreStep(u,dt)) endMission(u,`${who(u)} has explored all they safely can.`); break;
+    case 'clear': {
+      const c=findB(m.id);
+      if(!c||c.dead||c.team!==1){ endMission(u,`${who(u)} has taken the camp and is heading home.`); break; }
+      if(u.st<=0){ u.st=.3; const f=nearestFoe(u,4); if(f&&!f.isB){ u.tgt=f; break; } } // defenders first
+      walkEngage(u,c,dt); break; }
+    case 'defend': {
+      if(!hall) break;
+      if(u.st<=0){ u.st=.4; const f=nearestFoe(u,30,hall.cx,hall.cy,14); if(f&&!f.isB){ u.tgt=f; break; } }
+      if(Math.hypot(u.x-hall.cx,u.y-hall.cy)>2.5) goTo(u,hall.x,hall.y,dt); break; }
+    case 'gather': {
+      if(u.tile<0||!isRes(u.tile)||RES_OF[G.terr[u.tile]]!==m.res){ u.tile=findResFor(u,m.res); if(u.tile<0){ endMission(u,`${who(u)} found no more ${m.res} nearby.`); break; } }
+      const i=u.tile, tx=i%W, ty=(i/W)|0;
+      if(Math.hypot(u.x-tx-.5,u.y-ty-.5)>1.45){ goTo(u,tx,ty,dt); break; }
+      u.face=Math.atan2(ty+.5-u.y,tx+.5-u.x); u.gt-=dt; if(u.gt<=0){ u.gt=.7; harvest(i); } break; }
+  }
+}
+// hit whatever stands right next to you
+function autoStrike(u){ if(u.tgt||u.cd>0) return; const f=nearestFoe(u,u.range+.3); if(f){ u.cd=u.rate; u.face=Math.atan2(oy_(f)-u.y,ox_(f)-u.x); strike(u,f); } }
+
+// ---------- the Builders' Guild ----------
+function hireGuild(){
+  const hall=hallB(); if(G.guild||!hall) return;
+  if(!afford(GUILD_COST)){ toast(`The Builders' Guild asks ${costText(GUILD_COST)}.`,'bad'); return; }
+  if(popUsed()+2>popCap()){ toast('No room for the builders. Build or upgrade Houses first.','bad'); return; }
+  pay(GUILD_COST); G.guild=true;
+  for(let k=0;k<2;k++) G.units.push(mkUnit('builder',0,hall.cx-.4+k*.8,hall.cy+.9));
+  toast("The Builders' Guild has come to town. Order buildings on the Missions board, or place them yourself.",'good'); sfx('good');
+}
+// the builders pick the spot: near the hall, next to forest or hills, or facing the nearest camp
+function autoSite(type){
+  const hall=hallB(); if(!hall) return null;
+  const camps=knownCamps(); let best=null, bs=-1e9;
+  for(let i=0;i<N;i++){
+    if(!terrT[i]) continue; const x=i%W, y=(i/W)|0;
+    if(spotCheck(type,x,y)) continue;
+    const t=G.terr[i], dh=Math.hypot(x-hall.x,y-hall.y); if(dh<2) continue;
+    let sc=-dh;
+    if(type==='lumber'){ const n=countAround(x,y,2,[T.FOREST]); if(n<4) continue; sc=n*1.5-dh*.4; }
+    else if(type==='quarry'){ const n=countAround(x,y,2,[T.HILL,T.GOLD]); if(n<3) continue; sc=n*1.5-dh*.4; }
+    else if(type==='tower'){ if(camps.length){ let dc=1e9; for(const c of camps) dc=Math.min(dc,Math.hypot(x-c.x,y-c.y)); sc=-dc-dh*.1; } else sc=dh*.5; }
+    else if(type!=='mine'&&(t===T.FOREST||t===T.HILL)) sc-=6; // keep trees and rocks for gathering
+    if(bgrid[i-1]||bgrid[i+1]||bgrid[i-W]||bgrid[i+W]) sc-=1.5; // leave room to walk
+    if(sc>bs){ bs=sc; best={x,y}; }
+  }
+  return best;
+}
+function orderBuild(type){
+  if(!G.guild){ toast("Hire the Builders' Guild at the Town Hall first.",'bad'); return; }
+  if(!afford(BD[type].cost)){ toast(`${BD[type].name} costs ${costText(BD[type].cost)}.`,'bad'); return; }
+  const p=autoSite(type);
+  if(!p){ toast(`The builders found no good spot for a ${BD[type].name} inside your border.`,'bad'); return; }
+  if(tryPlace(type,p.x,p.y)){ G.stats.missions++; toast(`The builders are putting up a ${BD[type].name}.`); }
+}
+function finishSite(s){
+  s.dead=true; bgrid[s.y*W+s.x]=null;
+  const b=addBuilding(s.plan,s.x,s.y,0); burst(b.cx,b.cy,'#e9d8b4',12); sfx('build',b.cx,b.cy); G.stats.built++;
+  toast(`${BD[s.plan].name} finished.`,'good');
+}
+function pickSite(u){
+  let best=null, bd=1e9;
+  for(const s of G.blds){ if(s.dead||s.type!=='site') continue;
+    let n=0; for(const o of G.units) if(o!==u&&o.kind==='builder'&&!o.dead&&o.work===s.id) n++;
+    const d=Math.hypot(u.x-s.cx,u.y-s.cy)+n*12; if(d<bd){ bd=d; best=s; } }
+  return best;
+}
+function builderAI(u,dt){
+  const hall=hallB(); u.working=false;
+  if(G.time-u.lastHit<4&&hall){ goTo(u,hall.x,hall.y,dt); return; } // builders run from a fight
+  let s=u.work>=0?findB(u.work):null;
+  if(!s||s.dead||s.type!=='site'){ s=pickSite(u); u.work=s?s.id:-1; }
+  if(!s){ if(hall&&Math.hypot(u.x-hall.cx,u.y-hall.cy)>2.5) goTo(u,hall.x,hall.y,dt); return; }
+  if(Math.hypot(u.x-s.cx,u.y-s.cy)>1.3){ goTo(u,s.x,s.y,dt); return; }
+  u.working=true; u.face=Math.atan2(s.cy-u.y,s.cx-u.x);
+  s.prog+=dt*(has('tools')?1.3:1); if(Math.random()<dt*1.5) sfx('clink',s.cx,s.cy);
+  if(s.prog>=s.need) finishSite(s);
+}
 
 // ---------- building ----------
 let buildSel=null, hover=null;
@@ -910,8 +1067,9 @@ function spotCheck(type,x,y){
   return '';
 }
 function tryPlace(type,x,y){
+  if(!G.guild){ toast("Hire the Builders' Guild at the Town Hall first. Builders put up everything you plan.",'bad'); return false; }
   const err=placeCheck(type,x,y);
-  if(err){ toast(err,'bad'); return; }
+  if(err){ toast(err,'bad'); return false; }
   pay(BD[type].cost);
   const i=y*W+x, tt=G.terr[i];
   if(tt===T.FOREST||tt===T.HILL){
@@ -919,21 +1077,22 @@ function tryPlace(type,x,y){
     if(n){ G.res[r]+=n; floatText(x+.5,y-.2,`+${n} ${r}`,RES_COL[r]); }
     G.terr[i]=tt===T.FOREST?T.GRASS:T.DIRT; G.amt[i]=0; invalidate(i); mmPixel(i);
   }
-  const b=addBuilding(type,x,y,0);
-  burst(b.cx,b.cy,'#e9d8b4',10); sfx('build'); G.stats.built++;
+  const b=addBuilding('site',x,y,0); b.plan=type; b.prog=0; b.need=BUILD_TIME[type];
+  burst(b.cx,b.cy,'#e9d8b4',10); sfx('build');
   if(type==='lumber'&&countAround(x,y,2,[T.FOREST])===0) toast('No forest nearby, so this camp will make nothing.','bad');
   if(type==='quarry'&&countAround(x,y,2,[T.HILL,T.GOLD])===0) toast('No hills nearby, so this quarry will make nothing.','bad');
-  updateHud();
+  updateHud(); return true;
 }
 function countAround(x,y,r,types){ let c=0; for(let dy=-r;dy<=r;dy++) for(let dx=-r;dx<=r;dx++){ const tx=x+dx,ty=y+dy; if(tx>=0&&ty>=0&&tx<W&&ty<H&&types.includes(G.terr[ty*W+tx])) c++; } return c; }
 function selectBuild(type){
+  if(type&&!G.guild){ toast("Hire the Builders' Guild at the Town Hall first. Builders put up everything you plan.",'bad'); type=null; }
   buildSel = buildSel===type ? null : type;
   document.querySelectorAll('.bb').forEach(b=>b.classList.toggle('sel',b.dataset.t===buildSel));
   setHint();
 }
 function setHint(text){
   if(text!==undefined){ $('hint').textContent=text; return; }
-  if(buildSel){ const d=BD[buildSel]; $('hint').textContent=`${d.name}: ${d.desc}. Costs ${costText(d.cost)}. ${matchMedia('(hover:hover)').matches?'Click a green square. Right-click or Esc to stop.':'Tap a green square. Tap the button again to stop.'}`; }
+  if(buildSel){ const d=BD[buildSel]; $('hint').textContent=`${d.name}: ${d.desc}. Costs ${costText(d.cost)}. Builders put it up. ${matchMedia('(hover:hover)').matches?'Click a green square. Right-click or Esc to stop.':'Tap a green square. Tap the button again to stop.'}`; }
   else $('hint').textContent='';
 }
 
@@ -945,7 +1104,9 @@ const hallB = () => G.blds.find(b=>b.type==='hall'&&!b.dead&&b.team===0);
 function hasBarracks(){ return myB('barracks').length>0; }
 function train(kind,b,job){
   const d=UD[kind];
-  if(kind==='villager'||kind==='scout'){ b=b||hallB(); if(!b){ toast('You need a Town Hall to hire villagers.','bad'); return; } }
+  if(kind==='builder'&&!G.guild){ toast("Hire the Builders' Guild first.",'bad'); return; }
+  if(kind==='general'&&generals().length+G.blds.reduce((n,x)=>n+(x.queue||[]).filter(q=>q.kind==='general').length,0)>=MAX_GENERALS){ toast(`You can have at most ${MAX_GENERALS} generals.`); return; }
+  if(kind==='villager'||kind==='scout'||kind==='builder'){ b=b||hallB(); if(!b){ toast('You need a Town Hall to hire villagers.','bad'); return; } }
   else {
     if(kind==='archer'&&!has('archery')){ toast('Research Archery in the development tree first.','bad'); return; }
     if(kind==='knight'&&!has('chivalry')){ toast('Research Chivalry in the development tree first.','bad'); return; }
@@ -961,6 +1122,8 @@ function spawnFrom(b,q){
   G.stats.raised++; sfx('ready',u.x,u.y);
   if(u.kind==='villager') u.job=q.job||autoJob();
   else if(u.kind==='scout') toast('A scout rides out into the fog.');
+  else if(u.kind==='general'){ u.nm=GEN_NAMES.find(n=>!generals().some(g=>g.nm===n))||'Nameless'; toast(`General ${u.nm} reports for duty. Give them a mission on the Missions board.`,'good'); }
+  else if(u.kind==='builder') {}
   else if(b.rally){ u.order='move'; u.ox=b.rally.x+(Math.random()-.5)*.8; u.oy=b.rally.y+(Math.random()-.5)*.8; }
 }
 let rallyPick=null;
@@ -1061,7 +1224,7 @@ function upCost(b){
   if(b.type!=='wall'){ c.stone=(c.stone||0)+15*l; c.gold=(c.gold||0)+10*l; }
   return c;
 }
-const canUp = b => b.team===0&&b.type!=='outpost'&&b.lvl<MAXLV;
+const canUp = b => b.team===0&&b.type!=='outpost'&&b.type!=='site'&&b.lvl<MAXLV;
 function upgradeB(b){
   if(!canUp(b)) return;
   const c=upCost(b); if(!afford(c)){ toast(`Upgrading costs ${costText(c)}.`,'bad'); return; }
@@ -1072,9 +1235,9 @@ function upgradeB(b){
 }
 function demolish(b){
   if(b.type==='hall'||b.team!==0) return;
-  const c=BD[b.type].cost||{}; const back={}; for(const k in c){ back[k]=Math.floor(c[k]*.3); G.res[k]+=back[k]; }
+  const site=b.type==='site', c=BD[site?b.plan:b.type].cost||{}, back={}; for(const k in c){ back[k]=Math.floor(c[k]*(site?.5:.3)); G.res[k]+=back[k]; }
   b.dead=true; bgrid[b.y*W+b.x]=null; burst(b.cx,b.cy,'#b8ad97',14); recomputeTerr();
-  toast(`${BD[b.type].name} demolished.${Object.keys(back).length?` Got back ${costText(back)}.`:''}`);
+  toast(`${site?`${BD[b.plan].name} plan cancelled`:`${BD[b.type].name} demolished`}.${Object.keys(back).length?` Got back ${costText(back)}.`:''}`);
 }
 
 // research
@@ -1096,7 +1259,7 @@ function startResearch(id){
 function finishResearch(id){
   G.tech[id]=1; G.research=null; const h=G.hero;
   if(id==='masonry') for(const b of G.blds) if(b.team===0&&!b.dead&&b.type!=='outpost'){ b.maxhp*=1.5; b.hp*=1.5; }
-  if(id.startsWith('arms')){ G.upg++; for(const u of G.units) if(isTroop(u)){ const d=UD[u.kind], m=1+.2*G.upg, f=u.hp/u.maxhp; u.maxhp=d.hp*m; u.hp=u.maxhp*f; u.atk=d.atk*m; } }
+  if(id.startsWith('arms')){ G.upg++; for(const u of G.units) if(isTroop(u)||(u.kind==='general'&&!u.dead)){ const d=UD[u.kind], m=1+.2*G.upg, f=u.hp/u.maxhp; u.maxhp=d.hp*m; u.hp=u.maxhp*f; u.atk=d.atk*m; } }
   if(id==='carto') for(const u of G.units) if(u.team===0){ u.spd*=1.15; if(u.kind==='hero'||u.kind==='scout') u.vis+=4; }
   if(id==='heroic'){ G.heroBuff.hp+=40; G.heroBuff.atk+=5; h.maxhp+=40; h.hp+=40; h.atk+=5; }
   toast(`Research done: ${TECH[id].name}. ${TECH[id].desc}.`,'good'); sfx('good');
@@ -1115,26 +1278,31 @@ function update(dt){
     h.respawn-=dt;
     if(h.respawn<=0){ const hall=G.blds.find(b=>b.type==='hall'&&!b.dead); if(hall){ h.dead=false; h.hp=h.maxhp; h.x=hall.cx+1; h.y=hall.cy+1; h.cd=0; } }
   } else {
-    // the lord only moves on your orders, and rides back to the keep once a fight is won
-    if(h.tgt){ if(h.tgt.dead||h.tgt.team===0){ h.tgt=null; rideHome(h,5); } else engage(h,h.tgt,dt); }
-    else if(h.path){ followPath(h,dt); }
-    h.rt-=dt;
-    if(!h.tgt && h.rt<=0){ h.rt=.2; const f=nearestFoe(h,h.range+.3); if(f&&h.cd<=0){ h.cd=h.rate; h.face=Math.atan2(oy_(f)-h.y,ox_(f)-h.x); strike(h,f); } }
+    h.pt-=dt; h.st-=dt;
+    missionAI(h,dt); autoStrike(h);
   }
 
   // other units
   const followers=[];
   for(const u of G.units){
     if(u.dead||u.kind==='hero') continue;
-    u.cd-=dt; u.flash-=dt; u.rt-=dt; u.pt-=dt;
+    u.cd-=dt; u.flash-=dt; u.rt-=dt; u.pt-=dt; u.st-=dt;
     u.moving=false;
-    if(u.team===0){ if(u.kind==='villager') villagerAI(u,dt); else if(u.kind==='scout') scoutAI(u,dt); else if(u.order) orderAI(u,dt); else followers.push(u); } else enemyAI(u,dt);
+    if(u.team!==0) enemyAI(u,dt);
+    else if(u.kind==='villager') villagerAI(u,dt);
+    else if(u.kind==='scout') scoutAI(u,dt);
+    else if(u.kind==='builder') builderAI(u,dt);
+    else if(u.kind==='general'){ missionAI(u,dt); autoStrike(u); }
+    else if(u.order) orderAI(u,dt); else followers.push(u);
   }
-  // scouts and the lord pick up treasure they walk over
+  // scouts and the hero pick up treasure they walk over
   for(const u of G.units){ if(u.dead||u.team!==0||(u.kind!=='scout'&&u.kind!=='hero')) continue;
     for(const f of G.feats) if(!f.taken&&Math.abs(u.x-f.x-.5)<.7&&Math.abs(u.y-f.y-.5)<.7) pickup(f); }
   h.cd-=dt; h.flash-=dt;
-  followers.forEach((u,k)=>allyAI(u,k,dt));
+  // troops stay with their general's warband, or else guard the town
+  const bands=new Map();
+  for(const u of followers){ const l=leaderOf(u); if(!l) u.leader=0; const k=l?l.id:0; if(!bands.has(k)) bands.set(k,[]); bands.get(k).push(u); }
+  for(const [k,us] of bands){ const anchor=k?unitById(k):hallB(); us.forEach((u,i)=>allyAI(u,i,dt,anchor)); }
 
   // buildings: towers, camps, regen
   for(const b of G.blds){
@@ -1250,7 +1418,7 @@ function orderAI(u,dt){
       walkEngage(u,o,dt); return;
     }
     u.otgt=null; u.tgt=null;
-    if(o&&o.isB){ u.order=''; u.path=null; return; } // the camp is ours: back to the lord
+    if(o&&o.isB){ u.order=''; u.path=null; return; } // the camp is ours: back to their post
     u.order='hold'; u.ox=u.x; u.oy=u.y;
   }
   if(u.order==='move'){
@@ -1263,8 +1431,7 @@ function orderAI(u,dt){
   u.tgt=null;
   if(Math.hypot(u.x-u.ox,u.y-u.oy)>.3) walkTo(u,u.ox,u.oy,dt);
 }
-function allyAI(u,k,dt){
-  const h=G.hero, anchor=h.dead?G.blds.find(b=>b.type==='hall'):h;
+function allyAI(u,k,dt,anchor){
   if(!anchor) return;
   const ax=anchor.isB?anchor.cx:anchor.x, ay=anchor.isB?anchor.cy+1:anchor.y;
   if(u.rt<=0){ u.rt=.3; if(!u.tgt||u.tgt.dead||u.tgt.team===0||Math.hypot(ox_(u.tgt)-ax,oy_(u.tgt)-ay)>11) u.tgt=nearestFoe(u,6,ax,ay,9); }
@@ -1321,7 +1488,7 @@ function pickup(f){
   burst(cx,cy,f.type==='chest'?'#f5c542':'#b89cff',16); G.stats.found++; sfx(f.type==='chest'?'coin':'good');
   if(f.type==='shrine'){
     G.heroBuff.hp+=20; G.heroBuff.atk+=3; h.maxhp+=20; h.atk+=3; h.hp=h.maxhp;
-    toast('A shrine blesses your lord: +20 health, +3 damage.','good'); return;
+    toast('A shrine blesses your hero: +20 health, +3 damage.','good'); return;
   }
   const roll=Math.random();
   if(roll<.18){ reveal(cx,cy,16); toast('An old map. The land around here is revealed.','good'); }
@@ -1469,7 +1636,7 @@ const RC={ blue:'#4a82e0', red:'#d24a3f', clay:'#c8664a', thatch:'#d9bb5c', slat
 // how far each building reaches above the top of its tile, for outlines, health bars and tapping
 const BTOP={ hall:.5, house:.2, farm:.2, lumber:.2, quarry:.45, mine:.3, barracks:.2, tower:.6, wall:.1, camp:.2, outpost:.2 };
 const bTop = (type,lvl) => lvl===6&&(type==='camp'||type==='outpost') ? 1.2 : BTOP[type]||0;
-function bBox(o){ const tp=bTop(o.type,o.lvl); return o.lvl===6&&(o.type==='camp'||o.type==='outpost') ? [o.x-.45,o.y-tp,1.9,2.5] : [o.x-.04,o.y-tp,1.08,1.04+tp]; }
+function bBox(o){ const tp=bTop(o.type==='site'?o.plan:o.type,o.lvl); return o.lvl===6&&(o.type==='camp'||o.type==='outpost') ? [o.x-.45,o.y-tp,1.9,2.5] : [o.x-.04,o.y-tp,1.08,1.04+tp]; }
 function log(g,x,y,len){ rect(g,x,y-.08,len,.04,'#a0683a'); rect(g,x,y-.04,len,.04,'#7d4f2a'); oct(g,x,y-.04,.035,.04,'#d7a46a'); rect(g,x-.01,y-.05,.02,.02,'#a8743c'); }
 function tent(g,x,y,w,d,c){ bshadow(g,x,y,w,d,.18); roof(g,x,y,w,d,.26,c); tri(g,x+w/2-.05,y+d,x+w/2,y+d-.13,x+w/2+.05,y+d,'#2a1d17'); }
 function fire(g,cx,cy,t,hot){ const f=Math.sin((t||0)*12+cx)*.02;
@@ -1587,13 +1754,24 @@ function drawBuilding(g,type,x,y,team,lvl,t,nb=0){
       break; }
   }
 }
+// A building going up: its outline fills in as the builders work, inside a wooden scaffold.
+function drawSite(g,o,t){
+  const x=o.x, y=o.y, f=clamp(o.prog/o.need,0,1);
+  rect(g,x+.05,y+.1,.9,.86,'rgba(120,90,55,.45)');
+  g.globalAlpha=.2+.6*f; drawBuilding(g,o.plan,x,y,0,1,t,o.plan==='wall'?wallNb(x,y):0); g.globalAlpha=1;
+  for(const dx of [.08,.88]){ rect(g,x+dx,y-.2,.04,1.1,'#8b5a2b'); }
+  rect(g,x+.08,y+.12,.84,.04,'#a0683a'); rect(g,x+.08,y+.52,.84,.04,'#a0683a');
+  rect(g,x+.1,y+.98,.8,.07,'rgba(0,0,0,.55)'); rect(g,x+.1,y+.98,.8*f,.07,'#e0a93b');
+}
 function wallNb(x,y){
   const j=(dx,dy)=>{ const X=x+dx,Y=y+dy; if(X<0||Y<0||X>=W||Y>=H) return 0; const b=bgrid[Y*W+X]; return b&&b.team===0&&(b.type==='wall'||b.type==='tower')?1:0; };
   return j(0,-1)|j(1,0)<<1|j(0,1)<<2|j(-1,0)<<3;
 }
 // Every unit is a person seen from above. Local "up" (-y) is the way they face.
 const STYLE={
-  hero:    {sc:1.3,  tunic:'#2f6fd6', tunicD:'#2457ad', pads:'#e7b84a', head:'crown', cape:['#b3262e','#8a1c22'], weapon:'sword'},
+  hero:    {sc:1.3,  tunic:'#2f6fd6', tunicD:'#2457ad', pads:'#e7b84a', head:'hair', cape:['#d9a322','#b1841a'], weapon:'sword'},
+  general: {sc:1.25, team:1, head:'plume', weapon:'sword', shield:1, pads:'#e7b84a', cape:['#e0a93b','#a8781f'], banner:1},
+  builder: {sc:1,    tunic:'#b07a3c', tunicD:'#8e6230', head:'cap', weapon:'hammer'},
   scout:   {sc:.95,  tunic:'#6f8f4e', tunicD:'#566f3c', head:'hood', cape:['#7c9a5a','#5f7a43'], weapon:'staff'},
   villager:{sc:1,    tunic:'#a9855a', tunicD:'#8d6d47', head:'hat', weapon:'tool'},
   soldier: {sc:1.05, team:1, head:'helmet', weapon:'spear', shield:1},
@@ -1613,7 +1791,7 @@ function drawPerson(g,u,x,y,t,fl){
   const dk=(x0,y0,w,h,c)=>rect(g,sd>0?x0:-x0-w,y0,w,h,c); // shaded half, on the side away from the light
   const step=u.moving?Math.sin(t*13+u.id):0;
   let swing=u.cd>u.rate-.18?1-(u.rate-u.cd)/.18:0;
-  if(u.kind==='villager') swing=u.working?Math.max(0,Math.sin(t*9+u.id)):0;
+  if(u.kind==='villager'||u.kind==='builder') swing=u.working?Math.max(0,Math.sin(t*9+u.id)):0;
   let tunic=st.tunic, tunicD=st.tunicD;
   if(st.team){ tunic=st.light?tc.l:st.dark?tc.d:tc.c; tunicD=st.light?tc.c:st.dark?'#5c1512':tc.d; }
   if(st.armor){ tunic='#bcc5cf'; tunicD='#8f99a5'; }
@@ -1624,6 +1802,7 @@ function drawPerson(g,u,x,y,t,fl){
   if(st.cape){ const c=Array.isArray(st.cape)?st.cape:[tc.c,tc.d], sw=.03*step;
     quad(g,-.2,-.02,.2,-.02,.24+sw,.25,-.24+sw,.25,F(c[0])); quad(g,0,-.02,.2*sd,-.02,.24*sd+sw,.25,sw,.25,F(c[1])); }
   if(st.quiver){ rect(g,.03,.02,.08,.2,'#6b4428'); tri(g,.03,.02,.07,-.06,.11,.02,'#eee6d4'); }
+  if(st.banner){ rect(g,.1,.0,.03,.36,'#6b4428'); rect(g,.13,.2,.16,.13,F(tc.c)); rect(g,.13,.2,.16,.035,F(tc.l)); }
   if(u.kind==='villager'&&u.carry>0){ const c=CARRY_COL[u.ctype]||'#ffffff'; rect(g,-.1,.05,.2,.15,c); dk(0,.05,.1,.15,sh(c,.75)); }
   // boots in step
   rect(g,-.12,-.1-.08*step,.09,.12,'#3b2a1d'); rect(g,.03,-.1+.08*step,.09,.12,'#3b2a1d');
@@ -1645,16 +1824,15 @@ function drawPerson(g,u,x,y,t,fl){
     case 'tool':  if(u.working){ rect(g,-.015,-.34,.03,.26,'#8b5a2b'); rect(g,-.07,-.37,.14,.05,'#aab4c0'); } break;
     case 'sling': rect(g,-.01,-.26,.02,.18,'#6b4428'); rect(g,-.03,-.29,.06,.05,'#8f99a5'); break;
     case 'staff': rect(g,-.015,-.46,.03,.56,'#8b5a2b'); rect(g,-.03,-.5,.06,.06,'#c9a15a'); break;
+    case 'hammer': if(u.working){ rect(g,-.015,-.32,.03,.26,'#8b5a2b'); rect(g,-.065,-.38,.13,.08,'#8f99a5'); } break;
   }
   rect(g,-.04,-.1,.08,.08,skin);
   g.restore();
   // head and headgear
   rect(g,-.12,-.14,.24,.2,skin); rect(g,-.1,-.16,.2,.24,skin); dk(0,-.14,.12,.2,skinD);
   switch(st.head){
-    case 'crown': rect(g,-.12,-.08,.24,.14,'#5b3a21'); rect(g,-.1,-.08,.2,.16,'#5b3a21'); dk(0,-.08,.12,.14,'#472c18');
-      // a gold band with points, seen from above, and a red stone at the front
-      rect(g,-.12,-.13,.24,.04,F('#f3c64b')); rect(g,-.12,.05,.24,.04,F('#d9a322')); rect(g,-.12,-.13,.04,.22,F('#f3c64b')); rect(g,.08,-.13,.04,.22,F('#d9a322'));
-      for(const [px,py] of [[-.14,-.15],[.1,-.15],[-.14,.07],[.1,.07]]) rect(g,px,py,.04,.04,F('#ffe28a')); rect(g,-.025,-.15,.05,.05,F('#e0483e')); break;
+    case 'hair': rect(g,-.12,-.08,.24,.14,'#5b3a21'); rect(g,-.1,-.08,.2,.16,'#5b3a21'); rect(g,-.12,-.1,.03,.05,'#5b3a21'); rect(g,.09,-.1,.03,.05,'#5b3a21'); dk(0,-.08,.12,.14,'#472c18'); break;
+    case 'cap': rect(g,-.13,-.11,.26,.22,F('#e0a93b')); dk(0,-.11,.13,.22,F('#b8862c')); rect(g,-.13,-.15,.26,.05,F('#f3c64b')); break;
     case 'hat': rect(g,-.14,-.11,.28,.24,F('#d8b86a')); dk(0,-.11,.14,.24,F('#b8954a')); rect(g,-.07,-.05,.14,.12,F('#c9a85a')); dk(0,-.05,.07,.12,F('#a8873f')); break;
     case 'helmet': rect(g,-.13,-.11,.26,.22,'#a7b0bb'); dk(0,-.11,.13,.22,'#7e8894'); rect(g,-.02,-.12,.04,.24,'#d3dae1'); break;
     case 'plume': rect(g,-.13,-.11,.26,.22,'#c8d0d8'); dk(0,-.11,.13,.22,'#98a2ad'); tri(g,-.04,-.08,.04,-.08,0,.24,F(tc.c)); break;
@@ -1816,7 +1994,7 @@ function render(t){
   list.sort((a,b)=>a[0]-b[0]);
   for(const [,o] of list){
     if(o.isB){
-      drawBuilding(ctx,o.type,o.x,o.y,o.team,o.lvl,t,o.type==='wall'?wallNb(o.x,o.y):0);
+      if(o.type==='site') drawSite(ctx,o,t); else drawBuilding(ctx,o.type,o.x,o.y,o.team,o.lvl,t,o.type==='wall'?wallNb(o.x,o.y):0);
       const [bx,by,bw,bh]=bBox(o);
       if(o.team===0&&o.lvl>1&&o.type!=='outpost'){ rect(ctx,o.x+.02,o.y+.88,.12*(o.lvl-1)+.04,.12,'rgba(0,0,0,.45)'); pips(ctx,o.x+.04,o.y+.9,o.lvl-1,'#f3c64b'); }
       if(o.flash>0){ ctx.fillStyle='rgba(255,255,255,.3)'; ctx.fillRect(bx+.08,by+.08,bw-.16,bh-.12); }
@@ -1878,7 +2056,7 @@ function render(t){
   if(dragBox){ const rc=cv.getBoundingClientRect(), k=cw/rc.width, x0=(Math.min(dragBox.x0,dragBox.x1)-rc.left)*k, y0=(Math.min(dragBox.y0,dragBox.y1)-rc.top)*k;
     ctx.fillStyle='rgba(224,169,59,.12)'; ctx.strokeStyle='rgba(224,169,59,.9)'; ctx.lineWidth=1.5*DPR;
     ctx.fillRect(x0,y0,Math.abs(dragBox.x1-dragBox.x0)*k,Math.abs(dragBox.y1-dragBox.y0)*k); ctx.strokeRect(x0,y0,Math.abs(dragBox.x1-dragBox.x0)*k,Math.abs(dragBox.y1-dragBox.y0)*k); }
-  if(h.dead){ ctx.font=`700 ${Math.round(18*DPR)}px "Chakra Petch", system-ui, sans-serif`; ctx.fillStyle='#efe6cf'; ctx.fillText(`Your lord returns in ${Math.ceil(h.respawn)}`,cw/2,chh*.35); }
+  if(h.dead){ ctx.font=`700 ${Math.round(18*DPR)}px "Chakra Petch", system-ui, sans-serif`; ctx.fillStyle='#efe6cf'; ctx.fillText(`Your hero returns in ${Math.ceil(h.respawn)}`,cw/2,chh*.35); }
 }
 
 // ---------- minimap ----------
@@ -1917,7 +2095,8 @@ function drawIcons(){
 // Icons for the action buttons, drawn with the same art as the world (in a 1×1 box).
 const pose = kind => ({kind,team:0,face:-Math.PI/2,spin:0,moving:false,cd:0,rate:1,id:1,working:false,carry:0});
 const ACT_ICONS={
-  scoutbtn:g=>{ oct(g,.5,.5,.44,.44,'#9aa4b0'); oct(g,.5,.5,.35,.35,'#1b2330'); tri(g,.5,.14,.62,.5,.38,.5,'#e0483e'); tri(g,.38,.5,.62,.5,.5,.86,'#efe6cf'); },
+  missionsbtn:g=>{ rect(g,.22,.2,.56,.62,'#efe6cf'); rect(g,.16,.13,.68,.1,'#c9a15a'); rect(g,.16,.79,.68,.1,'#c9a15a');
+    for(let k=0;k<3;k++) rect(g,.3,.35+k*.12,.4-k*.08,.04,'#8a7a62'); oct(g,.68,.74,.1,.1,'#e0483e'); },
   herobtn:g=>drawPerson(g,pose('hero'),.5,.56,0,false),
   armybtn:g=>{ g.translate(.5,.52); g.scale(.8,.8); drawPerson(g,pose('soldier'),-.28,.06,0,false); drawPerson(g,pose('archer'),.3,-.04,0,false); },
   townbtn:g=>{ g.translate(.16,.36); g.scale(.68,.68); drawBuilding(g,'hall',0,0,0,1,0); },
@@ -1926,7 +2105,6 @@ const ACT_ICONS={
     box(g,.37,.16,.28,.2,.08,'#e0a93b'); box(g,.1,.62,.3,.22,.08,'#4f8ff7'); box(g,.6,.62,.3,.22,.08,'#7fd37a'); },
   buildbtn:g=>{ g.save(); g.translate(.06,.22); g.scale(.74,.74); drawBuilding(g,'house',0,0,0,1,0); g.restore(); oct(g,.78,.26,.2,.2,'#e0a93b'); rect(g,.69,.245,.18,.035,'#1a1408'); rect(g,.7625,.17,.035,.18,'#1a1408'); },
 };
-$('scoutbtn').addEventListener('click',sendScout);
 $('homebtn').addEventListener('click',lookHome);
 
 function updateHud(){
@@ -1948,7 +2126,8 @@ function updateHud(){
   const tb=$('top').getBoundingClientRect().bottom, sr=selEl.getBoundingClientRect(), wide=!selEl.hidden&&sr.width>innerWidth*.7;
   const bt=Math.min($('bottom').getBoundingClientRect().top,wide?sr.top:1e9);
   focusT=clamp((tb+bt)/2/innerHeight,.25,.6); document.documentElement.style.setProperty('--hudb',Math.round(tb)+'px');
-  questHUD(); refreshSel(); renderTech();
+  questHUD(); refreshSel(); renderTech(); renderMissions();
+  $('missionsbtn').classList.toggle('alert',!G.hero.dead&&!G.hero.mission&&!G.hero.path||generals().some(g=>!g.mission));
 }
 
 // ---------- selection panel ----------
@@ -1967,11 +2146,12 @@ function setTray(v){
 }
 $('buildbtn').addEventListener('click',()=>setTray(!tray));
 $('quest').addEventListener('click',()=>{ const q=QUESTS[G.quest]; if(q) toast(`Goal: ${q.text}. Reward: ${costText(q.rew)}.`); });
-const isTroop = u => u.team===0&&!u.dead&&u.kind!=='hero'&&u.kind!=='villager'&&u.kind!=='scout';
+const isTroop = u => u.team===0&&!u.dead&&!!UD[u.kind].pop&&!['hero','villager','scout','builder','general'].includes(u.kind);
+const commandable = u => !['hero','scout','builder','general'].includes(u.kind);
 function cmdUnits(){
   if(!sel) return [];
   if(sel.group) return sel.group.filter(u=>!u.dead&&G.units.includes(u));
-  if(sel.kind&&sel.kind!=='hero'&&sel.kind!=='scout'&&sel.team===0&&!sel.dead) return [sel];
+  if(sel.kind&&commandable(sel)&&sel.team===0&&!sel.dead) return [sel];
   return [];
 }
 function formation(n,k){ const c=Math.ceil(Math.sqrt(n)), rows=Math.ceil(n/c); return [((k%c)-(c-1)/2)*.8, (Math.floor(k/c)-(rows-1)/2)*.8]; }
@@ -2010,7 +2190,7 @@ const meter=(v,max,cls='')=>`<div class="meter ${cls}"><i style="width:${clamp(v
 function btn(act,label,o={}){ return `<button class="act${o.off?' no':''}${o.on?' on':''}" data-act="${act}" data-arg="${o.arg||''}"${o.title?` title="${o.title}"`:''}>${label}${o.cost?` <span class="cost">${costHTML(o.cost)}</span>`:''}</button>`; }
 const armed = k => armKey===k&&performance.now()-armT<3000;
 function rateText(r){ const ks=Object.keys(r).filter(k=>r[k]>0); return ks.length?ks.map(k=>`${r[k].toFixed(1)} ${k}/s`).join(', '):'nothing right now'; }
-function queueHTML(b){ if(!b.queue.length) return ''; const q=b.queue[0]; return `<p class="q"><span>Training ${UD[q.kind].name}</span>${meter(q.tt-q.t,q.tt)}<span>${Math.ceil(q.t)}s${b.queue.length>1?` +${b.queue.length-1}`:''}</span></p>`; }
+function queueHTML(b){ if(!b.queue.length) return ''; const q=b.queue[0]; return `<div class="q"><span>Training ${UD[q.kind].name}</span>${meter(q.tt-q.t,q.tt)}<span>${Math.ceil(q.t)}s${b.queue.length>1?` +${b.queue.length-1}`:''}</span></div>`; }
 function selHTML(o){
   let head='', body='', acts='', extra='';
   const hp=o.maxhp?`${meter(o.hp,o.maxhp,o.team?'bad':'good')}<p class="sub">Health ${Math.ceil(o.hp)} / ${Math.round(o.maxhp)}</p>`:'';
@@ -2018,7 +2198,7 @@ function selHTML(o){
     const c={}; for(const u of o.group) c[u.kind]=(c[u.kind]||0)+1;
     head=`${o.group.length} units selected`;
     body=`<p class="sub">${Object.keys(c).map(k=>`${c[k]} ${UD[k].name.toLowerCase()}${c[k]>1?'s':''}`).join(' · ')}</p><p>Tap the map to move them there. Tap an enemy or camp to attack${c.villager?', or a tree, rock or farm to put villagers to work':''}.</p>`;
-    if(o.group.some(isTroop)) acts=btn('follow','Back to the lord')+btn('hold','Hold here');
+    if(o.group.some(isTroop)) acts=btn('follow','Back to their post')+btn('hold','Hold here');
     if(c.villager) acts+=JOBS.map(j=>btn('setjob',JOB_NAME[j],{arg:j})).join('');
     acts+=btn('close','Deselect');
   } else if(o.res!==undefined){
@@ -2030,7 +2210,12 @@ function selHTML(o){
     const g=G.units.filter(u=>!u.dead&&u.home===o.id).length;
     head=`${o.lvl===6?'Enemy fortress':'Enemy camp'} <span class="chip bad">Level ${o.lvl}</span>`;
     body=hp+`<p>${g} guard${g===1?'':'s'} nearby. Destroy it to claim the land and about ${40*o.lvl} gold.</p>`;
-    acts=warActs();
+    acts=warActs(o);
+  } else if(o.isB&&o.type==='site'){
+    const n=builders().filter(u=>u.work===o.id&&u.working).length;
+    head=`${BD[o.plan].name} <span class="chip">Building</span>`;
+    body=meter(o.prog,o.need,'good')+`<p class="sub">${Math.floor(o.prog/o.need*100)}% · ${n?`${n} builder${n>1?'s':''} at work`:'Waiting for a builder'}</p>`;
+    acts=btn('demolish',armed('demo'+o.id)?'Tap again to cancel':'Cancel (half back)',{on:armed('demo'+o.id)});
   } else if(o.isB){
     head=`${BD[o.type].name}${o.type!=='outpost'?` <span class="chip">Level ${o.lvl}</span>`:''}`;
     body=hp;
@@ -2040,14 +2225,14 @@ function selHTML(o){
         body+=`<p>Stores everything and makes ${rateText(rates(o))}.</p><p class="sub">${vs.length} villager${vs.length===1?'':'s'}${idle?`, ${idle} idle`:''} · Population ${popUsed()}/${popCap()}</p><div class="jobs">`+
           JOBS.map(j=>`<div class="job"><span>${JOB_NAME[j]}</span><b>${jobCount(j)}</b>${btn('job-','−',{arg:j,title:'Take one villager off this job'})}${btn('job+','+',{arg:j,title:'Put a villager on this job'})}</div>`).join('')+'</div>';
         body+=queueHTML(o);
-        if(G.research){ const t=TECH[G.research.id]; body+=`<p class="q"><span>Researching ${t.name}</span>${meter(G.research.tt-G.research.t,G.research.tt)}<span>${Math.ceil(G.research.t)}s</span></p>`; }
+        if(G.research){ const t=TECH[G.research.id]; body+=`<div class="q"><span>Researching ${t.name}</span>${meter(G.research.tt-G.research.t,G.research.tt)}<span>${Math.ceil(G.research.t)}s</span></div>`; }
         extra=`<p class="sub">Market</p><div class="acts">`+Object.keys(TRADES).map(id=>{ const tr=TRADES[id]; return btn('trade',`${tr.label}`,{arg:id,cost:id.startsWith('sell')?tr.get:tr.give,off:!afford(tr.give)}); }).join('')+`</div>`;
-        acts=btn('train','Hire villager',{arg:'villager',cost:UD.villager.cost,off:!afford(UD.villager.cost)||popUsed()>=popCap()})+btn('train',`Send a scout (${scoutCount()} out)`,{arg:'scout',cost:UD.scout.cost,off:!afford(UD.scout.cost)||popUsed()>=popCap()})+btn('tech','Development tree');
+        acts=(G.guild?'':btn('guild',"Hire the Builders' Guild",{cost:GUILD_COST,off:!afford(GUILD_COST)}))+btn('missions','Missions board')+btn('train','Hire villager',{arg:'villager',cost:UD.villager.cost,off:!afford(UD.villager.cost)||popUsed()>=popCap()})+btn('train',`Send a scout (${scoutCount()} out)`,{arg:'scout',cost:UD.scout.cost,off:!afford(UD.scout.cost)||popUsed()>=popCap()})+(G.guild?btn('train','Hire a builder',{arg:'builder',cost:UD.builder.cost,off:!afford(UD.builder.cost)||popUsed()>=popCap()}):'')+btn('tech','Development tree');
         break; }
       case 'barracks':
-        body+=queueHTML(o)+`<p class="sub">${o.rally?'New troops march to the rally flag and hold there.':'New troops join the guard around your lord.'} Arms level ${G.upg}.</p>`;
+        body+=queueHTML(o)+`<p class="sub">${o.rally?'New troops march to the rally flag and hold there.':'New troops join the town guard. Generals take them on missions.'} Arms level ${G.upg}.</p>`;
         if(rallyPick===o) body+=`<p><b>Tap the map where new troops should gather.</b></p>`;
-        acts=btn('rally',o.rally?'Move rally point':'Set rally point',{on:rallyPick===o})+(o.rally?btn('unrally','Clear rally point'):'')+TRAIN.map(k=>{ const lk=(k==='archer'&&!has('archery'))||(k==='knight'&&!has('chivalry'));
+        acts=btn('train',`Hire a general (${generals().length}/${MAX_GENERALS})`,{arg:'general',cost:UD.general.cost,off:!afford(UD.general.cost)||generals().length>=MAX_GENERALS})+btn('rally',o.rally?'Move rally point':'Set rally point',{on:rallyPick===o})+(o.rally?btn('unrally','Clear rally point'):'')+TRAIN.map(k=>{ const lk=(k==='archer'&&!has('archery'))||(k==='knight'&&!has('chivalry'));
           return btn('train',lk?`${UD[k].name}: needs ${k==='archer'?'Archery':'Chivalry'}`:UD[k].name,{arg:k,cost:lk?null:UD[k].cost,off:lk||!afford(UD[k].cost)}); }).join('');
         break;
       case 'house': body+=`<p>Adds ${4*o.lvl} population.</p>`; break;
@@ -2064,10 +2249,19 @@ function selHTML(o){
     else if(o.type!=='outpost') acts+=`<span class="sub">Fully upgraded</span>`;
     if(o.type!=='hall'&&o.type!=='outpost') acts+=btn('demolish',armed('demo'+o.id)?'Tap again to demolish':'Demolish',{on:armed('demo'+o.id)});
   } else if(o.kind==='hero'){
-    head=`Your lord <span class="chip">Level ${o.hl}</span>`;
-    const where=o.tgt?'Leading the charge':o.path?'Riding out':'At the keep';
-    body=hp+meter(o.xp,xpNeed(o.hl),'xp')+`<p class="sub">Experience ${o.xp}/${xpNeed(o.hl)} · Damage ${Math.round(o.atk)} · ${where}</p><p>Tap the map to ride out, or an enemy to lead the charge. Your troops ride with you, and you all come home after the fight. Grows stronger from battles and conquests.</p>`;
-    acts=btn('whirl',o.abT>0?`Whirlwind (${Math.ceil(o.abT)}s)`:'Whirlwind',{off:o.abT>0})+btn('home','Return to the keep');
+    head=`Hero <span class="chip">Level ${o.hl}</span>`;
+    const m=o.mission;
+    body=hp+meter(o.xp,xpNeed(o.hl),'xp')+`<p class="sub">Experience ${o.xp}/${xpNeed(o.hl)} · Damage ${Math.round(o.atk)}</p><p class="now">${missionText(o)}.</p><p class="sub">Give a mission below or on the Missions board. To send your hero somewhere yourself, tap the map.</p>`;
+    acts=btn('mh','Explore',{arg:'explore',on:!!m&&m.type==='explore'})+btn('mh','Defend the town',{arg:'defend',on:!!m&&m.type==='defend'})+btn('mh','Stand down',{arg:'none'})+btn('missions','Missions board')+btn('whirl',o.abT>0?`Whirlwind (${Math.ceil(o.abT)}s)`:'Whirlwind',{off:o.abT>0});
+  } else if(o.kind==='general'){
+    head=`General ${o.nm}`;
+    body=hp+`<p class="now">${missionText(o)}.</p><p class="sub">Leads ${warband(o)} troops. Generals take the town guard along on missions.</p>`;
+    acts=btn('mg','Defend the town',{arg:o.id+':defend',on:!!o.mission&&o.mission.type==='defend'})+btn('mg','Stand down',{arg:o.id+':none'})+btn('missions','Missions board')+btn('dismiss',armed('dis'+o.id)?'Tap again to dismiss':'Dismiss',{on:armed('dis'+o.id)});
+  } else if(o.kind==='builder'){
+    head='Builder';
+    const st=o.work>=0?findB(o.work):null;
+    body=hp+`<p>${st&&st.type==='site'?`${o.working?'Building':'On the way to build'} a ${BD[st.plan].name}`:'Waiting for work at the Town Hall'}.</p><p class="sub">Builders put up everything you plan. Order buildings on the Missions board, or place them from the build bar.</p>`;
+    acts=btn('missions','Missions board');
   } else if(o.kind==='scout'){
     head='Scout';
     const st=o.retreat?'Riding home to heal':o.done?'Resting at the Town Hall: nothing safe is left to explore':'Scouting the fog';
@@ -2081,19 +2275,34 @@ function selHTML(o){
     acts=JOBS.map(j=>btn('setjob',JOB_NAME[j],{arg:j,on:o.job===j})).join('');
   } else if(o.team===0){
     head=UD[o.kind].name;
-    const st=o.order==='attack'?'Attacking':o.order==='move'?'Moving':o.order==='hold'?'Holding its position and guarding the area':'Guarding your lord';
+    const lead=leaderOf(o), st=o.order==='attack'?'Attacking':o.order==='move'?'Moving':o.order==='hold'?'Holding its position and guarding the area':lead?`In General ${lead.nm}'s warband`:'Guarding the town';
     body=hp+`<p class="sub">Damage ${Math.round(o.atk)} · Range ${o.range}</p><p>${st}. Tap the map to move it, or an enemy to attack.</p>`;
-    acts=btn('follow','Guard the lord',{on:!o.order})+btn('hold','Hold here',{on:o.order==='hold'})+btn('dismiss',armed('dis'+o.id)?'Tap again to dismiss':'Dismiss',{on:armed('dis'+o.id)});
+    acts=btn('follow',lead?`Follow General ${lead.nm}`:'Guard the town',{on:!o.order})+btn('hold','Hold here',{on:o.order==='hold'})+btn('dismiss',armed('dis'+o.id)?'Tap again to dismiss':'Dismiss',{on:armed('dis'+o.id)});
   } else {
     head=`${{brute:'Brute',slinger:'Slinger',warlord:'Warlord',ram:'Battering ram'}[o.kind]} <span class="chip bad">Level ${o.lvl}</span>`;
     body=hp+`<p class="sub">Damage ${Math.round(o.atk)}${o.mode==='raid'?' · Raiding your town':''}</p>`+(o.siege?'<p>Smashes walls and buildings but ignores people. Slow, so troops can catch it on the road.</p>':'');
-    acts=warActs();
+    acts=warActs(o);
   }
   return `<header><h3>${head}</h3><button class="x" data-act="close" aria-label="Close">×</button></header>${body}<div class="acts">${acts}</div>${extra}`;
 }
-// what you can do about an enemy: send the army, or ride out yourself
-function warActs(){ const n=G.units.filter(isTroop).length;
-  return btn('sendarmy',n?`Send the army (${n})`:'No troops yet',{off:!n})+btn('attack','Ride out yourself',{off:G.hero.dead}); }
+// what you can do about an enemy: send the hero or a general, or the town guard
+function warActs(o){
+  let a=btn('msend',G.hero.dead?'Hero is recovering':'Send the hero',{arg:'hero',off:G.hero.dead});
+  for(const g of generals()) a+=btn('msend',`Send General ${g.nm} (${warband(g)+garrison().length>WARBAND?WARBAND:warband(g)+garrison().length} troops)`,{arg:String(g.id)});
+  const n=garrison().length; if(n) a+=btn('sendarmy',`Send the town guard (${n})`);
+  if(!generals().length) a+=`<p class="sub">Hire generals at a Barracks to lead your troops.</p>`;
+  return a; }
+// missions handed out from any panel or the Missions board
+function missionAct(a,arg){
+  switch(a){
+    case 'mh': giveMission(G.hero,parseMission(arg)); break;
+    case 'mg': { const i=arg.indexOf(':'); giveMission(unitById(+arg.slice(0,i)),parseMission(arg.slice(i+1))); break; }
+    case 'hire': if(arg==='general'){ const b=myB('barracks')[0]; if(!b){ toast('Build a Barracks first.','bad'); break; } train('general',b); } else train(arg,hallB()); break;
+    case 'guild': hireGuild(); break;
+    case 'build': orderBuild(arg); break;
+    case 'missions': openMissions(); break;
+  }
+}
 function doAct(a,arg){
   const o=sel, h=G.hero; if(!o) return;
   switch(a){
@@ -2108,8 +2317,10 @@ function doAct(a,arg){
     case 'follow': for(const u of cmdUnits()) if(u.kind!=='villager'){ u.order=''; u.tgt=null; u.path=null; } break;
     case 'hold': for(const u of cmdUnits()) if(u.kind!=='villager'){ u.order='hold'; u.ox=u.x; u.oy=u.y; u.tgt=null; u.path=null; } break;
     case 'tech': openTech(); break;
-    case 'attack': if(!h.dead){ h.tgt=o; h.path=null; toast('Your lord rides out to the fight.'); } break;
-    case 'sendarmy': { const t=G.units.filter(isTroop); if(!t.length){ toast('You have no troops yet. Train them at a Barracks.'); break; }
+    case 'mh': case 'mg': case 'hire': case 'guild': case 'build': case 'missions': missionAct(a,arg); break;
+    case 'msend': { const u=arg==='hero'?h:unitById(+arg); if(!u) break;
+      if(o.isB) giveMission(u,{type:'clear',id:o.id}); else { u.tgt=o; u.path=null; toast(`${who(u)} rides out to the fight.`); } break; }
+    case 'sendarmy': { const t=garrison(); if(!t.length){ toast('The town guard is empty. Train troops at a Barracks.'); break; }
       orderAttack(t,o); toast(`${t.length} troop${t.length>1?'s march':' marches'} on the ${o.isB?(o.lvl===6?'fortress':'camp'):'enemy'}.`); break; }
     case 'recall': o.retreat=true; o.path=null; o.autoT=-1; break;
     case 'sendv': { const j=RES_OF[G.terr[o.res]], tx=o.res%W+.5, ty=((o.res/W)|0)+.5; let best=null, bd=1e9;
@@ -2117,10 +2328,9 @@ function doAct(a,arg){
       if(!best){ toast('You have no villagers yet. Hire them at the Town Hall.'); break; }
       assign(best,j); best.tile=o.res; toast(`A villager is on the way to gather ${j}.`); break; }
     case 'rally': rallyPick=rallyPick===o?null:o; break;
-    case 'unrally': o.rally=null; rallyPick=null; toast('New troops will join the guard around your lord.'); break;
+    case 'unrally': o.rally=null; rallyPick=null; toast('New troops will join the town guard.'); break;
     case 'trade': trade(arg); break;
     case 'whirl': whirlwind(); break;
-    case 'home': if(!h.dead){ h.tgt=null; rideHome(h,1.5); } break;
   }
   panelHold=false; selSig=''; refreshSel(); updateHud();
 }
@@ -2129,9 +2339,43 @@ addEventListener('pointerup',()=>setTimeout(()=>{ panelHold=false; },0));
 addEventListener('pointercancel',()=>{ panelHold=false; });
 selEl.addEventListener('click',e=>{ const b=e.target.closest('[data-act]'); if(b) doAct(b.dataset.act,b.dataset.arg); });
 
+// ---------- missions board ----------
+let mOpen=false, mSig='';
+function openMissions(){ closeTech(); mOpen=true; $('missions').hidden=false; mSig=''; renderMissions(); }
+function closeMissions(){ mOpen=false; $('missions').hidden=true; }
+function renderMissions(){
+  if(!mOpen||panelHold) return;
+  const h=G.hero, m=h.mission, camps=knownCamps().slice(0,6), on=(u,t,r)=>!!u.mission&&u.mission.type===t&&(!r||u.mission.res===r);
+  const campBtns=(act,pre,u)=>camps.length?camps.map(c=>btn(act,cap1(campName(c)),{arg:`${pre}clear:${c.id}`,on:!!u.mission&&u.mission.type==='clear'&&u.mission.id===c.id})).join(''):'<span class="sub">No camps found yet. Explore to find them.</span>';
+  let html='<div class="mgrid">';
+  html+=`<section class="mcard"><header><h4>Hero</h4><span class="chip">Level ${h.hl}</span></header><p class="now">${missionText(h)}</p>${meter(h.hp,h.maxhp,'good')}
+    <div class="acts">${btn('mh','Explore the fog',{arg:'explore',on:on(h,'explore')})}${btn('mh','Defend the town',{arg:'defend',on:on(h,'defend')})}${['wood','stone','gold'].map(r=>btn('mh',`Gather ${r}`,{arg:'gather:'+r,on:on(h,'gather',r)})).join('')}${btn('mh','Stand down',{arg:'none'})}</div>
+    <p class="sub">Take a camp alone:</p><div class="acts">${campBtns('mh','',h)}</div></section>`;
+  const gs=generals(), bar=myB('barracks').length>0;
+  html+=`<section class="mcard"><header><h4>Generals</h4><span class="chip">${gs.length}/${MAX_GENERALS}</span></header>`+
+    (gs.length?'':`<p class="sub">Generals lead your troops: on a mission they take the town guard along as their warband.</p>`)+
+    gs.map(g=>`<div class="gen"><p><b>General ${g.nm}</b> · ${warband(g)} troops</p><p class="now">${missionText(g)}</p><div class="acts">${btn('mg','Defend the town',{arg:g.id+':defend',on:on(g,'defend')})}${btn('mg','Stand down',{arg:g.id+':none'})}</div><p class="sub">Take a camp:</p><div class="acts">${campBtns('mg',g.id+':',g)}</div></div>`).join('')+
+    `<div class="acts">${btn('hire','Hire a general',{arg:'general',cost:UD.general.cost,off:!bar||gs.length>=MAX_GENERALS||!afford(UD.general.cost)})}</div>`+
+    `<p class="sub">${bar?'':'Needs a Barracks. '}${garrison().length} troops in the town guard.</p></section>`;
+  const bs=builders(), sites=G.blds.filter(b=>b.type==='site'&&!b.dead);
+  html+=`<section class="mcard"><header><h4>Builders' Guild</h4>${G.guild?`<span class="chip">${bs.length} builder${bs.length===1?'':'s'}</span>`:''}</header>`+
+    (G.guild?(sites.length?sites.map(s=>`<div class="q"><span>${BD[s.plan].name}</span>${meter(s.prog,s.need,'good')}<span>${Math.floor(s.prog/s.need*100)}%</span></div>`).join(''):'<p class="sub">Nothing under construction.</p>')+
+      `<p class="sub">Order a building and the builders choose the spot:</p><div class="acts">${['farm','house','lumber','quarry','mine','barracks','tower'].map(k=>btn('build',BD[k].name,{arg:k,cost:BD[k].cost,off:!afford(BD[k].cost)})).join('')}${btn('hire','Hire a builder',{arg:'builder',cost:UD.builder.cost,off:!afford(UD.builder.cost)||popUsed()>=popCap()})}</div>`
+    :`<p class="sub">Builders put up everything you plan, and can choose good spots themselves.</p><div class="acts">${btn('guild',"Hire the Builders' Guild",{cost:GUILD_COST,off:!afford(GUILD_COST)})}</div>`)+'</section>';
+  html+=`<section class="mcard"><header><h4>Scouts and villagers</h4><span class="chip">${scoutCount()} scouts</span></header><p class="sub">Scouts explore on their own and bring back treasure. Villagers gather; set their jobs at the Town Hall.</p>
+    <div class="acts">${btn('hire','Send a scout',{arg:'scout',cost:UD.scout.cost,off:!afford(UD.scout.cost)||popUsed()>=popCap()})}${btn('hire','Hire a villager',{arg:'villager',cost:UD.villager.cost,off:!afford(UD.villager.cost)||popUsed()>=popCap()})}</div></section>`;
+  html+='</div>';
+  if(html!==mSig){ mSig=html; $('mbody').innerHTML=html; }
+}
+$('missions').addEventListener('pointerdown',()=>{ panelHold=true; });
+$('mbody').addEventListener('click',e=>{ const b=e.target.closest('[data-act]'); if(!b) return; panelHold=false; missionAct(b.dataset.act,b.dataset.arg); mSig=''; renderMissions(); updateHud(); });
+$('mclose').addEventListener('click',closeMissions);
+$('missions').addEventListener('click',e=>{ if(e.target.id==='missions') closeMissions(); });
+$('missionsbtn').addEventListener('click',()=>mOpen?closeMissions():openMissions());
+
 // ---------- development tree ----------
 let techOpen=false, techSig='';
-function openTech(){ techOpen=true; $('techs').hidden=false; techSig=''; renderTech(); }
+function openTech(){ if(mOpen) closeMissions(); techOpen=true; $('techs').hidden=false; techSig=''; renderTech(); }
 function closeTech(){ techOpen=false; $('techs').hidden=true; }
 function renderTech(){
   if(!techOpen||panelHold) return;
@@ -2167,12 +2411,12 @@ function save(){
   if(!G||G.over) return;
   try{
     const d={ v:2, seed:G.seed, terr:enc(G.terr), amt:enc(G.amt), shade:enc(G.shade), expl:enc(G.expl),
-      blds:G.blds.filter(b=>!b.dead).map(b=>[b.id,b.type,b.x,b.y,b.team,Math.round(b.hp),b.maxhp,b.lvl,b.queue||[],b.rally||null]),
+      blds:G.blds.filter(b=>!b.dead).map(b=>[b.id,b.type,b.x,b.y,b.team,Math.round(b.hp),b.maxhp,b.lvl,b.queue||[],b.rally||null,b.plan||null,+(b.prog||0).toFixed(1),b.need||0]),
       units:G.units.filter(u=>!u.dead||u.kind==='hero').map(u=>{ const atk=u.order==='attack';
         return [u.kind,u.team,+u.x.toFixed(2),+u.y.toFixed(2),Math.max(1,Math.round(u.hp)),u.maxhp,u.atk,u.home,u.mode,u.lvl,u.job,u.xp,u.hl,u.carry,u.ctype,
-          atk?'hold':u.order,+(atk?u.x:u.ox).toFixed(2),+(atk?u.y:u.oy).toFixed(2),u.post,u.work,u.abT>0?+u.abT.toFixed(1):0]; }),
+          atk?'hold':u.order,+(atk?u.x:u.ox).toFixed(2),+(atk?u.y:u.oy).toFixed(2),u.post,u.work,u.abT>0?+u.abT.toFixed(1):0,u.nm,u.leader,u.mission]; }),
       feats:G.feats, res:G.res, time:G.time, nextRaid:G.nextRaid, conquered:G.conquered, totalCamps:G.totalCamps, upg:G.upg, heroBuff:G.heroBuff, nid:G.nid, won:G.won,
-      tech:G.tech, research:G.research, speed:G.speed, quest:G.quest, growT:G.growT, diff:G.diff, stats:G.stats };
+      tech:G.tech, research:G.research, speed:G.speed, quest:G.quest, growT:G.growT, diff:G.diff, stats:G.stats, guild:G.guild };
     localStorage.setItem(SAVE_KEY,JSON.stringify(d));
   }catch(e){}
 }
@@ -2183,12 +2427,12 @@ function load(){
     G={ seed:d.seed, terr:dec(d.terr), amt:dec(d.amt), shade:dec(d.shade), expl:dec(d.expl), units:[], blds:[], feats:d.feats, proj:[], parts:[], texts:[],
       res:d.res, time:d.time, nextRaid:d.nextRaid, conquered:d.conquered, totalCamps:d.totalCamps, upg:d.upg, heroBuff:d.heroBuff, nid:d.nid, over:false, won:!!d.won, marker:null,
       tech:d.tech||{}, research:d.research||null, speed:d.speed||1, quest:d.quest||0, growT:d.growT||d.time+DAY*2,
-      diff:DIFFS[d.diff]?d.diff:1, stats:Object.assign(newStats(),d.stats) };
+      diff:DIFFS[d.diff]?d.diff:1, stats:Object.assign(newStats(),d.stats), guild:!!d.guild };
     resetGrids();
-    for(const [id,type,x,y,team,hp,maxhp,lvl,queue,rally] of d.blds){ const b={id,isB:true,type,x,y,cx:x+.5,cy:y+.5,team,hp,maxhp,lvl,cd:0,spawnT:20,flash:0,lastHit:-99,dead:false,queue:queue||[],rally:rally||null}; G.blds.push(b); bgrid[y*W+x]=b; }
-    for(const [kind,team,x,y,hp,maxhp,atk,home,mode,lvl,job,xp,hl,carry,ctype,order,ox,oy,post,work,abT] of d.units){ const u=mkUnit(kind,team,x,y,lvl); u.hp=hp; u.maxhp=maxhp; u.atk=atk; u.home=home; u.mode=mode;
+    for(const [id,type,x,y,team,hp,maxhp,lvl,queue,rally,plan,prog,need] of d.blds){ const b={id,isB:true,type,x,y,cx:x+.5,cy:y+.5,team,hp,maxhp,lvl,cd:0,spawnT:20,flash:0,lastHit:-99,dead:false,queue:queue||[],rally:rally||null,plan,prog:prog||0,need:need||0}; G.blds.push(b); bgrid[y*W+x]=b; }
+    for(const [kind,team,x,y,hp,maxhp,atk,home,mode,lvl,job,xp,hl,carry,ctype,order,ox,oy,post,work,abT,nm,leader,mission] of d.units){ const u=mkUnit(kind,team,x,y,lvl); u.hp=hp; u.maxhp=maxhp; u.atk=atk; u.home=home; u.mode=mode;
       u.job=job||''; u.xp=xp||0; u.hl=hl||1; u.carry=carry||0; u.ctype=ctype||'';
-      u.order=order||''; u.ox=ox??x; u.oy=oy??y; u.post=post||null; u.work=work??-1; u.abT=abT||0;
+      u.order=order||''; u.ox=ox??x; u.oy=oy??y; u.post=post||null; u.work=work??-1; u.abT=abT||0; u.nm=nm||''; u.leader=leader||0; u.mission=mission||null;
       G.units.push(u); if(kind==='hero') G.hero=u; }
     if(!G.hero) return false;
     const hall=G.blds.find(b=>b.type==='hall'&&b.team===0);
@@ -2239,7 +2483,7 @@ function zoom(d){ const n=clamp(zi+d,0,ZOOMS.length-1); if(n!==zi){ zi=n; setSca
 addEventListener('keydown',e=>{
   if(e.target.tagName==='INPUT') return;
   const k=e.key.toLowerCase();
-  if(k==='escape'){ if(techOpen) closeTech(); else if(buildSel) selectBuild(null); else if(sel) select(null); else if($('overlay').hidden) showOverlay(); else if(!G.over) hideOverlay(); return; }
+  if(k==='escape'){ if(mOpen) closeMissions(); else if(techOpen) closeTech(); else if(buildSel) selectBuild(null); else if(sel) select(null); else if($('overlay').hidden) showOverlay(); else if(!G.over) hideOverlay(); return; }
   if(k==='m'&&!e.repeat){ setSound(!prefs.sound); return; }
   if(!$('overlay').hidden) return;
   if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright',' '].includes(k)) e.preventDefault();
@@ -2250,6 +2494,7 @@ addEventListener('keydown',e=>{
   const bi='12345678'.indexOf(k); if(bi>=0) selectBuild(BUILD_ORDER[bi]);
   if(k==='t') train('soldier'); if(k==='y') train('archer'); if(k==='u') train('knight'); if(k==='v') train('villager');
   if(k==='r') techOpen?closeTech():openTech();
+  if(k==='o') mOpen?closeMissions():openMissions();
   if(k==='e'&&!G.hero.dead) select(G.hero); if(k==='q') selectTroops(); if(k==='h'){ const b=hallB(); if(b) select(b); }
   if(k==='f') setSpeed(G.speed===1?2:G.speed===2?4:1);
   if(k==='+'||k==='=') zoom(1); if(k==='-'||k==='_') zoom(-1);
@@ -2293,7 +2538,7 @@ function endPtr(e){
 }
 function finishBox(add){
   const a=toWorld(Math.min(dragBox.x0,dragBox.x1),Math.min(dragBox.y0,dragBox.y1)), b=toWorld(Math.max(dragBox.x0,dragBox.x1),Math.max(dragBox.y0,dragBox.y1));
-  let us=G.units.filter(u=>u.team===0&&!u.dead&&u.kind!=='hero'&&u.kind!=='scout'&&u.x>=a.x&&u.x<=b.x&&u.y-.2>=a.y&&u.y-.2<=b.y);
+  let us=G.units.filter(u=>u.team===0&&!u.dead&&commandable(u)&&u.x>=a.x&&u.x<=b.x&&u.y-.2>=a.y&&u.y-.2<=b.y);
   if(add) us=[...new Set(cmdUnits().concat(us))];
   if(!us.length){ toast('No units in that box. Drag around your troops or villagers.'); return; }
   select(us.length===1?us[0]:{group:us});
@@ -2327,12 +2572,15 @@ function onTap(wx,wy,add,finger){
     if(G.expl[i]&&isRes(i)){ orderGather(cu,i); G.marker={x:tx,y:ty,t:.5}; return; }
     orderMove(cu,wx,wy); G.marker={x:tx,y:ty,t:.5}; return;
   }
-  // your lord, when selected, rides where you tap or charges the enemy you tap
+  // your hero, when selected, goes where you tap, takes the camp you tap or fights the enemy you tap
   if(sel===h&&!h.dead&&!(hit&&hit.team===0)){
-    if(hit){ h.tgt=hit; h.path=null; G.marker={x:tx,y:ty,t:.5}; return; }
+    G.marker={x:tx,y:ty,t:.5};
+    if(hit&&hit.isB){ giveMission(h,{type:'clear',id:hit.id}); return; }
+    h.mission=null; h.retreat=false;
+    if(hit){ h.tgt=hit; h.path=null; return; }
     h.tgt=null;
-    if(!setPath(h,tx,ty,!PASS[G.terr[i]])&&Math.hypot(tx+.5-h.x,ty+.5-h.y)>1) toast("Your lord can't find a way there.");
-    G.marker={x:tx,y:ty,t:.5}; return;
+    if(!setPath(h,tx,ty,!PASS[G.terr[i]])&&Math.hypot(tx+.5-h.x,ty+.5-h.y)>1) toast("Your hero can't find a way there.");
+    return;
   }
   // otherwise a tap just looks at what is there
   if(hit){ select(hit); return; }
@@ -2364,7 +2612,7 @@ let last=performance.now();
 function frame(now){
   const dt=Math.min(.05,(now-last)/1000); last=now;
   if(!paused&&!G.over){ const n=G.speed||1; for(let k=0;k<n;k++) update(dt); }
-  // the camera: WASD or arrows pan it, lookAt() glides it, and it follows the lord only while they are selected
+  // the camera: WASD or arrows pan it, lookAt() glides it, and it follows the hero only while they are selected
   let kx=0,ky=0;
   if(!paused){ if(keys.has('a')||keys.has('arrowleft')) kx--; if(keys.has('d')||keys.has('arrowright')) kx++; if(keys.has('w')||keys.has('arrowup')) ky--; if(keys.has('s')||keys.has('arrowdown')) ky++; }
   if(kx||ky){ const v=16/ZOOMS[zi]/Math.hypot(kx,ky)*dt; cam.x+=kx*v; cam.y+=ky*v; cam.follow=false; cam.tx=null; }
