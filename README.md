@@ -8,6 +8,8 @@
 
 You run the realm by handing out missions instead of steering anyone around. Your hero takes missions alone, generals lead your troops, the Builders' Guild puts up what you order, scouts explore and villagers gather. Everyone reports back when a mission is done, and the camera stays on your realm instead of chasing anyone.
 
+Every day asks you to decide something. Pick the right troops for each camp, keep your army fed and paid, answer the council's dilemmas each morning, and get ready for the warlord's horde before it marches.
+
 | | Desktop | Touch |
 |---|---|---|
 | Look around | WASD / arrow keys or right-drag | Drag with one finger |
@@ -36,14 +38,27 @@ You run the realm by handing out missions instead of steering anyone around. You
 - **Scouts:** the map starts in fog. You begin with one scout, and more can be sent from the Town Hall or the Missions board (X). Each rides on its own to the nearest unexplored edge or treasure, spreads out from the others, keeps away from enemy camps and runs home to heal when anything hurts it. Chests hold loot, maps or a free soldier. Purple shrines make your hero permanently stronger.
 - **Villagers:** hire them at the Town Hall and split them between wood, stone, gold and farming. They carry what they gather to the Town Hall or the nearest Lumber Camp, Quarry or Gold Mine, and run home when attacked.
 - **Missions:** the Missions board (O) lists your hero, generals, Builders' Guild and scouts, shows what each is doing, and offers their missions. A red dot on the Missions button means someone is waiting for orders.
-- **Hero:** takes one mission at a time: explore the fog, take a camp alone, defend the town, or gather wood, stone or gold. They fight back, go home to heal when badly hurt, then carry on, and level up from battles and conquests. Select them and tap the map to send them somewhere yourself.
-- **Generals:** hire up to three at a Barracks. Give one a camp to take or the town to defend and they take the town guard along as their warband (up to 12 troops), deal with defenders on the way, take the camp and march home. Troops without a general guard the town.
+- **Hero:** takes one mission at a time: explore the fog, take a camp alone, defend the town, or gather wood, stone or gold. They fight back, go home to heal when badly hurt (three times as fast at the Town Hall), then carry on, and level up from battles and conquests. Without a mission they still fight raiders who reach the town. Select them and tap the map to send them somewhere yourself.
+- **Generals:** hire up to three at a Barracks. Give one a camp to take or the town to defend and they take the town guard along as their warband (up to 12 troops), picking the troops that fight that camp best. A general with a big warband sends the troops in first and joins once the guards are down, then takes the camp and marches home. Troops without a general guard the town.
 - **Builders' Guild:** hire it at the Town Hall to get two builders; hire more later. Every building is now a construction site that builders put up over a few seconds. Order a building on the Missions board and the builders choose the spot (farms and houses near the hall, lumber camps by forest, quarries by hills, towers facing the nearest camp), or pick one from the build bar and place it yourself.
 - **Command units separately:** whatever you select takes your orders. Troops sent somewhere hold that spot and fight anything within about 5 tiles. Tap an enemy to attack it, or use Back to their post to regroup. Villagers can be sent to any spot, tree, rock, gold vein or farm.
 - **Tap to act:** every building, unit, camp and resource opens a panel with its stats and actions. From there you can upgrade, demolish, train, hire, give missions or send a villager.
 - **Development tree:** 14 technologies in six branches (Economy, Farming, Defense, Military, Arms, Exploration). Research runs at the Town Hall, one at a time.
 - **Upgrades:** buildings go up to level 3 for more output, health and range.
 - **Build:** Farms make food. Lumber Camps and Quarries collect from nearby forest and hills. Gold Mines must touch a gold vein. Houses raise troop capacity. Towers shoot raiders and widen your land. Walls slow raiders down.
+- **Know the enemy:** every camp is a brute warband, a slinger nest, a rider camp or a shield fort, marked by its banner, and its guards and raids match. The counters:
+
+  | Enemy | Beat it with | Avoid |
+  |---|---|---|
+  | Brutes | Archers (triple damage) | |
+  | Slingers | Knights (double damage; stones glance off plate) | |
+  | Riders | Soldiers (double damage) | Archers and villagers, which riders run down |
+  | Shieldbearers | Knights | Archers and towers, which barely hurt them |
+
+- **Battle forecast:** every Send button on a camp shows a forecast chip: *Likely victory*, *Risky* or *Likely defeat*, and for the hero alone, *Slow victory* when they will win over a few trips home to heal. The forecast weighs both sides' health and damage, the counters, the camp's walls and the guards it keeps sending out. In hundreds of staged fights, *Likely victory* won about 97% of the time, *Risky* about 40% and *Likely defeat* about 2%.
+- **Upkeep:** villagers, scouts and builders eat. Soldiers, archers, knights and generals eat and draw wages. The food and gold chips show the net gain or loss per second and turn red when you will run out within a minute. Out of food, your people starve and get hurt. Out of gold, unpaid troops desert one by one. The Town Hall panel shows the full upkeep.
+- **The council:** most mornings the game pauses for a decision with no free answer. You can pay a camp's tribute or face a raid twice as big within the minute. Other choices: hire sellswords, dig wells against a drought, pay healers during a fever, pay a deserter to weaken a camp, buy from a caravan, hold a harvest festival (a quarter faster work for a day, or slower if refused), or take in refugees who will need feeding.
+- **The warlord's horde:** on day 10 (Normal; day 14 Relaxed, day 8 Hard) the fortress sends a horde of every kind of fighter with battering rams, then a bigger one every three days until the fortress falls. A morning message warns you three days ahead, and a chip counts down the last day.
 - **Conquer:** red camps get tougher the farther they are from home, and the farthest one is a fortress with a warlord. Destroy a camp to claim its land and loot. Take every camp to win.
 - **Defend:** after the first nights, camps send raids at your Town Hall. A red chip at the top counts down the last 30 seconds before each raid sets out. Red arrows at the screen edge and red dots on the minimap show where raiders are. From day 4 (on Normal) raids bring battering rams: slow, tough machines that ignore people and smash walls and buildings, so meet them on the road. Every two days (on Normal) the remaining camps grow a level stronger. If your Town Hall falls, the game is over.
 - **Sound:** every hit, arrow, axe blow, build and fanfare is synthesized in the browser, with no audio files. Sounds fade with distance from the view.
