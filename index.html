@@ -314,7 +314,7 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
         <dt>Your hero</dt><dd>Takes one mission at a time, fights back, goes home to heal when hurt and levels up. To send them somewhere yourself, select them<span class="kb"> (E)</span> and tap the map. <span class="kb">Z</span><span class="tc">Their Whirlwind</span> hits everything close by.</dd>
         <dt>Villagers</dt><dd>Hire them at the Town Hall<span class="kb"> (H)</span> and set their jobs. They gather and farm for you.</dd>
         <dt>Goals</dt><dd>Follow the goal under the resource bar for rewards<span class="tc">; tap it to read it in full</span>.</dd>
-        <dt>Grow</dt><dd>Research in the tech tree<span class="kb"> (R)</span>, upgrade buildings to level 3, level up your hero. <span class="kb">F</span><span class="tc">The 1× button</span> changes game speed.</dd>
+        <dt>Grow</dt><dd>Research in the tech tree<span class="kb"> (R)</span>: each technology makes the next dearer, and the later ones need a bigger Town Hall, so choose. Builders upgrade buildings, but none can outgrow the Town Hall, and the hall needs two taken camps to become a castle (level 3). <span class="kb">F</span><span class="tc">The 1× button</span> changes game speed.</dd>
         <dt>Build</dt><dd>Hire the Builders' Guild at the Town Hall. Then order buildings on the Missions board and the builders pick the spot, or choose one <span class="kb">with keys 1–8 or the bar below and click</span><span class="tc">with Build and tap</span> a green square inside your blue border. Builders put it up.</dd>
         <dt>Train</dt><dd><span class="kb">T soldier, Y archer, U knight at a Barracks,</span><span class="tc">Tap a Barracks to train soldiers, archers and knights,</span> and hire generals there to lead them.</dd>
         <dt>Defend</dt><dd>Troops that are not with a general guard the town. Towers and the Town Hall shoot raiders. A hero or general on a defend mission meets them on the road, and one waiting in town fights them at the gate.</dd>
@@ -436,21 +436,23 @@ const JOBS = ['wood','stone','gold','food'];
 const JOB_NAME = {wood:'Wood',stone:'Stone',gold:'Gold',food:'Farming'};
 const MAXLV = 3;
 const TECHS = [
-  {id:'tools',   br:'Economy',     name:'Better Tools',  desc:'Villagers gather 30% faster',                     cost:{wood:60,stone:20},          time:20},
-  {id:'steel',   br:'Economy',     name:'Steel Tools',   desc:'Villagers gather 40% faster and carry 15',        cost:{wood:120,stone:60,gold:40}, time:35, req:['tools']},
-  {id:'mining',  br:'Economy',     name:'Deep Mining',   desc:'Quarries and mines produce 50% more',             cost:{wood:100,stone:40},         time:25, req:['tools']},
-  {id:'agri',    br:'Farming',     name:'Agriculture',   desc:'Farms produce 50% more food',                     cost:{wood:80,food:40},           time:20},
-  {id:'irrig',   br:'Farming',     name:'Irrigation',    desc:'Farms produce another 50% more',                  cost:{wood:150,gold:40},          time:35, req:['agri']},
-  {id:'masonry', br:'Defense',     name:'Masonry',       desc:'All your buildings get 50% more health',          cost:{stone:80},                  time:25},
-  {id:'fort',    br:'Defense',     name:'Fortification', desc:'Towers reach 2 tiles farther and hit 50% harder', cost:{stone:150,gold:60},        time:40, req:['masonry']},
-  {id:'archery', br:'Military',    name:'Archery',       desc:'Barracks can train archers',                      cost:{wood:80,gold:20},           time:20, needB:'barracks'},
-  {id:'chivalry',br:'Military',    name:'Chivalry',      desc:'Barracks can train knights',                      cost:{food:120,gold:80},          time:40, req:['archery']},
-  {id:'arms1',   br:'Arms',        name:'Bronze Arms',   desc:'Troops get +20% health and damage',               cost:{stone:40,gold:50},          time:25, needB:'barracks'},
-  {id:'arms2',   br:'Arms',        name:'Iron Arms',     desc:'Troops get another +20%',                         cost:{stone:80,gold:100},         time:35, req:['arms1']},
-  {id:'arms3',   br:'Arms',        name:'Steel Arms',    desc:'Troops get another +20%',                         cost:{stone:120,gold:160},        time:45, req:['arms2']},
-  {id:'carto',   br:'Exploration', name:'Cartography',   desc:'Scouts and your hero see 4 tiles farther; units move 15% faster', cost:{wood:60,gold:30}, time:20},
-  {id:'heroic',  br:'Exploration', name:'Hero Training', desc:'Your hero gets +40 health and +5 damage',         cost:{food:80,gold:60},           time:30, req:['carto']},
+  {id:'tools',   br:'Economy',     name:'Better Tools',  desc:'Villagers gather 30% faster',                     cost:{wood:200,stone:100},            time:60},
+  {id:'steel',   br:'Economy',     name:'Steel Tools',   desc:'Villagers gather 40% faster and carry 15',        cost:{wood:500,stone:300,gold:80},    time:120, req:['tools'], hall:2},
+  {id:'mining',  br:'Economy',     name:'Deep Mining',   desc:'Quarries and mines produce 50% more',             cost:{wood:400,stone:250},            time:90,  req:['tools'], hall:2},
+  {id:'agri',    br:'Farming',     name:'Agriculture',   desc:'Farms produce 50% more food',                     cost:{wood:200,food:250},             time:60},
+  {id:'irrig',   br:'Farming',     name:'Irrigation',    desc:'Farms produce another 50% more',                  cost:{wood:450,food:500,gold:40},     time:105, req:['agri'], hall:2},
+  {id:'masonry', br:'Defense',     name:'Masonry',       desc:'All your buildings get 50% more health',          cost:{stone:300},                     time:75},
+  {id:'fort',    br:'Defense',     name:'Fortification', desc:'Towers reach 2 tiles farther and hit 50% harder', cost:{stone:600,gold:100},            time:120, req:['masonry'], hall:2},
+  {id:'archery', br:'Military',    name:'Archery',       desc:'Barracks can train archers',                      cost:{wood:250,gold:40},              time:60,  needB:'barracks'},
+  {id:'chivalry',br:'Military',    name:'Chivalry',      desc:'Barracks can train knights',                      cost:{food:600,gold:120},             time:120, req:['archery'], hall:2},
+  {id:'arms1',   br:'Arms',        name:'Bronze Arms',   desc:'Troops get +20% health and damage',               cost:{stone:300,food:300,gold:80},    time:90,  needB:'barracks', hall:2},
+  {id:'arms2',   br:'Arms',        name:'Iron Arms',     desc:'Troops get another +20%',                         cost:{stone:600,food:500,gold:160},   time:135, req:['arms1'], hall:3},
+  {id:'arms3',   br:'Arms',        name:'Steel Arms',    desc:'Troops get another +20%',                         cost:{stone:900,food:800,gold:250},   time:165, req:['arms2'], hall:3},
+  {id:'carto',   br:'Exploration', name:'Cartography',   desc:'Scouts and your hero see 4 tiles farther; units move 15% faster', cost:{wood:200,food:150,gold:30},     time:60},
+  {id:'heroic',  br:'Exploration', name:'Hero Training', desc:'Your hero gets +40 health and +5 damage',         cost:{food:500,gold:100},             time:90,  req:['carto'], hall:2},
 ];
+// every technology you already know makes the next one 10% dearer, so you can't have them all early
+const techCost = t => { const m=1+.1*Object.keys(G.tech).length, c={}; for(const k in t.cost) c[k]=Math.round(t.cost[k]*m/5)*5; return c; };
 const TECH = Object.fromEntries(TECHS.map(t=>[t.id,t]));
 const has = id => !!(G && G.tech && G.tech[id]);
 // the council's decisions lift or sour the town's mood for a day
@@ -1178,7 +1180,7 @@ function finishSite(s){
 }
 function pickSite(u){
   let best=null, bd=1e9;
-  for(const s of G.blds){ if(s.dead||s.type!=='site') continue;
+  for(const s of G.blds){ if(s.dead||(s.type!=='site'&&!s.up)) continue;
     let n=0; for(const o of G.units) if(o!==u&&o.kind==='builder'&&!o.dead&&o.work===s.id) n++;
     const d=Math.hypot(u.x-s.cx,u.y-s.cy)+n*12; if(d<bd){ bd=d; best=s; } }
   return best;
@@ -1187,12 +1189,12 @@ function builderAI(u,dt){
   const hall=hallB(); u.working=false;
   if(G.time-u.lastHit<4&&hall){ goTo(u,hall.x,hall.y,dt); return; } // builders run from a fight
   let s=u.work>=0?findB(u.work):null;
-  if(!s||s.dead||s.type!=='site'){ s=pickSite(u); u.work=s?s.id:-1; }
+  if(!s||s.dead||(s.type!=='site'&&!s.up)){ s=pickSite(u); u.work=s?s.id:-1; }
   if(!s){ if(hall&&Math.hypot(u.x-hall.cx,u.y-hall.cy)>2.5) goTo(u,hall.x,hall.y,dt); return; }
   if(Math.hypot(u.x-s.cx,u.y-s.cy)>1.3){ goTo(u,s.x,s.y,dt); return; }
   u.working=true; u.face=Math.atan2(s.cy-u.y,s.cx-u.x);
-  s.prog+=dt*(has('tools')?1.3:1); if(Math.random()<dt*1.5) sfx('clink',s.cx,s.cy);
-  if(s.prog>=s.need) finishSite(s);
+  const job=s.type==='site'?s:s.up; job.prog+=dt*(has('tools')?1.3:1); if(Math.random()<dt*1.5) sfx('clink',s.cx,s.cy);
+  if(job.prog>=job.need){ if(s.type==='site') finishSite(s); else finishUpgrade(s); }
 }
 
 // ---------- building ----------
@@ -1364,20 +1366,36 @@ function villagerAI(u,dt){
 }
 
 // building upgrades
+// Level 2 costs three times the building, level 3 seven times, plus stone and gold. Nothing can outgrow the
+// Town Hall, and the hall itself needs land (two taken camps) to become a castle. Builders carry upgrades out.
+const CASTLE_CAMPS=2;
 function upCost(b){
   const l=b.lvl;
-  if(b.type==='hall') return {wood:150*l,stone:100*l,gold:50*l};
-  const c={}, base=BD[b.type].cost; for(const k in base) c[k]=Math.ceil(base[k]*1.5*l);
-  if(b.type!=='wall'){ c.stone=(c.stone||0)+15*l; c.gold=(c.gold||0)+10*l; }
+  if(b.type==='hall') return l===1?{wood:400,stone:300,gold:120,food:200}:{wood:900,stone:700,gold:300,food:500};
+  const c={}, base=BD[b.type].cost, m=l===1?3:7; for(const k in base) c[k]=Math.ceil(base[k]*m);
+  if(b.type!=='wall'){ c.stone=(c.stone||0)+(l===1?40:120); c.gold=(c.gold||0)+(l===1?20:60); }
   return c;
 }
+const upTime = b => b.type==='hall'?(b.lvl===1?45:90):(BUILD_TIME[b.type]||10)*(b.lvl===1?2:3);
 const canUp = b => b.team===0&&b.type!=='outpost'&&b.type!=='site'&&b.lvl<MAXLV;
+// why this building can't be upgraded right now, or '' if it can
+function upBlock(b){
+  if(b.up) return '';
+  if(!G.guild) return "Hire the Builders' Guild to upgrade buildings.";
+  if(b.type==='hall'){ const n=CASTLE_CAMPS-G.conquered; return b.lvl===2&&n>0?`A castle needs land: take ${n} more camp${n>1?'s':''} first.`:''; }
+  const hl=(hallB()||{lvl:0}).lvl; return b.lvl+1>hl?`Needs a level ${b.lvl+1} Town Hall first.`:'';
+}
 function upgradeB(b){
-  if(!canUp(b)) return;
+  if(!canUp(b)||b.up) return;
+  const why=upBlock(b); if(why){ toast(why,'bad'); return; }
   const c=upCost(b); if(!afford(c)){ toast(`Upgrading costs ${costText(c)}.`,'bad'); return; }
-  pay(c); b.lvl++;
+  pay(c); b.up={prog:0,need:upTime(b)};
+  toast(`The builders are upgrading the ${BD[b.type].name} to level ${b.lvl+1}.`); sfx('build',b.cx,b.cy);
+}
+function finishUpgrade(b){
+  b.up=null; b.lvl++;
   b.maxhp=BD[b.type].hp*(1+.5*(b.lvl-1))*(has('masonry')?1.5:1); b.hp=b.maxhp;
-  recomputeTerr(); burst(b.cx,b.cy,'#f3c64b',16); sfx('build'); sfx('good');
+  recomputeTerr(); burst(b.cx,b.cy,'#f3c64b',16); sfx('build',b.cx,b.cy); sfx('good');
   toast(`${BD[b.type].name} upgraded to level ${b.lvl}.`,'good');
 }
 function demolish(b){
@@ -1391,17 +1409,18 @@ function demolish(b){
 function techState(t){
   if(has(t.id)) return 'done';
   if(G.research&&G.research.id===t.id) return 'active';
-  if((t.req||[]).some(r=>!has(r))||(t.needB&&!myB(t.needB).length)) return 'locked';
-  return afford(t.cost)?'ready':'poor';
+  if((t.req||[]).some(r=>!has(r))||(t.needB&&!myB(t.needB).length)||(t.hall&&(hallB()||{lvl:0}).lvl<t.hall)) return 'locked';
+  return afford(techCost(t))?'ready':'poor';
 }
 function startResearch(id){
   const t=TECH[id], st=techState(t);
   if(st==='done'||st==='active') return;
   if(!hallB()){ toast('You need a Town Hall to research.','bad'); return; }
   if(G.research){ toast(`Already researching ${TECH[G.research.id].name}. One at a time.`); return; }
-  if(st==='locked'){ const miss=(t.req||[]).filter(r=>!has(r)).map(r=>TECH[r].name); toast(miss.length?`Research ${miss.join(' and ')} first.`:`Build a ${BD[t.needB].name} first.`,'bad'); return; }
-  if(!afford(t.cost)){ toast(`${t.name} costs ${costText(t.cost)}.`,'bad'); return; }
-  pay(t.cost); G.research={id,t:t.time,tt:t.time}; toast(`Researching ${t.name}.`);
+  if(st==='locked'){ const miss=(t.req||[]).filter(r=>!has(r)).map(r=>TECH[r].name);
+    toast(miss.length?`Research ${miss.join(' and ')} first.`:t.needB&&!myB(t.needB).length?`Build a ${BD[t.needB].name} first.`:`${t.name} needs a level ${t.hall} Town Hall.`,'bad'); return; }
+  const c=techCost(t); if(!afford(c)){ toast(`${t.name} costs ${costText(c)}.`,'bad'); return; }
+  pay(c); G.research={id,t:t.time,tt:t.time}; toast(`Researching ${t.name}.`);
 }
 function finishResearch(id){
   G.tech[id]=1; G.research=null; const h=G.hero;
@@ -1940,6 +1959,12 @@ function drawSite(g,o,t){
   rect(g,x+.08,y+.12,.84,.04,'#a0683a'); rect(g,x+.08,y+.52,.84,.04,'#a0683a');
   rect(g,x+.1,y+.98,.8,.07,'rgba(0,0,0,.55)'); rect(g,x+.1,y+.98,.8*f,.07,'#e0a93b');
 }
+function drawScaffold(g,o){
+  const x=o.x, y=o.y, f=clamp(o.up.prog/o.up.need,0,1);
+  for(const dx of [.02,.94]) rect(g,x+dx,y-.45,.04,1.35,'#8b5a2b');
+  rect(g,x+.02,y-.12,.96,.04,'#a0683a'); rect(g,x+.02,y+.36,.96,.04,'#a0683a');
+  rect(g,x+.1,y+.98,.8,.07,'rgba(0,0,0,.55)'); rect(g,x+.1,y+.98,.8*f,.07,'#e0a93b');
+}
 // A banner over each enemy camp showing what kind it is: crossed clubs, a stone, a charging arrow or a shield.
 function drawEmblem(g,o){
   const k=campKind(o), x=o.x+.9, y=o.y-.36, cx=x+.18, cy=y+.11, w='#f3e6d0';
@@ -2185,7 +2210,7 @@ function render(t){
   list.sort((a,b)=>a[0]-b[0]);
   for(const [,o] of list){
     if(o.isB){
-      if(o.type==='site') drawSite(ctx,o,t); else drawBuilding(ctx,o.type,o.x,o.y,o.team,o.lvl,t,o.type==='wall'?wallNb(o.x,o.y):0);
+      if(o.type==='site') drawSite(ctx,o,t); else { drawBuilding(ctx,o.type,o.x,o.y,o.team,o.lvl,t,o.type==='wall'?wallNb(o.x,o.y):0); if(o.up) drawScaffold(ctx,o); }
       if(o.type==='camp'&&o.team===1&&o.lvl<6) drawEmblem(ctx,o);
       const [bx,by,bw,bh]=bBox(o);
       if(o.team===0&&o.lvl>1&&o.type!=='outpost'){ rect(ctx,o.x+.02,o.y+.88,.12*(o.lvl-1)+.04,.12,'rgba(0,0,0,.45)'); pips(ctx,o.x+.04,o.y+.9,o.lvl-1,'#f3c64b'); }
@@ -2448,7 +2473,9 @@ function selHTML(o){
       case 'wall': body+=`<p>Raiders have to break through walls.</p>`; break;
       case 'outpost': body+=`<p>Conquered land. Makes ${rateText(rates(o))} and adds 2 population.</p>`; break;
     }
-    if(canUp(o)) acts+=btn('upgrade',`Upgrade to level ${o.lvl+1}`,{cost:upCost(o),off:!afford(upCost(o))});
+    if(o.up){ const n=builders().filter(u=>u.work===o.id&&u.working).length;
+      body+=`<div class="q"><span>Upgrading to level ${o.lvl+1}</span>${meter(o.up.prog,o.up.need,'good')}<span>${Math.floor(o.up.prog/o.up.need*100)}%</span></div><p class="sub">${n?`${n} builder${n>1?'s':''} at work`:'Waiting for a builder'}</p>`; }
+    else if(canUp(o)){ const why=upBlock(o); acts+=btn('upgrade',`Upgrade to level ${o.lvl+1}`,{cost:upCost(o),off:!!why||!afford(upCost(o))}); if(why) acts+=`<span class="sub">${why}</span>`; }
     else if(o.type!=='outpost') acts+=`<span class="sub">Fully upgraded</span>`;
     if(o.type!=='hall'&&o.type!=='outpost') acts+=btn('demolish',armed('demo'+o.id)?'Tap again to demolish':'Demolish',{on:armed('demo'+o.id)});
   } else if(o.kind==='hero'){
@@ -2463,7 +2490,7 @@ function selHTML(o){
   } else if(o.kind==='builder'){
     head='Builder';
     const st=o.work>=0?findB(o.work):null;
-    body=hp+`<p>${st&&st.type==='site'?`${o.working?'Building':'On the way to build'} a ${BD[st.plan].name}`:'Waiting for work at the Town Hall'}.</p><p class="sub">Builders put up everything you plan. Order buildings on the Missions board, or place them from the build bar.</p>`;
+    body=hp+`<p>${st&&st.type==='site'?`${o.working?'Building':'On the way to build'} a ${BD[st.plan].name}`:st&&st.up?`${o.working?'Upgrading':'On the way to upgrade'} the ${BD[st.type].name}`:'Waiting for work at the Town Hall'}.</p><p class="sub">Builders put up everything you plan. Order buildings on the Missions board, or place them from the build bar.</p>`;
     acts=btn('missions','Missions board');
   } else if(o.kind==='scout'){
     head='Scout';
@@ -2561,9 +2588,9 @@ function renderMissions(){
     gs.map(g=>`<div class="gen"><p><b>General ${g.nm}</b> · ${warband(g)} troops</p><p class="now">${missionText(g)}</p><div class="acts">${btn('mg','Defend the town',{arg:g.id+':defend',on:on(g,'defend')})}${btn('mg','Stand down',{arg:g.id+':none'})}</div><p class="sub">Take a camp:</p><div class="acts">${campBtns('mg',g.id+':',g)}</div></div>`).join('')+
     `<div class="acts">${btn('hire','Hire a general',{arg:'general',cost:UD.general.cost,off:!bar||gs.length>=MAX_GENERALS||!afford(UD.general.cost)})}</div>`+
     `<p class="sub">${bar?'':'Needs a Barracks. '}${garrison().length} troops in the town guard.</p></section>`;
-  const bs=builders(), sites=G.blds.filter(b=>b.type==='site'&&!b.dead);
+  const bs=builders(), sites=G.blds.filter(b=>(b.type==='site'||b.up)&&!b.dead);
   html+=`<section class="mcard"><header><h4>Builders' Guild</h4>${G.guild?`<span class="chip">${bs.length} builder${bs.length===1?'':'s'}</span>`:''}</header>`+
-    (G.guild?(sites.length?sites.map(s=>`<div class="q"><span>${BD[s.plan].name}</span>${meter(s.prog,s.need,'good')}<span>${Math.floor(s.prog/s.need*100)}%</span></div>`).join(''):'<p class="sub">Nothing under construction.</p>')+
+    (G.guild?(sites.length?sites.map(s=>{ const j=s.up||s; return `<div class="q"><span>${s.up?`${BD[s.type].name} to level ${s.lvl+1}`:BD[s.plan].name}</span>${meter(j.prog,j.need,'good')}<span>${Math.floor(j.prog/j.need*100)}%</span></div>`; }).join(''):'<p class="sub">Nothing under construction.</p>')+
       `<p class="sub">Order a building and the builders choose the spot:</p><div class="acts">${['farm','house','lumber','quarry','mine','barracks','tower'].map(k=>btn('build',BD[k].name,{arg:k,cost:BD[k].cost,off:!afford(BD[k].cost)})).join('')}${btn('hire','Hire a builder',{arg:'builder',cost:UD.builder.cost,off:!afford(UD.builder.cost)||popUsed()>=popCap()})}</div>`
     :`<p class="sub">Builders put up everything you plan, and can choose good spots themselves.</p><div class="acts">${btn('guild',"Hire the Builders' Guild",{cost:GUILD_COST,off:!afford(GUILD_COST)})}</div>`)+'</section>';
   html+=`<section class="mcard"><header><h4>Scouts and villagers</h4><span class="chip">${scoutCount()} scouts</span></header><p class="sub">Scouts explore on their own and bring back treasure. Villagers gather; set their jobs at the Town Hall.</p>
@@ -2586,14 +2613,14 @@ function renderTech(){
   const brs=[...new Set(TECHS.map(t=>t.br))];
   const html=brs.map(br=>`<section><h4>${br}</h4>`+TECHS.filter(t=>t.br===br).map(t=>{
     const st=techState(t);
-    const needs=st==='locked'?(t.req||[]).filter(q=>!has(q)).map(q=>'Needs '+TECH[q].name).concat(t.needB&&!myB(t.needB).length?['Needs a '+BD[t.needB].name]:[]).join(' · '):'';
+    const needs=st==='locked'?(t.req||[]).filter(q=>!has(q)).map(q=>'Needs '+TECH[q].name).concat(t.needB&&!myB(t.needB).length?['Needs a '+BD[t.needB].name]:[],t.hall&&(hallB()||{lvl:0}).lvl<t.hall?[`Needs a level ${t.hall} Town Hall`]:[]).join(' · '):'';
     return `<button class="tn ${st}" data-tech="${t.id}"><b>${t.name}${st==='done'?' ✓':''}</b><span>${t.desc}</span>`+
-      (st==='done'?'':`<span class="cost">${costHTML(t.cost)}<span>· ${t.time}s</span></span>`)+
+      (st==='done'?'':`<span class="cost">${costHTML(techCost(t))}<span>· ${t.time}s</span></span>`)+
       (needs?`<em>${needs}</em>`:'')+
       (st==='active'?meter(G.research.tt-G.research.t,G.research.tt)+`<em>${Math.ceil(G.research.t)}s left</em>`:'')+`</button>`;
   }).join('')+'</section>').join('');
   const stat=G.research?`Researching ${TECH[G.research.id].name}.`:`${Object.keys(G.tech).length} of ${TECHS.length} researched.`;
-  const full=`<p class="sub">${stat} Research runs at the Town Hall, one at a time. Tap a gold-bordered card to start it.</p><div class="tgrid">${html}</div>`;
+  const full=`<p class="sub">${stat} Research runs at the Town Hall, one at a time, and each technology you know makes the next 10% dearer, so choose. The later ones need a level 2 or 3 Town Hall. Tap a gold-bordered card to start it.</p><div class="tgrid">${html}</div>`;
   if(full!==techSig){ techSig=full; $('tbody').innerHTML=full; }
 }
 $('techs').addEventListener('pointerdown',()=>{ panelHold=true; });
@@ -2615,7 +2642,7 @@ function save(){
   if(!G||G.over) return;
   try{
     const d={ v:2, seed:G.seed, terr:enc(G.terr), amt:enc(G.amt), shade:enc(G.shade), expl:enc(G.expl),
-      blds:G.blds.filter(b=>!b.dead).map(b=>[b.id,b.type,b.x,b.y,b.team,Math.round(b.hp),b.maxhp,b.lvl,b.queue||[],b.rally||null,b.plan||null,+(b.prog||0).toFixed(1),b.need||0,b.kind||null]),
+      blds:G.blds.filter(b=>!b.dead).map(b=>[b.id,b.type,b.x,b.y,b.team,Math.round(b.hp),b.maxhp,b.lvl,b.queue||[],b.rally||null,b.plan||null,+(b.prog||0).toFixed(1),b.need||0,b.kind||null,b.up||null]),
       units:G.units.filter(u=>!u.dead||u.kind==='hero').map(u=>{ const atk=u.order==='attack';
         return [u.kind,u.team,+u.x.toFixed(2),+u.y.toFixed(2),Math.max(1,Math.round(u.hp)),u.maxhp,u.atk,u.home,u.mode,u.lvl,u.job,u.xp,u.hl,u.carry,u.ctype,
           atk?'hold':u.order,+(atk?u.x:u.ox).toFixed(2),+(atk?u.y:u.oy).toFixed(2),u.post,u.work,u.abT>0?+u.abT.toFixed(1):0,u.nm,u.leader,u.mission]; }),
@@ -2634,7 +2661,7 @@ function load(){
       diff:DIFFS[d.diff]?d.diff:1, stats:Object.assign(newStats(),d.stats), guild:!!d.guild, mods:d.mods||{}, hordes:d.hordes||0, raidBoost:d.raidBoost||null,
       evDay:d.evDay??Math.floor(d.time/DAY), recentEv:d.recentEv||[], hordeT:d.hordeT??Math.max(d.time+DAY,DAY*((DIFFS[d.diff]||DIFFS[1]).hordeDay-1)) };
     resetGrids();
-    for(const [id,type,x,y,team,hp,maxhp,lvl,queue,rally,plan,prog,need,kind] of d.blds){ const b={id,isB:true,type,x,y,cx:x+.5,cy:y+.5,team,hp,maxhp,lvl,cd:0,spawnT:20,flash:0,lastHit:-99,dead:false,queue:queue||[],rally:rally||null,plan,prog:prog||0,need:need||0,kind:kind||undefined}; G.blds.push(b); bgrid[y*W+x]=b; }
+    for(const [id,type,x,y,team,hp,maxhp,lvl,queue,rally,plan,prog,need,kind,up] of d.blds){ const b={id,isB:true,type,x,y,cx:x+.5,cy:y+.5,team,hp,maxhp,lvl,cd:0,spawnT:20,flash:0,lastHit:-99,dead:false,queue:queue||[],rally:rally||null,plan,prog:prog||0,need:need||0,kind:kind||undefined,up:up||null}; G.blds.push(b); bgrid[y*W+x]=b; }
     for(const [kind,team,x,y,hp,maxhp,atk,home,mode,lvl,job,xp,hl,carry,ctype,order,ox,oy,post,work,abT,nm,leader,mission] of d.units){ const u=mkUnit(kind,team,x,y,lvl); u.hp=hp; u.maxhp=maxhp; u.atk=atk; u.home=home; u.mode=mode;
       u.job=job||''; u.xp=xp||0; u.hl=hl||1; u.carry=carry||0; u.ctype=ctype||'';
       u.order=order||''; u.ox=ox??x; u.oy=oy??y; u.post=post||null; u.work=work??-1; u.abT=abT||0; u.nm=nm||''; u.leader=leader||0; u.mission=mission||null;
