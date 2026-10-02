@@ -312,7 +312,7 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
         <dt>Explore</dt><dd>Scouts roam the fog on their own, bring back treasure and flee from danger. You start with one; send more from the Town Hall<span class="kb"> or with X</span>. Your hero can explore too.</dd>
         <dt>Select</dt><dd>Tap any building, unit, camp or resource to see what it does and act on it</dd>
         <dt>War</dt><dd>Tap an enemy camp and send your hero or a general. Generals take the town guard with them as their warband, take the camp and march home. Hire generals at a Barracks. <span class="kb">Drag to box-select troops; Q selects them all.</span><span class="tc">Hold a finger, then drag, to box-select troops.</span></dd>
-        <dt>Your hero</dt><dd>Takes one mission at a time, fights back, goes home to heal when hurt and levels up. To send them somewhere yourself, select them<span class="kb"> (E)</span> and tap the map. <span class="kb">Z</span><span class="tc">Their Whirlwind</span> hits everything close by.</dd>
+        <dt>Your hero</dt><dd>Takes one mission at a time, fights back, goes home to heal when hurt and levels up. To send them somewhere yourself, select them<span class="kb"> (E)</span> and tap the map. <span class="kb">Z</span><span class="tc">Their Whirlwind</span> hits everything close by. Troops can follow the hero as a warband of up to 12: use Follow the hero on a soldier, or Take the town guard on the hero.</dd>
         <dt>Villagers</dt><dd>Hire them at the Town Hall<span class="kb"> (H)</span> and set their jobs. They gather and farm for you.</dd>
         <dt>Goals</dt><dd>Follow the goal under the resource bar for rewards<span class="tc">; tap it to read it in full</span>.</dd>
         <dt>Grow</dt><dd>Research in the tech tree<span class="kb"> (R)</span>: each technology makes the next dearer, and the later ones need a bigger Town Hall, so choose. Builders upgrade buildings, but none can outgrow the Town Hall, and the hall needs two taken camps to become a castle (level 3). <span class="kb">F</span><span class="tc">The 1× button</span> changes game speed.</dd>
@@ -1085,6 +1085,14 @@ const builders=()=>G.units.filter(u=>u.kind==='builder'&&!u.dead);
 const unitById=id=>id?G.units.find(u=>u.id===id&&!u.dead):null;
 const leaderOf=u=>u.leader?unitById(u.leader):null;
 const warband=g=>G.units.filter(u=>isTroop(u)&&u.leader===g.id).length;
+// troops can follow the hero too, as a warband of up to 12; they wait in town while the hero recovers from a fall
+const heroBand=()=>G.units.filter(u=>isTroop(u)&&u.leader===G.hero.id);
+const nTroops=(n,v1,vn)=>`${n===1?'one of your troops':`${n} troops`} ${n===1?v1:vn}`;
+const bandLine=()=>{ const n=heroBand().length; return n?`${cap1(nTroops(n,'follows','follow'))} your hero.`:'Your hero goes alone, or takes troops from the town guard.'; };
+function heroMuster(){ const room=WARBAND-heroBand().length, m=G.hero.mission, camp=m&&m.type==='clear'?findB(m.id):null;
+  const pick=musterPick({id:-1},camp).slice(0,Math.max(0,room)); for(const u of pick){ u.leader=G.hero.id; u.order=''; u.tgt=null; u.path=null; }
+  toast(pick.length?`${cap1(nTroops(pick.length,'joins','join'))} your hero.`:heroBand().length>=WARBAND?'Your hero already leads a full warband.':'No troops are guarding the town. Train some at a Barracks.'); }
+function heroRelease(){ const b=heroBand(); for(const u of b){ u.leader=0; u.tgt=null; u.path=null; } if(b.length) toast(`${cap1(nTroops(b.length,'goes','go'))} back to guarding the town.`); }
 const garrison=()=>G.units.filter(u=>isTroop(u)&&!u.order&&!leaderOf(u));
 const cap1=s=>s[0].toUpperCase()+s.slice(1);
 function dirWord(dx,dy){ return ['east','southeast','south','southwest','west','northwest','north','northeast'][(Math.round(Math.atan2(dy,dx)/(Math.PI/4))+8)%8]; }
@@ -1517,7 +1525,7 @@ function update(dt){
   h.cd-=dt; h.flash-=dt;
   // troops stay with their general's warband, or else guard the town
   const bands=new Map();
-  for(const u of followers){ const l=leaderOf(u); if(!l) u.leader=0; const k=l?l.id:0; if(!bands.has(k)) bands.set(k,[]); bands.get(k).push(u); }
+  for(const u of followers){ const l=leaderOf(u); if(!l&&u.leader!==G.hero.id) u.leader=0; const k=l?l.id:0; if(!bands.has(k)) bands.set(k,[]); bands.get(k).push(u); }
   for(const [k,us] of bands){ const anchor=k?unitById(k):hallB(); us.forEach((u,i)=>allyAI(u,i,dt,anchor)); }
 
   // buildings: towers, camps, regen
@@ -2539,7 +2547,7 @@ function selHTML(o){
     const c={}; for(const u of o.group) c[u.kind]=(c[u.kind]||0)+1;
     head=`${o.group.length} units selected`;
     body=`<p class="sub">${Object.keys(c).map(k=>`${c[k]} ${UD[k].name.toLowerCase()}${c[k]>1?'s':''}`).join(' · ')}</p><p>Tap the map to move them there. Tap an enemy or camp to attack${c.villager?', or a tree, rock or farm to put villagers to work':''}.</p>`;
-    if(o.group.some(isTroop)) acts=btn('follow','Back to their post')+btn('hold','Hold here');
+    if(o.group.some(isTroop)) acts=btn('followhero','Follow the hero')+btn('follow','Back to their post')+btn('guard','Guard the town')+btn('hold','Hold here');
     if(c.villager) acts+=JOBS.map(j=>btn('setjob',JOB_NAME[j],{arg:j})).join('');
     acts+=btn('close','Deselect');
   } else if(o.res!==undefined){
@@ -2606,7 +2614,9 @@ function selHTML(o){
     head=`Hero <span class="chip">Level ${o.hl}</span>`;
     const m=o.mission;
     body=hp+meter(o.xp,xpNeed(o.hl),'xp')+`<p class="sub">Experience ${o.xp}/${xpNeed(o.hl)} · Damage ${Math.round(o.atk)}</p><p class="now">${missionText(o)}.</p><p class="sub">Give a mission below or on the Missions board. To send your hero somewhere yourself, tap the map.</p>`;
-    acts=btn('mh','Explore',{arg:'explore',on:!!m&&m.type==='explore'})+btn('mh','Defend the town',{arg:'defend',on:!!m&&m.type==='defend'})+btn('mh','Stand down',{arg:'none'})+btn('missions','Missions board')+btn('whirl',o.abT>0?`Whirlwind (${Math.ceil(o.abT)}s)`:'Whirlwind',{off:o.abT>0});
+    const hb=heroBand().length; body+=`<p class="sub">${bandLine()}</p>`;
+    acts=btn('hband',`Take the town guard (${Math.min(garrison().length,WARBAND-hb)})`,{arg:'take',off:!garrison().length||hb>=WARBAND})+(hb?btn('hband','Send the troops back',{arg:'back'}):'')+
+      btn('mh','Explore',{arg:'explore',on:!!m&&m.type==='explore'})+btn('mh','Defend the town',{arg:'defend',on:!!m&&m.type==='defend'})+btn('mh','Stand down',{arg:'none'})+btn('missions','Missions board')+btn('whirl',o.abT>0?`Whirlwind (${Math.ceil(o.abT)}s)`:'Whirlwind',{off:o.abT>0});
   } else if(o.kind==='general'){
     head=`General ${o.nm}`;
     body=hp+`<p class="now">${missionText(o)}.</p><p class="sub">Leads ${warband(o)} troops. Generals take the town guard along on missions.</p>`;
@@ -2629,9 +2639,9 @@ function selHTML(o){
     acts=JOBS.map(j=>btn('setjob',JOB_NAME[j],{arg:j,on:o.job===j})).join('')+btn('dismiss',armed('dis'+o.id)?'Tap again to dismiss':'Dismiss',{on:armed('dis'+o.id)});
   } else if(o.team===0){
     head=UD[o.kind].name;
-    const lead=leaderOf(o), st=o.order==='attack'?'Attacking':o.order==='move'?'Moving':o.order==='hold'?'Holding its position and guarding the area':lead?`In General ${lead.nm}'s warband`:'Guarding the town';
+    const lead=leaderOf(o), withHero=o.leader===G.hero.id, st=o.order==='attack'?'Attacking':o.order==='move'?'Moving':o.order==='hold'?'Holding its position and guarding the area':withHero?(G.hero.dead?'Waiting in town for your hero to recover':'Following your hero'):lead?`In General ${lead.nm}'s warband`:'Guarding the town';
     body=hp+`<p class="sub">Damage ${Math.round(o.atk)} · Range ${o.range} · ${UNIT_TIP[o.kind]||''}</p><p>${st}. Tap the map to move it, or an enemy to attack.</p>`;
-    acts=btn('follow',lead?`Follow General ${lead.nm}`:'Guard the town',{on:!o.order})+btn('hold','Hold here',{on:o.order==='hold'})+btn('dismiss',armed('dis'+o.id)?'Tap again to dismiss':'Dismiss',{on:armed('dis'+o.id)});
+    acts=btn('followhero','Follow the hero',{on:withHero&&!o.order})+(lead&&!withHero?btn('follow',`Follow General ${lead.nm}`,{on:!o.order}):'')+btn('guard','Guard the town',{on:!o.leader&&!o.order})+btn('hold','Hold here',{on:o.order==='hold'})+btn('dismiss',armed('dis'+o.id)?'Tap again to dismiss':'Dismiss',{on:armed('dis'+o.id)});
   } else {
     head=`${FOE_NAME[o.kind]} <span class="chip bad">Level ${o.lvl}</span>`;
     body=hp+`<p class="sub">Damage ${Math.round(o.atk)}${o.mode==='raid'?' · Raiding your town':''}</p><p>${FOE_TIP[o.kind]}</p>`;
@@ -2642,7 +2652,7 @@ function selHTML(o){
 // what you can do about an enemy: send the hero or a general, or the town guard
 function warActs(o){
   const fc=us=>o.isB?fcChip(forecast(us,o)):'';
-  let a=btn('msend',G.hero.dead?'Hero is recovering':`Send the hero${fc([G.hero])}`,{arg:'hero',off:G.hero.dead});
+  const hb=heroBand(); let a=btn('msend',G.hero.dead?'Hero is recovering':`Send the hero${hb.length?` (${hb.length} troops)`:''}${fc([G.hero,...hb])}`,{arg:'hero',off:G.hero.dead});
   for(const g of generals()){ const band=o.isB?bandFor(g,o):[g]; a+=btn('msend',`Send General ${g.nm} (${band.length-1} troops)${fc(band)}`,{arg:String(g.id)}); }
   const gar=garrison(); if(gar.length) a+=btn('sendarmy',`Send the town guard (${gar.length})${fc(gar)}`);
   if(!generals().length) a+=`<p class="sub">Hire generals at a Barracks to lead your troops.</p>`;
@@ -2651,6 +2661,7 @@ function warActs(o){
 function missionAct(a,arg){
   switch(a){
     case 'mh': giveMission(G.hero,parseMission(arg)); break;
+    case 'hband': if(arg==='take') heroMuster(); else heroRelease(); break;
     case 'mg': { const i=arg.indexOf(':'); giveMission(unitById(+arg.slice(0,i)),parseMission(arg.slice(i+1))); break; }
     case 'hire': if(arg==='general'){ const b=myB('barracks')[0]; if(!b){ toast('Build a Barracks first.','bad'); break; } train('general',b); } else train(arg,hallB()); break;
     case 'guild': hireGuild(); break;
@@ -2670,9 +2681,13 @@ function doAct(a,arg){
     case 'job-': shiftJob(arg,-1); break;
     case 'setjob': for(const u of cmdUnits()) if(u.kind==='villager') assign(u,arg); break;
     case 'follow': for(const u of cmdUnits()) if(u.kind!=='villager'){ u.order=''; u.tgt=null; u.path=null; } break;
+    case 'followhero': { const us=cmdUnits().filter(isTroop), room=WARBAND-heroBand().filter(u=>!us.includes(u)).length, go=us.slice(0,Math.max(0,room));
+      for(const u of go){ u.leader=G.hero.id; u.order=''; u.tgt=null; u.path=null; }
+      toast(go.length<us.length?`Your hero can lead ${WARBAND} troops; ${go.length} of them follow.`:go.length>1?`${go.length} troops follow your hero.`:'It follows your hero.'); break; }
+    case 'guard': for(const u of cmdUnits()) if(isTroop(u)){ u.leader=0; u.order=''; u.tgt=null; u.path=null; } break;
     case 'hold': for(const u of cmdUnits()) if(u.kind!=='villager'){ u.order='hold'; u.ox=u.x; u.oy=u.y; u.tgt=null; u.path=null; } break;
     case 'tech': openTech(); break;
-    case 'mh': case 'mg': case 'hire': case 'guild': case 'build': case 'missions': missionAct(a,arg); break;
+    case 'mh': case 'hband': case 'mg': case 'hire': case 'guild': case 'build': case 'missions': missionAct(a,arg); break;
     case 'msend': { const u=arg==='hero'?h:unitById(+arg); if(!u) break;
       if(o.isB) giveMission(u,{type:'clear',id:o.id}); else { u.tgt=o; u.path=null; toast(`${who(u)} rides out to the fight.`); } break; }
     case 'sendarmy': { const t=garrison(); if(!t.length){ toast('The town guard is empty. Train troops at a Barracks.'); break; }
@@ -2701,11 +2716,13 @@ function closeMissions(){ mOpen=false; $('missions').hidden=true; }
 function renderMissions(){
   if(!mOpen||panelHold) return;
   const h=G.hero, m=h.mission, camps=knownCamps().slice(0,6), on=(u,t,r)=>!!u.mission&&u.mission.type===t&&(!r||u.mission.res===r);
-  const campBtns=(act,pre,u)=>camps.length?camps.map(c=>btn(act,cap1(campName(c))+fcChip(forecast(u.kind==='general'?bandFor(u,c):[u],c)),{arg:`${pre}clear:${c.id}`,on:!!u.mission&&u.mission.type==='clear'&&u.mission.id===c.id})).join(''):'<span class="sub">No camps found yet. Explore to find them.</span>';
+  const campBtns=(act,pre,u)=>camps.length?camps.map(c=>btn(act,cap1(campName(c))+fcChip(forecast(u.kind==='general'?bandFor(u,c):[u,...heroBand()],c)),{arg:`${pre}clear:${c.id}`,on:!!u.mission&&u.mission.type==='clear'&&u.mission.id===c.id})).join(''):'<span class="sub">No camps found yet. Explore to find them.</span>';
   let html='<div class="mgrid">';
   html+=`<section class="mcard"><header><h4>Hero</h4><span class="chip">Level ${h.hl}</span></header><p class="now">${missionText(h)}</p>${meter(h.hp,h.maxhp,'good')}
     <div class="acts">${btn('mh','Explore the fog',{arg:'explore',on:on(h,'explore')})}${btn('mh','Defend the town',{arg:'defend',on:on(h,'defend')})}${['wood','stone','gold'].map(r=>btn('mh',`Gather ${r}`,{arg:'gather:'+r,on:on(h,'gather',r)})).join('')}${btn('mh','Stand down',{arg:'none'})}</div>
-    <p class="sub">Take a camp alone:</p><div class="acts">${campBtns('mh','',h)}</div></section>`;
+    <p class="sub">${bandLine()}</p>
+    <div class="acts">${btn('hband',`Take the town guard (${Math.min(garrison().length,WARBAND-heroBand().length)})`,{arg:'take',off:!garrison().length||heroBand().length>=WARBAND})}${heroBand().length?btn('hband','Send the troops back',{arg:'back'}):''}</div>
+    <p class="sub">Take a camp:</p><div class="acts">${campBtns('mh','',h)}</div></section>`;
   const gs=generals(), bar=myB('barracks').length>0;
   html+=`<section class="mcard"><header><h4>Generals</h4><span class="chip">${gs.length}/${MAX_GENERALS}</span></header>`+
     (gs.length?'':`<p class="sub">Generals lead your troops: on a mission they take the town guard along as their warband.</p>`)+
@@ -2769,7 +2786,7 @@ function save(){
       blds:G.blds.filter(b=>!b.dead).map(b=>[b.id,b.type,b.x,b.y,b.team,Math.round(b.hp),b.maxhp,b.lvl,b.queue||[],b.rally||null,b.plan||null,+(b.prog||0).toFixed(1),b.need||0,b.kind||null,b.up||null,b.soil!=null?Math.round(b.soil):null]),
       units:G.units.filter(u=>!u.dead||u.kind==='hero').map(u=>{ const atk=u.order==='attack';
         return [u.kind,u.team,+u.x.toFixed(2),+u.y.toFixed(2),Math.max(1,Math.round(u.hp)),u.maxhp,u.atk,u.home,u.mode,u.lvl,u.job,u.xp,u.hl,u.carry,u.ctype,
-          atk?'hold':u.order,+(atk?u.x:u.ox).toFixed(2),+(atk?u.y:u.oy).toFixed(2),u.post,u.work,u.abT>0?+u.abT.toFixed(1):0,u.nm,u.leader,u.mission]; }),
+          atk?'hold':u.order,+(atk?u.x:u.ox).toFixed(2),+(atk?u.y:u.oy).toFixed(2),u.post,u.work,u.abT>0?+u.abT.toFixed(1):0,u.nm,u.leader,u.mission,u.id]; }),
       feats:G.feats, res:G.res, time:G.time, nextRaid:G.nextRaid, conquered:G.conquered, totalCamps:G.totalCamps, upg:G.upg, heroBuff:G.heroBuff, nid:G.nid, won:G.won,
       tech:G.tech, research:G.research, speed:G.speed, quest:G.quest, growT:G.growT, diff:G.diff, stats:G.stats, guild:G.guild, mods:G.mods, hordeT:G.hordeT, hordes:G.hordes, evDay:G.evDay, recentEv:G.recentEv, raidBoost:G.raidBoost };
     localStorage.setItem(SAVE_KEY,JSON.stringify(d));
@@ -2786,7 +2803,7 @@ function load(){
       evDay:d.evDay??Math.floor(d.time/DAY), recentEv:d.recentEv||[], hordeT:d.hordeT??Math.max(d.time+DAY,DAY*((DIFFS[d.diff]||DIFFS[1]).hordeDay-1)) };
     resetGrids();
     for(const [id,type,x,y,team,hp,maxhp,lvl,queue,rally,plan,prog,need,kind,up,soil] of d.blds){ const b={id,isB:true,type,x,y,cx:x+.5,cy:y+.5,team,hp,maxhp,lvl,cd:0,spawnT:20,flash:0,lastHit:-99,dead:false,queue:queue||[],rally:rally||null,plan,prog:prog||0,need:need||0,kind:kind||undefined,up:up||null}; if(type==='farm') b.soil=soil??600*lvl; G.blds.push(b); bgrid[y*W+x]=b; }
-    for(const [kind,team,x,y,hp,maxhp,atk,home,mode,lvl,job,xp,hl,carry,ctype,order,ox,oy,post,work,abT,nm,leader,mission] of d.units){ const u=mkUnit(kind,team,x,y,lvl); u.hp=hp; u.maxhp=maxhp; u.atk=atk; u.home=home; u.mode=mode;
+    for(const [kind,team,x,y,hp,maxhp,atk,home,mode,lvl,job,xp,hl,carry,ctype,order,ox,oy,post,work,abT,nm,leader,mission,id] of d.units){ const u=mkUnit(kind,team,x,y,lvl); if(id) u.id=id; u.hp=hp; u.maxhp=maxhp; u.atk=atk; u.home=home; u.mode=mode;
       u.job=job||''; u.xp=xp||0; u.hl=hl||1; u.carry=carry||0; u.ctype=ctype||'';
       u.order=order||''; u.ox=ox??x; u.oy=oy??y; u.post=post||null; u.work=work??-1; u.abT=abT||0; u.nm=nm||''; u.leader=leader||0; u.mission=mission||null;
       G.units.push(u); if(kind==='hero') G.hero=u; }
