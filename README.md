@@ -31,7 +31,8 @@ Every day asks you to decide something. Pick the right troops for each camp, kee
 | Sound on/off | M | Sound button on the pause screen |
 
 - **Difficulty:** pick Relaxed, Normal or Hard on the title screen before starting a new world. It sets how early, how often and how big raids are, when rams join them, how fast camps grow, and your starting resources.
-- **Goals:** a chain of 16 goals under the resource bar guides the early game and pays out resources for each one.
+- **Goals:** a chain of 19 goals under the resource bar guides the early game and pays out resources for each one.
+- **Council and the new buildings:** a Temple lets the priests stop a fever for free, a Granary lets you ration through a drought, and a Market gets a better deal from caravans.
 - **Market:** build one to trade wood, stone and food for gold and back. A level 2 market pays 30% more for goods and asks 15% less for them, and a level 3 one twice that.
 - **Rally points:** set one on any military building and new troops march there and hold.
 - **Idle villagers:** a chip at the top counts villagers with nothing to do; tap it to select them.
@@ -45,7 +46,11 @@ Every day asks you to decide something. Pick the right troops for each camp, kee
   - **On a mission:** a general keeps the army you gave them. Only a general with no troops calls up the town guard.
   - **On the march:** a general moves at the pace of their slowest troop and waits for stragglers, so the army arrives together. With a big warband they send the troops in first and join once the guards are down.
   - Troops without a general (or the hero) guard the town.
-- **Builders' Guild:** hire it at the Town Hall to get two builders. They live in the guild's own lodge and never take housing, so you can always hire the guild. More builders can be hired later, and those do need room. Every building is now a construction site that builders put up over a few seconds. Order a building on the Missions board and the builders choose the spot (farms and houses near the hall, lumber camps by forest, quarries by hills, towers facing the nearest camp), or pick one from the build bar and place it yourself.
+- **Builders' Guild:** hire it at the Town Hall to get two builders. They live in the guild's own lodge and never take housing, so you can always hire the guild. More builders can be hired later, and those do need room.
+- **Repairs and rebuilding:** buildings no longer heal by themselves, except the Town Hall and taken camps.
+  - When there is nothing to build, the builders mend damaged buildings. Each tenth of a building's health costs about 4% of its price per level, in its own materials.
+  - When raiders burn a building down, its rubble stays on the map, and the builders rebuild it as soon as no raider is within 9 tiles and you can pay for it.
+  - Switch both off or on with *Repairs and rebuilding* on the Missions board or on any builder. Every building is now a construction site that builders put up over a few seconds. Order a building on the Missions board and the builders choose the spot (farms and houses near the hall, lumber camps by forest, quarries by hills, towers facing the nearest camp), or pick one from the build bar and place it yourself.
 - **Command units separately:** whatever you select takes your orders. Troops sent somewhere hold that spot and fight anything within about 5 tiles. Tap an enemy to attack it, or use Back to their post to regroup. Villagers can be sent to any spot, tree, rock, gold vein or farm.
 - **Tap to act:** every building, unit, camp and resource opens a panel with its stats and actions. From there you can upgrade, demolish, train, hire, give missions or send a villager.
 - **Development tree:** 15 technologies in six branches (Economy, Farming, Defense, Military, Arms, Exploration). Research runs at the Town Hall, one at a time, and takes one to almost three minutes. Every technology you know makes the next one 10% dearer, so you won't have them all before the horde comes. The first five are open from the start. Steel Tools, Deep Mining, Irrigation, Fortification, Chivalry, Engineering, Bronze Arms and Hero Training need a level 2 Town Hall. Iron and Steel Arms need a level 3 one. Archery needs an Archery Range, Chivalry a Stable and Engineering a Siege Workshop.
@@ -71,7 +76,7 @@ Every day asks you to decide something. Pick the right troops for each camp, kee
   - Forests (about 32 wood a tile), hills (about 48 stone) and gold veins (about 160 gold a tile) are used up, whether villagers gather them or a Lumber Camp, Quarry or Mine draws on them. Their panels show how much is left within reach. When a camp runs dry, build a new one by fresh ground, or take enemy camps for more land.
   - Farms hold about 600 food of soil per level (more with Agriculture and Irrigation). When the soil wears out, the farm is re-sown for 40 wood per level, or lies fallow until you have it.
   - Storage is limited. The Town Hall holds 500 of each resource (800 at level 2, 1,200 as a castle), and anything beyond what your stores hold goes to waste. A resource chip turns gold when that store is full.
-- **The horde evolves:** on days 5, 8 and 12 on Normal (6, 10 and 15 on Relaxed; 4, 7 and 9 on Hard) the horde enters a new age. Its fighters, including those already in the field, get 10% tougher each time, and you can see it on their bronze, iron, then steel shoulder plates.
+- **The horde evolves:** on days 5, 9 and 15 on Normal (7, 12 and 20 on Relaxed; 4, 7 and 11 on Hard) the horde enters a new age. Its fighters, including those already in the field, get tougher each time (8% on Normal, 6% on Relaxed, 10% on Hard), and you can see it on their bronze, iron, then steel shoulder plates.
   - **Bronze:** its scouts study your army, and raids bring the counter to your most common troops. Riders hunt your archers and catapults, slingers pick off soldiers, and brutes (later ogres) drag down knights.
   - **Iron:** shamans heal the fighters around them, and camps of level 3 or more raise watchtowers that shoot anyone within 5 tiles. The battle forecast counts the tower.
   - **Steel:** ogres march with the raids and guard the big camps. They are huge, tough and hard on knights and walls.
