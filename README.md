@@ -76,9 +76,9 @@ Every day asks you to decide something. Pick the right troops for each camp, kee
   - Forests (about 32 wood a tile), hills (about 48 stone) and gold veins (about 160 gold a tile) are used up, whether villagers gather them or a Lumber Camp, Quarry or Mine draws on them. Their panels show how much is left within reach. When a camp runs dry, build a new one by fresh ground, or take enemy camps for more land.
   - Farms hold about 600 food of soil per level (more with Agriculture and Irrigation). When the soil wears out, the farm is re-sown for 40 wood per level, or lies fallow until you have it.
   - Storage is limited. The Town Hall holds 500 of each resource (800 at level 2, 1,200 as a castle), and anything beyond what your stores hold goes to waste. A resource chip turns gold when that store is full.
-- **The horde evolves:** on days 5, 9 and 15 on Normal (7, 12 and 20 on Relaxed; 4, 7 and 11 on Hard) the horde enters a new age. Its fighters, including those already in the field, get tougher each time (8% on Normal, 6% on Relaxed, 10% on Hard), and you can see it on their bronze, iron, then steel shoulder plates.
+- **The horde evolves:** on days 5, 9 and 15 on Normal (7, 12 and 20 on Relaxed; 4, 7 and 11 on Hard) the horde enters a new age. Its fighters, including those already in the field, get tougher each time (6% on Normal, 5% on Relaxed, 9% on Hard), and you can see it on their bronze, iron, then steel shoulder plates.
   - **Bronze:** its scouts study your army, and raids bring the counter to your most common troops. Riders hunt your archers and catapults, slingers pick off soldiers, and brutes (later ogres) drag down knights.
-  - **Iron:** shamans heal the fighters around them, and camps of level 3 or more raise watchtowers that shoot anyone within 5 tiles. The battle forecast counts the tower.
+  - **Iron:** shamans heal the fighters around them in bigger raids and camps, and camps of level 4 or more raise watchtowers that shoot anyone within 5 tiles. The battle forecast counts the tower.
   - **Steel:** ogres march with the raids and guard the big camps. They are huge, tough and hard on knights and walls.
 - **Know the enemy:** every camp is a brute warband, a slinger nest, a rider camp or a shield fort, marked by its banner, and its guards and raids match. The counters:
 

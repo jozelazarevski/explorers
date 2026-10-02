@@ -345,9 +345,9 @@ const ZOOMS = [0.5, 0.65, 0.8, 1, 1.25, 1.6];
 const SAVE_KEY = 'shardlands-save-v1'; // save format v2 lives under the same key
 const PREF_KEY = 'shardlands-prefs';
 const DIFFS = [
-  { name:'Relaxed', firstRaid:1.6,  gap:[240,120], size:.7,   grow:3,   res:1.4, ramDay:6, hordeDay:14, evo:[7,12,20], eraStep:.06 },
-  { name:'Normal',  firstRaid:1.15, gap:[170,90],  size:1,    grow:2,   res:1,   ramDay:4, hordeDay:10, evo:[5,9,15], eraStep:.08 },
-  { name:'Hard',    firstRaid:.9,   gap:[130,70],  size:1.35, grow:1.5, res:.85, ramDay:3, hordeDay:8,  evo:[4,7,11], eraStep:.1 },
+  { name:'Relaxed', firstRaid:1.6,  gap:[240,120], size:.7,   grow:3,   res:1.4, ramDay:6, hordeDay:14, evo:[7,12,20], eraStep:.05 },
+  { name:'Normal',  firstRaid:1.15, gap:[170,90],  size:1,    grow:2,   res:1,   ramDay:4, hordeDay:10, evo:[5,9,15], eraStep:.06 },
+  { name:'Hard',    firstRaid:.9,   gap:[130,70],  size:1.35, grow:1.5, res:.85, ramDay:3, hordeDay:8,  evo:[4,7,11], eraStep:.09 },
 ];
 const DF = () => DIFFS[G.diff] || DIFFS[1];
 
@@ -432,13 +432,13 @@ const VS={
 const vs=(a,k)=>(VS[a]&&VS[a][k])||1;
 const mult=(a,o)=>vs(a,o.isB?'building':o.kind);
 // The horde evolves: on set days its smiths forge better arms, its scouts study your army, shamans and ogres
-// join it and big camps raise watchtowers. Every era makes enemy fighters tougher (8% on Normal).
+// join it and big camps raise watchtowers. Every era makes enemy fighters tougher (6% on Normal).
 const ERA=[ {name:'Bone and wood'},
   {name:'Bronze', pad:'#b08d57', text:p=>`The horde enters the Bronze Age: its fighters are ${p}% tougher, and its scouts now study your army. Raids bring fighters to counter your most common troops.`},
-  {name:'Iron',   pad:'#8f99a5', text:p=>`The horde forges iron: its fighters are ${p}% tougher, shamans heal them in battle, and camps of level 3 or more raise watchtowers that shoot.`},
+  {name:'Iron',   pad:'#8f99a5', text:p=>`The horde forges iron: its fighters are ${p}% tougher, shamans heal them in battle, and camps of level 4 or more raise watchtowers that shoot.`},
   {name:'Steel',  pad:'#d3dae1', text:p=>`The horde arms itself in steel: its fighters are ${p}% tougher, and ogres march with its raids and guard its big camps.`} ];
 const eraFor = t => { const ev=DF().evo; let e=0; while(e<3&&t>=DAY*(ev[e]-1)) e++; return e; };
-const eraMult = () => 1+(DF().eraStep||.08)*G.era;
+const eraMult = () => 1+(DF().eraStep||.06)*G.era;
 function evolve(){
   const m0=eraMult(); G.era++; const f=eraMult()/m0;
   for(const u of G.units) if(u.team===1&&!u.dead){ u.maxhp*=f; u.hp*=f; u.atk*=f; }
@@ -447,7 +447,7 @@ function evolve(){
 // against what you field most, raids bring its counter
 const COUNTER_OF={archer:'rider', catapult:'rider', soldier:'slinger', knight:'brute'};
 function armyFocus(){ const c={}; let n=0; for(const u of G.units) if(isTroop(u)){ c[u.kind]=(c[u.kind]||0)+1; n++; } return n<4?null:Object.keys(c).sort((a,b)=>c[b]-c[a])[0]; }
-const campTower = b => b.type==='camp'&&b.team===1&&!b.dead&&b.lvl>=3&&b.lvl<6&&G.era>=2;
+const campTower = b => b.type==='camp'&&b.team===1&&!b.dead&&b.lvl>=4&&b.lvl<6&&G.era>=2;
 const campTowerDmg = b => 4*(1+.25*(b.lvl-1))*eraMult();
 // Every camp is one of four kinds; its guards and raids follow its mix.
 const CAMP_KINDS=['brutes','slingers','riders','shields'];
@@ -689,7 +689,7 @@ function mkUnit(kind,team,x,y,lvl=1){
 }
 function spawnGuard(b,k){
   let kind = GUARD_MIX[campKind(b)][k%4];
-  if(G&&G.era>=3&&b.lvl>=4&&k===4) kind='ogre'; else if(G&&G.era>=2&&b.lvl>=3&&k===2) kind='shaman';
+  if(G&&G.era>=3&&b.lvl>=4&&k===4) kind='ogre'; else if(G&&G.era>=2&&b.lvl>=4&&k===2) kind='shaman';
   for(let t=0;t<12;t++){
     const x=b.x+Math.floor(Math.random()*5)-2, y=b.y+Math.floor(Math.random()*5)-2;
     if(x<0||y<0||x>=W||y>=H||!PASS[G.terr[y*W+x]]) continue;
@@ -931,7 +931,7 @@ function spawnRaid(c,size,rams,lvl,horde){
   const top=G.era>=1?armyFocus():null, ctr=top?(top==='knight'&&G.era>=3?'ogre':COUNTER_OF[top]):null;
   for(let k=0;k<size+rams;k++){
     let kind=k>=size?'ram':mix[k%4];
-    if(k<size){ if(ctr&&k%4===3) kind=ctr; if(G.era>=2&&k===1&&size>=5) kind='shaman'; if(G.era>=3&&((k===0&&size>=7)||(k===5&&size>=12))) kind='ogre'; }
+    if(k<size){ if(ctr&&k%4===3) kind=ctr; if(G.era>=2&&k===1&&size>=7) kind='shaman'; if(G.era>=3&&((k===0&&size>=7)||(k===5&&size>=12))) kind='ogre'; }
     const u=mkUnit(kind,1,c.cx+(Math.random()-.5)*1.5,c.cy+(Math.random()-.5)*1.5,lvl);
     u.mode='raid'; u.path=path?path.slice():null; u.pi=0; G.units.push(u);
   }
@@ -1617,7 +1617,7 @@ function update(dt){
   // shamans heal the most hurt fighter near them
   for(const u of G.units){ if(u.kind!=='shaman'||u.dead) continue; u.healT=(u.healT||0)-dt; if(u.healT>0) continue; u.healT=1.2;
     let best=null, bw=0; for(const o of G.units){ if(o.team!==1||o.dead||o===u||o.siege) continue; const w=o.maxhp-o.hp; if(w>bw&&Math.hypot(o.x-u.x,o.y-u.y)<3.5){ bw=w; best=o; } }
-    if(best){ best.hp=Math.min(best.maxhp,best.hp+7*eraMult()); burst(best.x,best.y-.3,'#8fe07a',5); } }
+    if(best){ best.hp=Math.min(best.maxhp,best.hp+5*eraMult()); burst(best.x,best.y-.3,'#8fe07a',5); } }
   // spike traps: a raider who steps on one is hurt and slowed, and the stakes wear down
   for(const u of G.units){ if(u.team!==1||u.dead) continue; u.slowT=(u.slowT||0)-dt; u.trapT=(u.trapT||0)-dt;
     const b=bgrid[(u.y|0)*W+(u.x|0)]; if(!b||b.type!=='spikes'||b.dead||b.team!==0||u.trapT>0) continue;
