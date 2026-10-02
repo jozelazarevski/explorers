@@ -21,8 +21,8 @@ Every day asks you to decide something. Pick the right troops for each camp, kee
 | Quick select | Q whole army · E your hero | Army / Hero buttons |
 | Take a camp | Click a camp, then Send the hero or Send General … | Same, with taps |
 | Steer the hero yourself | Select them, then click the map; Z Whirlwind | Same, with taps |
-| Build | Keys 1–8, then click a green square | Build, pick a building, then tap a green square |
-| Town Hall | H: hire villagers, scouts, builders and the Builders' Guild, set jobs, trade | Town button |
+| Build | Keys 1–0 (or the bar), then click a green square | Build, pick a building, then tap a green square |
+| Town Hall | H: hire villagers, scouts, builders and the Builders' Guild, set jobs | Town button |
 | Tech tree | R | Tech button |
 | Game speed | F cycles 1× / 2× / 4× | Speed button by the minimap |
 | Train | V villager · T soldier · Y archer · U knight | Tap a Barracks |
@@ -32,7 +32,7 @@ Every day asks you to decide something. Pick the right troops for each camp, kee
 
 - **Difficulty:** pick Relaxed, Normal or Hard on the title screen before starting a new world. It sets how early, how often and how big raids are, when rams join them, how fast camps grow, and your starting resources.
 - **Goals:** a chain of 16 goals under the resource bar guides the early game and pays out resources for each one.
-- **Market:** the Town Hall trades wood, stone and food for gold and back.
+- **Market:** build one to trade wood, stone and food for gold and back. A level 2 market pays 30% more for goods and asks 15% less for them, and a level 3 one twice that.
 - **Rally points:** set one on a Barracks and new troops march there and hold.
 - **Idle villagers:** a chip at the top counts villagers with nothing to do; tap it to select them.
 - **Scouts:** the map starts in fog. You begin with one scout, and more can be sent from the Town Hall or the Missions board (X). Each rides on its own to the nearest unexplored edge or treasure, spreads out from the others, keeps away from enemy camps and runs home to heal when anything hurts it. Chests hold loot, maps or a free soldier. Purple shrines make your hero permanently stronger.
@@ -40,12 +40,27 @@ Every day asks you to decide something. Pick the right troops for each camp, kee
 - **Missions:** the Missions board (O) lists your hero, generals, Builders' Guild and scouts, shows what each is doing, and offers their missions. A red dot on the Missions button means someone is waiting for orders.
 - **Hero:** takes one mission at a time: explore the fog, take a camp alone, defend the town, or gather wood, stone or gold. They fight back, go home to heal when badly hurt (three times as fast at the Town Hall), then carry on, and level up from battles and conquests. Without a mission they still fight raiders who reach the town. Select them and tap the map to send them somewhere yourself.
 - **Generals:** hire up to three at a Barracks. Give one a camp to take or the town to defend and they take the town guard along as their warband (up to 12 troops), picking the troops that fight that camp best. A general with a big warband sends the troops in first and joins once the guards are down, then takes the camp and marches home. Troops without a general guard the town.
-- **Builders' Guild:** hire it at the Town Hall to get two builders; hire more later. Every building is now a construction site that builders put up over a few seconds. Order a building on the Missions board and the builders choose the spot (farms and houses near the hall, lumber camps by forest, quarries by hills, towers facing the nearest camp), or pick one from the build bar and place it yourself.
+- **Builders' Guild:** hire it at the Town Hall to get two builders. They live in the guild's own lodge and never take housing, so you can always hire the guild. More builders can be hired later, and those do need room. Every building is now a construction site that builders put up over a few seconds. Order a building on the Missions board and the builders choose the spot (farms and houses near the hall, lumber camps by forest, quarries by hills, towers facing the nearest camp), or pick one from the build bar and place it yourself.
 - **Command units separately:** whatever you select takes your orders. Troops sent somewhere hold that spot and fight anything within about 5 tiles. Tap an enemy to attack it, or use Back to their post to regroup. Villagers can be sent to any spot, tree, rock, gold vein or farm.
 - **Tap to act:** every building, unit, camp and resource opens a panel with its stats and actions. From there you can upgrade, demolish, train, hire, give missions or send a villager.
-- **Development tree:** 14 technologies in six branches (Economy, Farming, Defense, Military, Arms, Exploration). Research runs at the Town Hall, one at a time.
-- **Upgrades:** buildings go up to level 3 for more output, health and range.
-- **Build:** Farms make food. Lumber Camps and Quarries collect from nearby forest and hills. Gold Mines must touch a gold vein. Houses raise troop capacity. Towers shoot raiders and widen your land. Walls slow raiders down.
+- **Development tree:** 14 technologies in six branches (Economy, Farming, Defense, Military, Arms, Exploration). Research runs at the Town Hall, one at a time, and takes one to almost three minutes. Every technology you know makes the next one 10% dearer, so you won't have them all before the horde comes. The first five are open from the start. Steel Tools, Deep Mining, Irrigation, Fortification, Chivalry, Bronze Arms and Hero Training need a level 2 Town Hall. Iron and Steel Arms need a level 3 one.
+- **Upgrades:** buildings go up to level 3 for more output, health and range. Level 2 costs three times the building and level 3 seven times, plus stone and gold, and the builders take a while to carry each one out. Nothing can be upgraded past the Town Hall's own level. The Town Hall becomes a castle (level 3) only after you have taken two camps.
+- **Build:** 13 buildings.
+  - **Farms** make food.
+  - **Lumber Camps** and **Quarries** collect from nearby forest and hills.
+  - **Gold Mines** must touch a gold vein.
+  - **Houses** raise troop capacity.
+  - **Barracks** train troops and hire generals.
+  - **Towers** shoot raiders and widen your land; **Walls** slow raiders down.
+  - **Storehouses** add 400 wood, stone and gold of storage per level, and villagers drop any goods there.
+  - **Granaries** add 500 food of storage per level.
+  - A **Market** trades goods for gold.
+  - A **Blacksmith** is needed for the Arms research, at level 2 for Iron Arms and level 3 for Steel Arms.
+  - A **Temple** makes your people heal 4–8 times as fast nearby and brings your fallen hero back in 6 seconds instead of 12.
+- **Resources run out:**
+  - Forests (about 32 wood a tile), hills (about 48 stone) and gold veins (about 160 gold a tile) are used up, whether villagers gather them or a Lumber Camp, Quarry or Mine draws on them. Their panels show how much is left within reach. When a camp runs dry, build a new one by fresh ground, or take enemy camps for more land.
+  - Farms hold about 600 food of soil per level (more with Agriculture and Irrigation). When the soil wears out, the farm is re-sown for 40 wood per level, or lies fallow until you have it.
+  - Storage is limited. The Town Hall holds 500 of each resource (800 at level 2, 1,200 as a castle), and anything beyond what your stores hold goes to waste. A resource chip turns gold when that store is full.
 - **Know the enemy:** every camp is a brute warband, a slinger nest, a rider camp or a shield fort, marked by its banner, and its guards and raids match. The counters:
 
   | Enemy | Beat it with | Avoid |
