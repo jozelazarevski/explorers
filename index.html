@@ -311,7 +311,7 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
         <dt>Look</dt><dd><span class="kb">WASD, arrow keys or right-drag to look around, wheel or +/− to zoom. Space returns to your town.</span><span class="tc">Drag to look around, pinch to zoom. Home returns to your town.</span></dd>
         <dt>Explore</dt><dd>Scouts roam the fog on their own, bring back treasure and flee from danger. You start with one; send more from the Town Hall<span class="kb"> or with X</span>. Your hero can explore too.</dd>
         <dt>Select</dt><dd>Tap any building, unit, camp or resource to see what it does and act on it</dd>
-        <dt>War</dt><dd>Tap an enemy camp and send your hero or a general. Generals take the town guard with them as their warband, take the camp and march home. Hire generals at a Barracks. <span class="kb">Drag to box-select troops; Q selects them all.</span><span class="tc">Hold a finger, then drag, to box-select troops.</span></dd>
+        <dt>War</dt><dd>Tap an enemy camp and send your hero or a general. Give each general an army first: Take the town guard on the general, or select troops and tap Join. Generals march at the pace of their army, take the camp and march home. Hire generals at a Barracks. <span class="kb">Drag to box-select troops; Q selects them all.</span><span class="tc">Hold a finger, then drag, to box-select troops.</span></dd>
         <dt>Your hero</dt><dd>Takes one mission at a time, fights back, goes home to heal when hurt and levels up. To send them somewhere yourself, select them<span class="kb"> (E)</span> and tap the map. <span class="kb">Z</span><span class="tc">Their Whirlwind</span> hits everything close by. Troops can follow the hero as a warband of up to 12: use Follow the hero on a soldier, or Take the town guard on the hero.</dd>
         <dt>Villagers</dt><dd>Hire them at the Town Hall<span class="kb"> (H)</span> and set their jobs. They gather and farm for you.</dd>
         <dt>Goals</dt><dd>Follow the goal under the resource bar for rewards<span class="tc">; tap it to read it in full</span>.</dd>
@@ -320,6 +320,7 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
         <dt>Resources run out</dt><dd>Forests, hills and gold veins are used up, whether villagers gather them or a Lumber Camp, Quarry or Mine draws on them; then build a new one by fresh ground, or take camps for more land. Farms wear out and are re-sown with wood. Your stores only hold so much, and anything more goes to waste.</dd>
         <dt>Train</dt><dd>Soldiers<span class="kb"> (T)</span> and generals come from the Barracks, archers<span class="kb"> (Y)</span> from an Archery Range, knights<span class="kb"> (U)</span> from a Stable and catapults from a Siege Workshop. Bigger ones train faster.</dd>
         <dt>Defend</dt><dd>Troops that are not with a general guard the town. Towers and the Town Hall shoot raiders. A hero or general on a defend mission meets them on the road, and one waiting in town fights them at the gate.</dd>
+        <dt>The horde evolves</dt><dd>On days 4, 7 and 10 (Normal) the horde grows: tougher bronze, iron, then steel arms; raids that bring the counter to your most common troops; shamans who heal; watchtowers on big camps; and ogres.</dd>
         <dt>Know the enemy</dt><dd>Every camp is a brute warband, a slinger nest, a rider camp or a shield fort, and its raids are the same. Archers cut down brutes but bounce off shields; knights ride down slingers and break shield walls; soldiers' spears stop riders, which otherwise run down archers and villagers. Before you send anyone, the camp shows a battle forecast; a general takes the troops that fight that camp best.</dd>
         <dt>Upkeep</dt><dd>Everyone eats, and soldiers and generals want wages. Without food your people starve; without gold your soldiers desert. The food and gold chips show what you gain or lose each second. Farms, gold mines, a Market and taken camps pay for a bigger army.</dd>
         <dt>The council</dt><dd>Most mornings brings a decision with no free answer: pay tribute or face a bigger raid, hire sellswords, dig wells, pay healers, and more.</dd>
@@ -344,9 +345,9 @@ const ZOOMS = [0.5, 0.65, 0.8, 1, 1.25, 1.6];
 const SAVE_KEY = 'shardlands-save-v1'; // save format v2 lives under the same key
 const PREF_KEY = 'shardlands-prefs';
 const DIFFS = [
-  { name:'Relaxed', firstRaid:1.6,  gap:[240,120], size:.7,   grow:3,   res:1.4, ramDay:6, hordeDay:14 },
-  { name:'Normal',  firstRaid:1.15, gap:[170,90],  size:1,    grow:2,   res:1,   ramDay:4, hordeDay:10 },
-  { name:'Hard',    firstRaid:.9,   gap:[130,70],  size:1.35, grow:1.5, res:.85, ramDay:3, hordeDay:8 },
+  { name:'Relaxed', firstRaid:1.6,  gap:[240,120], size:.7,   grow:3,   res:1.4, ramDay:6, hordeDay:14, evo:[5,9,13] },
+  { name:'Normal',  firstRaid:1.15, gap:[170,90],  size:1,    grow:2,   res:1,   ramDay:4, hordeDay:10, evo:[4,7,10] },
+  { name:'Hard',    firstRaid:.9,   gap:[130,70],  size:1.35, grow:1.5, res:.85, ramDay:3, hordeDay:8,  evo:[3,6,8] },
 ];
 const DF = () => DIFFS[G.diff] || DIFFS[1];
 
@@ -407,6 +408,8 @@ const UD = {
   rider:   { hp:45,  atk:6,  range:1.15, rate:0.9, spd:5.2 },
   shield:  { hp:80,  atk:5,  range:1.1,  rate:1.1, spd:2.6 },
   warlord: { hp:650, atk:22, range:1.3,  rate:1.1, spd:3.3 },
+  shaman:  { hp:40,  atk:4,  range:4.0,  rate:1.6, spd:2.8, ranged:1 },
+  ogre:    { hp:240, atk:18, range:1.3,  rate:1.5, spd:2.4 },
   ram:     { hp:260, atk:32, range:1.3,  rate:2.5, spd:1.7, siege:1 },
 };
 // where each kind is trained, and what each military building trains
@@ -416,16 +419,36 @@ const TRAIN_TECH={archer:'archery',knight:'chivalry',catapult:'siege'};
 // Who beats whom: damage multipliers by attacker, then by what it hits ('building' for any building).
 const VS={
   soldier:{rider:2, shield:.8},
-  archer:{brute:3, shield:.35, rider:.8, building:.5},
-  knight:{slinger:2, shield:1.7, brute:1.2},
+  archer:{brute:3, shield:.35, rider:.8, building:.5, ogre:1.3},
+  knight:{slinger:2, shield:1.7, brute:1.2, ogre:1.2},
   tower:{shield:.4, brute:1.3, rider:.8},
   hall:{shield:.4},
   rider:{archer:1.8, villager:1.5, scout:1.5, builder:1.5, catapult:1.8},
-  slinger:{knight:.6},
-  catapult:{building:3, shield:1.5, rider:.6},
+  slinger:{knight:.6, soldier:1.4},
+  brute:{knight:1.3},
+  ogre:{knight:1.5, building:1.5},
+  catapult:{building:3, shield:1.5, rider:.6, ogre:1.3},
 };
 const vs=(a,k)=>(VS[a]&&VS[a][k])||1;
 const mult=(a,o)=>vs(a,o.isB?'building':o.kind);
+// The horde evolves: on set days its smiths forge better arms, its scouts study your army, shamans and ogres
+// join it and big camps raise watchtowers. Every era makes enemy fighters 15% tougher.
+const ERA=[ {name:'Bone and wood'},
+  {name:'Bronze', pad:'#b08d57', text:"The horde enters the Bronze Age: its fighters are 15% tougher, and its scouts now study your army. Raids bring fighters to counter your most common troops."},
+  {name:'Iron',   pad:'#8f99a5', text:'The horde forges iron: its fighters are 30% tougher, shamans heal them in battle, and camps of level 3 or more raise watchtowers that shoot.'},
+  {name:'Steel',  pad:'#d3dae1', text:'The horde arms itself in steel: its fighters are 45% tougher, and ogres march with its raids and guard its big camps.'} ];
+const eraFor = t => { const ev=DF().evo; let e=0; while(e<3&&t>=DAY*(ev[e]-1)) e++; return e; };
+const eraMult = () => 1+.15*G.era;
+function evolve(){
+  const m0=eraMult(); G.era++; const f=eraMult()/m0;
+  for(const u of G.units) if(u.team===1&&!u.dead){ u.maxhp*=f; u.hp*=f; u.atk*=f; }
+  toast(ERA[G.era].text,'bad'); sfx('horn');
+}
+// against what you field most, raids bring its counter
+const COUNTER_OF={archer:'rider', catapult:'rider', soldier:'slinger', knight:'brute'};
+function armyFocus(){ const c={}; let n=0; for(const u of G.units) if(isTroop(u)){ c[u.kind]=(c[u.kind]||0)+1; n++; } return n<4?null:Object.keys(c).sort((a,b)=>c[b]-c[a])[0]; }
+const campTower = b => b.type==='camp'&&b.team===1&&!b.dead&&b.lvl>=3&&b.lvl<6&&G.era>=2;
+const campTowerDmg = b => 5*(1+.25*(b.lvl-1))*eraMult();
 // Every camp is one of four kinds; its guards and raids follow its mix.
 const CAMP_KINDS=['brutes','slingers','riders','shields'];
 const GUARD_MIX={ brutes:['brute','brute','slinger','brute'], slingers:['slinger','slinger','brute','slinger'], riders:['rider','rider','slinger','rider'],
@@ -441,11 +464,12 @@ const CAMP_TIP={
   fortress:"The warlord's seat, held by every kind of fighter. Bring a big, mixed army.",
 };
 const RAID_WHAT={brutes:'brutes',slingers:'slingers',riders:'riders',shields:'shieldbearers',fortress:'fighters'};
-const FOE_NAME={brute:'Brute',slinger:'Slinger',rider:'Rider',shield:'Shieldbearer',warlord:'Warlord',ram:'Battering ram'};
-const FOE_TIP={brute:'No armour: archers cut them down.',slinger:'Throws stones from afar. Knights ride them down; stones glance off plate.',
+const FOE_NAME={brute:'Brute',slinger:'Slinger',rider:'Rider',shield:'Shieldbearer',warlord:'Warlord',ram:'Battering ram',shaman:'Shaman',ogre:'Ogre'};
+const FOE_TIP={shaman:'Heals the fighters around it. Cut it down first.',ogre:'Huge and tough, and it smashes knights and walls. Archers and catapults wear it down from afar.',
+  brute:'No armour: archers cut them down. They drag knights from the saddle.',slinger:'Throws stones from afar and picks off soldiers. Knights ride them down; stones glance off plate.',
   rider:"Runs down archers and villagers. Soldiers' spears stop them.",shield:'Arrows and towers barely hurt. Knights break the wall.',
   warlord:'Leader of the fortress.',ram:'Smashes walls and buildings but ignores people. Slow, so troops can catch it on the road.'};
-const UNIT_TIP={soldier:'Spears: strong against riders.',archer:'Arrows: strong against brutes, weak against shields.',knight:'Charge: strong against slingers and shield walls.',catapult:'Hurls stones from afar that hit everything around where they land: smashes camps and shield walls, but riders run it down.'};
+const UNIT_TIP={soldier:'Spears: strong against riders, but slingers pick them off.',archer:'Arrows: strong against brutes, weak against shields.',knight:'Charge: strong against slingers and shield walls.',catapult:'Hurls stones from afar that hit everything around where they land: smashes camps and shield walls, but riders run it down.'};
 // What each of your people eats (food/s) and is paid (gold/s).
 const UPKEEP={ villager:[.05,0], scout:[.05,0], builder:[.05,0], soldier:[.08,.02], archer:[.08,.03], knight:[.12,.05], general:[.1,.1], catapult:[.05,.08] };
 const JOBS = ['wood','stone','gold','food'];
@@ -619,7 +643,7 @@ function genWorld(seed,diff=1){
     res:{wood:Math.round(120*df.res),stone:Math.round(40*df.res),gold:Math.round(20*df.res),food:Math.round(80*df.res)},
     time:0, nextRaid:DAY*df.firstRaid, conquered:0, totalCamps:camps.length, upg:0,
     heroBuff:{hp:0,atk:0}, nid:1, over:false, won:false, marker:null, tech:{}, research:null, speed:1, quest:0, growT:DAY*df.grow,
-    diff, stats:newStats(), mods:{}, hordeT:DAY*(df.hordeDay-1), hordes:0, evDay:0, recentEv:[], raidBoost:null,
+    diff, stats:newStats(), mods:{}, era:0, hordeT:DAY*(df.hordeDay-1), hordes:0, evDay:0, recentEv:[], raidBoost:null,
   };
   resetGrids();
   addBuilding('hall', sx, sy, 0);
@@ -655,7 +679,7 @@ function addBuilding(type,x,y,team,lvl=1){
 }
 function mkUnit(kind,team,x,y,lvl=1){
   const d=UD[kind]; let hp=d.hp, atk=d.atk;
-  if(team===1){ hp*=1+(lvl-1)*.45; atk*=1+(lvl-1)*.32; }
+  if(team===1){ hp*=(1+(lvl-1)*.45)*eraMult(); atk*=(1+(lvl-1)*.32)*eraMult(); }
   else if(kind==='hero'){ hp+=G.heroBuff.hp; atk+=G.heroBuff.atk; }
   else if(kind!=='villager'&&kind!=='scout'&&kind!=='builder'){ const m=1+.2*G.upg; hp*=m; atk*=m; }
   const spd=d.spd*(team===0&&has('carto')?1.15:1), vis=(d.vis||0)+((kind==='hero'||kind==='scout')&&has('carto')?4:0);
@@ -664,7 +688,8 @@ function mkUnit(kind,team,x,y,lvl=1){
     abT:0, spin:0, job:'', carry:0, ctype:'', tile:-1, work:-1, pgoal:-1, fr:0, working:false, hl:1, xp:0, order:'', ox:0, oy:0, otgt:null, post:null, autoT:-1, ept:0, retreat:false, done:false, st:0, nm:'', leader:0, mission:null };
 }
 function spawnGuard(b,k){
-  const kind = GUARD_MIX[campKind(b)][k%4];
+  let kind = GUARD_MIX[campKind(b)][k%4];
+  if(G&&G.era>=3&&b.lvl>=4&&k===4) kind='ogre'; else if(G&&G.era>=2&&b.lvl>=3&&k===2) kind='shaman';
   for(let t=0;t<12;t++){
     const x=b.x+Math.floor(Math.random()*5)-2, y=b.y+Math.floor(Math.random()*5)-2;
     if(x<0||y<0||x>=W||y>=H||!PASS[G.terr[y*W+x]]) continue;
@@ -744,8 +769,8 @@ function moveToward(u,tx,ty,dt,stop=.05){
   const dx=tx-u.x, dy=ty-u.y, d=Math.hypot(dx,dy);
   lastBlock=null;
   if(d<=stop) return true;
-  const st=Math.min(d,u.spd*(u.slowT>0?.5:1)*dt), vx=dx/d*st, vy=dy/d*st;
-  u.face=Math.atan2(dy,dx); u.moving=true;
+  const st=Math.min(d,u.spd*(u.slowT>0?.5:1)*(u.pace??1)*dt), vx=dx/d*st, vy=dy/d*st;
+  u.face=Math.atan2(dy,dx); u.moving=st>0;
   if(canEnter(u,u.x+vx,u.y)) u.x+=vx;
   if(canEnter(u,u.x,u.y+vy)) u.y+=vy;
   return false;
@@ -902,12 +927,16 @@ function deplete(i){
 function spawnRaid(c,size,rams,lvl,horde){
   const hall=hallB(); if(!hall) return;
   const mix=GUARD_MIX[campKind(c)], path=findPath(c.x,c.y,hall.x,hall.y,1,true,30000);
+  const top=G.era>=1?armyFocus():null, ctr=top?(top==='knight'&&G.era>=3?'ogre':COUNTER_OF[top]):null;
   for(let k=0;k<size+rams;k++){
-    const u=mkUnit(k>=size?'ram':mix[k%4],1,c.cx+(Math.random()-.5)*1.5,c.cy+(Math.random()-.5)*1.5,lvl);
+    let kind=k>=size?'ram':mix[k%4];
+    if(k<size){ if(ctr&&k%3===2) kind=ctr; if(G.era>=2&&k===1&&size>=5) kind='shaman'; if(G.era>=3&&((k===0&&size>=7)||(k===5&&size>=12))) kind='ogre'; }
+    const u=mkUnit(kind,1,c.cx+(Math.random()-.5)*1.5,c.cy+(Math.random()-.5)*1.5,lvl);
     u.mode='raid'; u.path=path?path.slice():null; u.pi=0; G.units.push(u);
   }
   const dir=dirWord(c.cx-hall.cx,c.cy-hall.cy), rm=rams?` with ${rams>1?rams+' battering rams':'a battering ram'}`:'';
-  toast(horde?`The warlord's horde, ${size} strong${rm}, is marching on your town from the ${dir}!`:`A raid of ${size}, mostly ${RAID_WHAT[campKind(c)]}${rm}, is marching on your Town Hall from the ${dir}.`,'bad');
+  const adapt=ctr?` They bring ${FOE_NAME[ctr].toLowerCase()}s against your ${UD[top].name.toLowerCase()}s.`:'';
+  toast((horde?`The warlord's horde, ${size} strong${rm}, is marching on your town from the ${dir}!`:`A raid of ${size}, mostly ${RAID_WHAT[campKind(c)]}${rm}, is marching on your Town Hall from the ${dir}.`)+adapt,'bad');
   sfx('horn');
 }
 // ---------- goals ----------
@@ -1127,8 +1156,8 @@ function giveMission(u,m){
   u.mission=m; u.tgt=null; u.path=null; u.retreat=false; u.autoT=-1; u.ept=0; u.done=false; u.tile=-1; u.pgoal=-1;
   if(!m){ toast(`${who(u)} stands down and heads home.`); rideHome(u,3); return; }
   G.stats.missions++;
-  if(u.kind==='general'&&m.type==='clear') for(const t of G.units) if(t.leader===u.id) t.leader=0; // re-pick the best troops for this camp
-  const band=u.kind==='general'&&m.type!=='gather'&&m.type!=='explore'?` with ${muster(u,m.type==='clear'?findB(m.id):null)} troops`:'';
+  let band='';
+  if(u.kind==='general'&&m.type!=='gather'&&m.type!=='explore'){ const n=warband(u)||muster(u,m.type==='clear'?findB(m.id):null); band=n?` with ${n} troops`:', alone: no troops are free. Give them some first'; }
   toast(`${who(u)}: ${missionText(u).toLowerCase()}${band}.`);
 }
 // A general picks the troops from the town guard that fight this camp best, up to a full warband.
@@ -1137,7 +1166,11 @@ function musterPick(g,camp){
   if(camp){ const mix=GUARD_MIX[campKind(camp)], score=u=>mix.reduce((s,k)=>s+vs(u.kind,k),0); free=free.sort((a,b)=>score(b)-score(a)); }
   return free.slice(0,Math.max(0,WARBAND-have));
 }
-function bandFor(g,camp){ return [g,...G.units.filter(u=>isTroop(u)&&u.leader===g.id),...musterPick(g,camp)]; }
+function bandFor(g,camp){ const own=G.units.filter(u=>isTroop(u)&&u.leader===g.id); return [g,...own,...(own.length?[]:musterPick(g,camp))]; }
+function mixText(us){ const c={}; for(const u of us) c[u.kind]=(c[u.kind]||0)+1; return Object.keys(c).map(k=>`${c[k]} ${UD[k].name.toLowerCase()}${c[k]>1?'s':''}`).join(', '); }
+function genRelease(g){ const b=G.units.filter(u=>isTroop(u)&&u.leader===g.id); for(const u of b){ u.leader=0; u.tgt=null; u.path=null; } if(b.length) toast(`${cap1(nTroops(b.length,'goes','go'))} back to guarding the town.`); }
+function genMuster(g){ const m=g.mission, before=warband(g); muster(g,m&&m.type==='clear'?findB(m.id):null); const n=warband(g)-before;
+  toast(n?`${cap1(nTroops(n,'joins','join'))} General ${g.nm}.`:before>=WARBAND?`General ${g.nm} already leads a full warband.`:'No troops are guarding the town. Train some first.'); }
 function muster(g,camp){ for(const u of musterPick(g,camp)) u.leader=g.id; return warband(g); }
 function mixOf(us){ const m={}; for(const u of us) m[u.kind]=(m[u.kind]||0)+1; return Object.keys(m).map(k=>({kind:k,w:m[k]/us.length})); }
 function might(us,mix){ let hp=0,dps=0; for(const u of us){ hp+=u.hp; let m=0; for(const f of mix) m+=vs(u.kind,f.kind)*f.w; dps+=u.atk/u.rate*(mix.length?m:1); } return {hp,dps}; }
@@ -1146,6 +1179,7 @@ function forecast(us,camp){
   us=us.filter(u=>u&&!u.dead); if(!us.length) return null;
   const guards=G.units.filter(e=>!e.dead&&e.team===1&&e.home===camp.id);
   const A=might(us,guards.length?mixOf(guards):GUARD_MIX[campKind(camp)].map(k=>({kind:k,w:.25}))), B=might(guards,mixOf(us));
+  if(campTower(camp)) B.dps+=campTowerDmg(camp)/1.8;
   // the bigger, better-matched side wins a melee and keeps about sqrt(1-r) of its strength
   const r=B.hp*B.dps/Math.max(A.hp*A.dps,1); let left=r<1?Math.sqrt(1-r):0;
   // the hero alone wears a camp down over several trips home to heal (measured in staged fights)
@@ -1169,7 +1203,10 @@ function harvest(i){
 // The hero and generals carry out their missions on their own.
 function missionAI(u,dt){
   const hall=hallB(), m=u.mission;
-  u.ept-=dt;
+  u.ept-=dt; u.pace=1;
+  const band=G.units.filter(t=>isTroop(t)&&t.leader===u.id&&!t.order);
+  if(band.length&&!u.tgt&&!u.retreat){ u.pace=Math.min(1,Math.min(...band.map(t=>t.spd))*.95/u.spd);
+    if(band.filter(t=>Math.hypot(t.x-u.x,t.y-u.y)>5).length>band.length/3) u.pace=0; }
   // a fight in progress comes first
   if(u.tgt){ if(u.tgt.dead||u.tgt.team===0) u.tgt=null; else { u.path=null; engage(u,u.tgt,dt); return; } }
   // badly hurt on a mission: go home to heal, then carry on
@@ -1278,6 +1315,7 @@ function spotCheck(type,x,y){
   if(!G.expl[i]) return 'Explore that area first.';
   if(!terrT[i]) return 'Build inside your blue border. Towers and conquered camps widen it.';
   if(bgrid[i]) return 'Something is already built there.';
+  { const h=G.blds.find(b=>b.type==='hall'&&b.team===0&&!b.dead); if(h&&Math.max(Math.abs(x-h.x),Math.abs(y-h.y))<=1) return "That is inside the Town Hall's walls."; }
   if(!BUILDABLE[G.terr[i]]) return "You can't build on water, mountains or gold veins.";
   if(G.feats.some(f=>!f.taken&&f.x===x&&f.y===y)) return 'Pick up the treasure there first.';
   if(type==='mine'){ let ok=false; for(let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++){ const n=(y+dy)*W+x+dx; if(G.terr[n]===T.GOLD) ok=true; } if(!ok) return 'A Gold Mine must touch a gold vein (yellow gems).'; }
@@ -1543,6 +1581,10 @@ function update(dt){
   for(const u of followers){ const l=leaderOf(u); if(!l&&u.leader!==G.hero.id) u.leader=0; const k=l?l.id:0; if(!bands.has(k)) bands.set(k,[]); bands.get(k).push(u); }
   for(const [k,us] of bands){ const anchor=k?unitById(k):hallB(); us.forEach((u,i)=>allyAI(u,i,dt,anchor)); }
 
+  // shamans heal the most hurt fighter near them
+  for(const u of G.units){ if(u.kind!=='shaman'||u.dead) continue; u.healT=(u.healT||0)-dt; if(u.healT>0) continue; u.healT=1.2;
+    let best=null, bw=0; for(const o of G.units){ if(o.team!==1||o.dead||o===u||o.siege) continue; const w=o.maxhp-o.hp; if(w>bw&&Math.hypot(o.x-u.x,o.y-u.y)<3.5){ bw=w; best=o; } }
+    if(best){ best.hp=Math.min(best.maxhp,best.hp+10*eraMult()); burst(best.x,best.y-.3,'#8fe07a',5); } }
   // spike traps: a raider who steps on one is hurt and slowed, and the stakes wear down
   for(const u of G.units){ if(u.team!==1||u.dead) continue; u.slowT=(u.slowT||0)-dt; u.trapT=(u.trapT||0)-dt;
     const b=bgrid[(u.y|0)*W+(u.x|0)]; if(!b||b.type!=='spikes'||b.dead||b.team!==0||u.trapT>0) continue;
@@ -1566,6 +1608,7 @@ function update(dt){
         let n=0; for(const u of G.units) if(!u.dead&&u.home===b.id&&u.mode==='guard') n++;
         const max=b.lvl===6?8:2+b.lvl; if(n<max) spawnGuard(b,n);
       }
+      if(campTower(b)&&b.cd<=0){ const f=nearestFoe({x:b.cx,y:b.cy,team:1},5.5); if(f&&!f.isB){ b.cd=1.8; G.proj.push({x:b.cx+.3,y:b.cy-.9,t:f,dmg:campTowerDmg(b),team:1,spd:12}); sfx('shoot',b.cx,b.cy); } }
       if(G.time-b.lastHit>10 && b.hp<b.maxhp) b.hp=Math.min(b.maxhp,b.hp+4*dt);
     }
   }
@@ -1598,6 +1641,7 @@ function update(dt){
       spawnRaid(c,size,rams,c.lvl,false);
     }
   }
+  if(eraFor(G.time)>G.era) evolve();
   // the warlord's horde: on a set day, then every three days, until the fortress falls
   const fort=G.blds.find(b=>b.type==='camp'&&b.team===1&&!b.dead&&b.lvl===6);
   if(fort&&!G.hordeWarned&&G.time>G.hordeT-DAY/2){ G.hordeWarned=true; toast("Scouts see the warlord's horde gathering at the fortress. It marches at dawn.",'bad'); }
@@ -1922,7 +1966,7 @@ const RC={ blue:'#4a82e0', red:'#d24a3f', clay:'#c8664a', thatch:'#d9bb5c', slat
 // how far each building reaches above the top of its tile, for outlines, health bars and tapping
 const BTOP={ hall:.5, house:.2, farm:.2, lumber:.2, quarry:.45, mine:.3, barracks:.2, tower:.6, wall:.1, camp:.2, outpost:.2, storehouse:.25, granary:.5, market:.2, blacksmith:.3, temple:.45, range:.2, stable:.25, workshop:.35, spikes:0 };
 const bTop = (type,lvl) => lvl===6&&(type==='camp'||type==='outpost') ? 1.2 : BTOP[type]||0;
-function bBox(o){ const tp=bTop(o.type==='site'?o.plan:o.type,o.lvl); return o.lvl===6&&(o.type==='camp'||o.type==='outpost') ? [o.x-.45,o.y-tp,1.9,2.5] : [o.x-.04,o.y-tp,1.08,1.04+tp]; }
+function bBox(o){ const tp=bTop(o.type==='site'?o.plan:o.type,o.lvl); return o.type==='hall' ? [o.x-.45,o.y-1.35,1.9,2.7] : o.lvl===6&&(o.type==='camp'||o.type==='outpost') ? [o.x-.45,o.y-tp,1.9,2.5] : [o.x-.04,o.y-tp,1.08,1.04+tp]; }
 function log(g,x,y,len){ rect(g,x,y-.08,len,.04,'#a0683a'); rect(g,x,y-.04,len,.04,'#7d4f2a'); oct(g,x,y-.04,.035,.04,'#d7a46a'); rect(g,x-.01,y-.05,.02,.02,'#a8743c'); }
 function tent(g,x,y,w,d,c){ bshadow(g,x,y,w,d,.18); roof(g,x,y,w,d,.26,c); tri(g,x+w/2-.05,y+d,x+w/2,y+d-.13,x+w/2+.05,y+d,'#2a1d17'); }
 function fire(g,cx,cy,t,hot){ const f=Math.sin((t||0)*12+cx)*.02;
@@ -1939,20 +1983,44 @@ function fortress(g,x,y,team,t){
   box(g,x-.3,y+1.06,1.6,.2,.34,wc); merlons(g,x-.3,y+.72,1.6,.2,.08,wc); rect(g,x+.38,y+1.0,.24,.26,'#1b1412');
   turret(g,x-.42,y+.98,.34,.62,tc,rc); turret(g,x+1.08,y+.98,.34,.62,tc,rc);
 }
+// The Town Hall is your seat and looks it: a hall inside a log palisade (level 1), a stone keep behind curtain walls
+// with two towers (level 2), then a castle with four towers (level 3), always under a big banner in your colour.
+function townHall(g,x,y,lvl,t){
+  const stone=lvl>=2, wc='#b8b09f', mc='#d2cabb', tw='#c9bfaa', bc=TEAM[0], wave=Math.sin((t||0)*4)*.04;
+  const logs=(x0,y0,n,gap)=>{ for(let k=0;k<n;k++){ if(gap&&gap.includes(k)) continue; const px=x0+k*.11; rect(g,px,y0,.08,.26,'#7a5432'); tri(g,px,y0,px+.04,y0-.08,px+.08,y0,'#a0703f'); } };
+  const flag=(px,top,len,w,crest)=>{ rect(g,px,top,.04,len,'#3a2a1c'); oct(g,px+.02,top,.035,.03,'#f3c64b');
+    quad(g,px+.04,top+.03,px+.04+w,top+.06+wave,px+.04+w*.82,top+.06+w*.32+wave,px+.04+w,top+.06+w*.62+wave,bc.c); quad(g,px+.04,top+.03,px+.04+w*.82,top+.06+w*.32+wave,px+.04+w,top+.06+w*.62+wave,px+.04,top+.03+w*.6,bc.c);
+    rect(g,px+.04,top+.03,w*.9,.04,bc.l); if(crest) diamond(g,px+.04+w*.38,top+.06+w*.3+wave*.5,w*.14,'#f7d774','#d9a322'); };
+  // ground of the yard
+  rect(g,x-.36,y-.2,1.72,1.42,'rgba(150,130,95,.35)');
+  // back wall and towers
+  if(stone){ bshadow(g,x-.32,y-.24,1.64,1.5,.34); box(g,x-.3,y-.2,1.6,.18,.3,wc); merlons(g,x-.3,y-.5,1.6,.18,.07,mc); }
+  else logs(x-.33,y-.36,15);
+  if(lvl>=3) for(const dx of [-.42,1.08]) turret(g,x+dx,y-.26,.34,.62,tw,RC.blue);
+  // side walls
+  if(stone){ box(g,x-.34,y-.02,.18,1.06,.3,wc); box(g,x+1.16,y-.02,.18,1.06,.3,wc); }
+  else for(let k=0;k<10;k++) for(const px of [x-.37,x+1.29]) rect(g,px,y-.18+k*.12,.08,.2,'#6b4a2c');
+  // the hall, a keep from level 2
+  const h=stone?.52:.4;
+  bshadow(g,x+.06,y+.24,.88,.56,h);
+  box(g,x+.06,y+.24,.88,.56,h,stone?'#d8d0bf':'#dccfb3');
+  if(stone) merlons(g,x+.06,y+.24-h,.88,.56,.06,'#e2dbcc');
+  rect(g,x+.42,y+.56,.16,.24,'#5a3d26'); rect(g,x+.39,y+.53,.22,.04,'#8b6a3e'); win(g,x+.17,y+.6); win(g,x+.74,y+.6);
+  if(stone){ win(g,x+.17,y+.4); win(g,x+.74,y+.4); }
+  const ry=y+.24-h-.04; roof(g,x+.02,ry,.96,.64,.26,RC.blue);
+  // the great banner on the ridge
+  const ridge=ry+.32-.26; flag(x+.48,ridge-1.02,1.02,.6,true);
+  // front wall with its gate
+  if(stone){ box(g,x-.3,y+1.04,.6,.2,.3,wc); box(g,x+.7,y+1.04,.6,.2,.3,wc); merlons(g,x-.3,y+.74,.6,.2,.07,mc); merlons(g,x+.7,y+.74,.6,.2,.07,mc);
+    box(g,x+.28,y+1.08,.44,.22,.46,'#c2baa9'); merlons(g,x+.28,y+.62,.44,.22,.06,mc); rect(g,x+.4,y+1.06,.2,.24,'#3a2a1c'); rect(g,x+.4,y+1.06,.2,.04,'#5d6670'); }
+  else { logs(x-.33,y+1.0,15,[6,7]); rect(g,x+.34,y+1.02,.03,.26,'#5a3d26'); rect(g,x+.62,y+1.02,.03,.26,'#5a3d26'); }
+  if(stone) for(const dx of [-.42,1.08]) turret(g,x+dx,y+.98,.34,.62,tw,RC.blue);
+  if(lvl>=3){ for(const dx of [-.42,1.08]) flag(x+dx+.15,y+.98-.62-.32-.5,.5,.22); rect(g,x+.06,y+.26-h,.88,.03,'#f3c64b'); }
+}
 function drawBuilding(g,type,x,y,team,lvl,t,nb=0){
   const tc=TEAM[team]||TEAM[0], rc=team===1?RC.red:RC.blue;
   switch(type){
-    case 'hall': {
-      if(lvl>=3) for(const dx of [-.16,.86]) turret(g,x+dx,y+.02,.3,.5,'#b8ad97',RC.slate);
-      bshadow(g,x+.08,y+.34,.84,.56,.32);
-      if(lvl>=2) for(const dx of [-.12,.84]){ box(g,x+dx,y+.44,.28,.4,.2,'#cfc3a9'); roof(g,x+dx-.03,y+.21,.34,.46,.14,RC.slate); }
-      box(g,x+.08,y+.34,.84,.56,.32,'#dccfb3');
-      rect(g,x+.42,y+.66,.16,.24,'#5a3d26'); rect(g,x+.39,y+.63,.22,.04,'#8b6a3e'); win(g,x+.18,y+.72); win(g,x+.73,y+.72);
-      roof(g,x+.03,y-.02,.94,.64,.22,rc);
-      box(g,x+.7,y+.08,.08,.07,.2,'#6d5f55');
-      { const ry=y+.3-.22; rect(g,x+.485,ry-.36,.03,.36,'#3a2a1c'); tri(g,x+.515,ry-.36,x+.515,ry-.24,x+.74+Math.sin((t||0)*4)*.03,ry-.3,'#f3c64b'); }
-      if(lvl>=3) for(const dx of [-.16,.86]) turret(g,x+dx,y+.74,.3,.46,'#b8ad97',RC.slate);
-      break; }
+    case 'hall': townHall(g,x,y,lvl,t); break;
     case 'house':
       bshadow(g,x+.18,y+.46,.64,.4,.24);
       box(g,x+.18,y+.46,.64,.4,.24,'#e8d8b4');
@@ -2128,6 +2196,7 @@ function drawBuilding(g,type,x,y,team,lvl,t,nb=0){
       tent(g,x+.1,y+.22,.34,.26,rc); tent(g,x+.54,y+.14,.34,.26,rc);
       fire(g,x+.72,y+.74,t,team===1);
       tent(g,x+.16,y+.58,.32,.26,rc);
+      if(nb){ const wx=x+.74, wy=y+.08; for(const dx of [0,.16]) rect(g,wx+dx,wy-.34,.03,.5,'#5a3d26'); box(g,wx-.03,wy-.32,.24,.16,.06,'#6b4a2b'); roof(g,wx-.05,wy-.58,.28,.22,.12,RC.dark); }
       ring.filter(p=>p[1]>=y+.56).sort((p,q)=>p[1]-q[1]).forEach(stake);
       pips(g,x+.06,y+1.02,Math.min(lvl,5),team?'#ffcf4a':'#8bb6ff');
       break; }
@@ -2176,6 +2245,8 @@ const STYLE={
   rider:   {sc:1.1,  team:1, head:'helmet', weapon:'spear', horse:1},
   shield:  {sc:1.1,  team:1, dark:1, head:'helmet', weapon:'club', wall:1},
   warlord: {sc:1.7,  team:1, dark:1, head:'horns', weapon:'axe', cape:1, pads:'#3a2a26'},
+  shaman:  {sc:1,    team:1, dark:1, head:'hood', weapon:'staff', cape:['#4f7a3a','#36592a']},
+  ogre:    {sc:1.65, team:1, dark:1, head:'bald', weapon:'club'},
   ram:     {sc:1.3,  machine:1},
   catapult:{sc:1.25, machine:'catapult'},
 };
@@ -2192,7 +2263,7 @@ function drawPerson(g,u,x,y,t,fl){
   let tunic=st.tunic, tunicD=st.tunicD;
   if(st.team){ tunic=st.light?tc.l:st.dark?tc.d:tc.c; tunicD=st.light?tc.c:st.dark?'#5c1512':tc.d; }
   if(st.armor){ tunic='#bcc5cf'; tunicD='#8f99a5'; }
-  const rough=u.kind==='brute'||u.kind==='warlord', skin=F(rough?'#c98e6a':'#e9bd93'), skinD=F(rough?'#ae7453':'#d19f74');
+  const rough=u.kind==='brute'||u.kind==='warlord', og=u.kind==='ogre', skin=F(og?'#8fa86a':rough?'#c98e6a':'#e9bd93'), skinD=F(og?'#728a52':rough?'#ae7453':'#d19f74');
   const k=st.sc*(u.kind==='hero'?1.05:1.15);
   g.save(); g.translate(x,y); g.scale(k,k); g.rotate(u.face+Math.PI/2);
   if(st.horse){ const hs=u.moving?Math.sin(t*16+u.id)*.03:0; // the horse under its rider: body, neck and head forward, tail behind
@@ -2213,7 +2284,7 @@ function drawPerson(g,u,x,y,t,fl){
   // shoulders
   rect(g,-.22,-.1,.44,.18,F(tunic)); dk(0,-.1,.22,.18,F(tunicD));
   if(st.wall){ rect(g,-.3,-.3,.6,.1,F(tc.d)); rect(g,-.3,-.3,.6,.03,F(tc.l)); rect(g,-.04,-.29,.08,.08,F('#e7b84a')); } // a tower shield carried in front
-  const pads=st.armor?tc.c:st.pads; if(pads){ rect(g,-.24,-.11,.09,.09,F(pads)); rect(g,.15,-.11,.09,.09,F(pads)); }
+  const pads=st.armor?tc.c:u.team===1&&G&&G.era?ERA[G.era].pad:st.pads; if(pads){ rect(g,-.24,-.11,.09,.09,F(pads)); rect(g,.15,-.11,.09,.09,F(pads)); }
   // right arm and weapon, swinging on attack
   g.save(); g.translate(.23,-.03); g.rotate(-.2-swing*1.2+.04*step);
   switch(st.weapon){
@@ -2405,7 +2476,7 @@ function render(t){
   list.sort((a,b)=>a[0]-b[0]);
   for(const [,o] of list){
     if(o.isB){
-      if(o.type==='site') drawSite(ctx,o,t); else { drawBuilding(ctx,o.type,o.x,o.y,o.team,o.lvl,t,o.type==='wall'?wallNb(o.x,o.y):o.type==='farm'&&!(o.soil>0)?1:0); if(o.up) drawScaffold(ctx,o); }
+      if(o.type==='site') drawSite(ctx,o,t); else { drawBuilding(ctx,o.type,o.x,o.y,o.team,o.lvl,t,o.type==='wall'?wallNb(o.x,o.y):o.type==='farm'&&!(o.soil>0)?1:o.type==='camp'&&campTower(o)?1:0); if(o.up) drawScaffold(ctx,o); }
       if(o.type==='camp'&&o.team===1&&o.lvl<6) drawEmblem(ctx,o);
       const [bx,by,bw,bh]=bBox(o);
       if(o.team===0&&o.lvl>1&&o.type!=='outpost'){ rect(ctx,o.x+.02,o.y+.88,.12*(o.lvl-1)+.04,.12,'rgba(0,0,0,.45)'); pips(ctx,o.x+.04,o.y+.9,o.lvl-1,'#f3c64b'); }
@@ -2622,7 +2693,7 @@ function selHTML(o){
     const c={}; for(const u of o.group) c[u.kind]=(c[u.kind]||0)+1;
     head=`${o.group.length} units selected`;
     body=`<p class="sub">${Object.keys(c).map(k=>`${c[k]} ${UD[k].name.toLowerCase()}${c[k]>1?'s':''}`).join(' · ')}</p><p>Tap the map to move them there. Tap an enemy or camp to attack${c.villager?', or a tree, rock or farm to put villagers to work':''}.</p>`;
-    if(o.group.some(isTroop)) acts=btn('followhero','Follow the hero')+btn('follow','Back to their post')+btn('guard','Guard the town')+btn('hold','Hold here');
+    if(o.group.some(isTroop)) acts=btn('followhero','Follow the hero')+generals().map(g=>btn('joingen',`Join General ${g.nm}`,{arg:String(g.id)})).join('')+btn('follow','Back to their post')+btn('guard','Guard the town')+btn('hold','Hold here');
     if(c.villager) acts+=JOBS.map(j=>btn('setjob',JOB_NAME[j],{arg:j})).join('');
     acts+=btn('close','Deselect');
   } else if(o.res!==undefined){
@@ -2634,7 +2705,7 @@ function selHTML(o){
     const k=campKind(o), cnt={}; for(const u of G.units) if(!u.dead&&u.team===1&&u.home===o.id) cnt[u.kind]=(cnt[u.kind]||0)+1;
     const gl=Object.keys(cnt).map(x=>`${cnt[x]} ${FOE_NAME[x].toLowerCase()}${cnt[x]>1?'s':''}`).join(', ');
     head=`${CAMP_NAME[k]} <span class="chip bad">Level ${o.lvl}</span>`;
-    body=hp+`<p>Guards: ${gl||'none left'}. Taking it is worth about ${40*o.lvl} gold and its land.</p><p class="sub">${CAMP_TIP[k]}</p>`;
+    body=hp+`<p>Guards: ${gl||'none left'}. Taking it is worth about ${40*o.lvl} gold and its land.</p><p class="sub">${CAMP_TIP[k]}${campTower(o)?' Its watchtower shoots anyone who comes within 5 tiles.':''} The horde fights with ${ERA[G.era].name.toLowerCase()} arms.</p>`;
     acts=warActs(o);
   } else if(o.isB&&o.type==='site'){
     const n=builders().filter(u=>u.work===o.id&&u.working).length;
@@ -2696,8 +2767,9 @@ function selHTML(o){
       btn('mh','Explore',{arg:'explore',on:!!m&&m.type==='explore'})+btn('mh','Defend the town',{arg:'defend',on:!!m&&m.type==='defend'})+btn('mh','Stand down',{arg:'none'})+btn('missions','Missions board')+btn('whirl',o.abT>0?`Whirlwind (${Math.ceil(o.abT)}s)`:'Whirlwind',{off:o.abT>0});
   } else if(o.kind==='general'){
     head=`General ${o.nm}`;
-    body=hp+`<p class="now">${missionText(o)}.</p><p class="sub">Leads ${warband(o)} troops. Generals take the town guard along on missions.</p>`;
-    acts=btn('mg','Defend the town',{arg:o.id+':defend',on:!!o.mission&&o.mission.type==='defend'})+btn('mg','Stand down',{arg:o.id+':none'})+btn('missions','Missions board')+btn('dismiss',armed('dis'+o.id)?'Tap again to dismiss':'Dismiss',{on:armed('dis'+o.id)});
+    const wb=G.units.filter(u=>isTroop(u)&&u.leader===o.id);
+    body=hp+`<p class="now">${missionText(o)}.</p><p class="sub">${wb.length?`Leads ${mixText(wb)}.`:'Leads no troops yet: take some from the town guard, or select troops and tap Join.'} A general marches at the pace of the warband and waits for stragglers.</p>`;
+    acts=btn('gband',`Take the town guard (${Math.min(garrison().length,WARBAND-wb.length)})`,{arg:o.id+':take',off:!garrison().length||wb.length>=WARBAND})+(wb.length?btn('gband','Send the troops back',{arg:o.id+':back'}):'')+btn('mg','Defend the town',{arg:o.id+':defend',on:!!o.mission&&o.mission.type==='defend'})+btn('mg','Stand down',{arg:o.id+':none'})+btn('missions','Missions board')+btn('dismiss',armed('dis'+o.id)?'Tap again to dismiss':'Dismiss',{on:armed('dis'+o.id)});
   } else if(o.kind==='builder'){
     head='Builder';
     const st=o.work>=0?findB(o.work):null;
@@ -2718,7 +2790,7 @@ function selHTML(o){
     head=UD[o.kind].name;
     const lead=leaderOf(o), withHero=o.leader===G.hero.id, st=o.order==='attack'?'Attacking':o.order==='move'?'Moving':o.order==='hold'?'Holding its position and guarding the area':withHero?(G.hero.dead?'Waiting in town for your hero to recover':'Following your hero'):lead?`In General ${lead.nm}'s warband`:'Guarding the town';
     body=hp+`<p class="sub">Damage ${Math.round(o.atk)} · Range ${o.range} · ${UNIT_TIP[o.kind]||''}</p><p>${st}. Tap the map to move it, or an enemy to attack.</p>`;
-    acts=btn('followhero','Follow the hero',{on:withHero&&!o.order})+(lead&&!withHero?btn('follow',`Follow General ${lead.nm}`,{on:!o.order}):'')+btn('guard','Guard the town',{on:!o.leader&&!o.order})+btn('hold','Hold here',{on:o.order==='hold'})+btn('dismiss',armed('dis'+o.id)?'Tap again to dismiss':'Dismiss',{on:armed('dis'+o.id)});
+    acts=btn('followhero','Follow the hero',{on:withHero&&!o.order})+generals().map(g=>btn('joingen',`Join General ${g.nm}`,{arg:String(g.id),on:o.leader===g.id&&!o.order})).join('')+btn('guard','Guard the town',{on:!o.leader&&!o.order})+btn('hold','Hold here',{on:o.order==='hold'})+btn('dismiss',armed('dis'+o.id)?'Tap again to dismiss':'Dismiss',{on:armed('dis'+o.id)});
   } else {
     head=`${FOE_NAME[o.kind]} <span class="chip bad">Level ${o.lvl}</span>`;
     body=hp+`<p class="sub">Damage ${Math.round(o.atk)}${o.mode==='raid'?' · Raiding your town':''}</p><p>${FOE_TIP[o.kind]}</p>`;
@@ -2739,6 +2811,7 @@ function missionAct(a,arg){
   switch(a){
     case 'mh': giveMission(G.hero,parseMission(arg)); break;
     case 'hband': if(arg==='take') heroMuster(); else heroRelease(); break;
+    case 'gband': { const [id,what]=arg.split(':'), g=unitById(+id); if(g){ if(what==='take') genMuster(g); else genRelease(g); } break; }
     case 'mg': { const i=arg.indexOf(':'); giveMission(unitById(+arg.slice(0,i)),parseMission(arg.slice(i+1))); break; }
     case 'hire': if(arg==='general'){ const b=myB('barracks')[0]; if(!b){ toast('Build a Barracks first.','bad'); break; } train('general',b); } else train(arg,hallB()); break;
     case 'guild': hireGuild(); break;
@@ -2762,9 +2835,12 @@ function doAct(a,arg){
       for(const u of go){ u.leader=G.hero.id; u.order=''; u.tgt=null; u.path=null; }
       toast(go.length<us.length?`Your hero can lead ${WARBAND} troops; ${go.length} of them follow.`:go.length>1?`${go.length} troops follow your hero.`:'It follows your hero.'); break; }
     case 'guard': for(const u of cmdUnits()) if(isTroop(u)){ u.leader=0; u.order=''; u.tgt=null; u.path=null; } break;
+    case 'joingen': { const g=unitById(+arg); if(!g) break; const us=cmdUnits().filter(isTroop), room=WARBAND-G.units.filter(u=>isTroop(u)&&u.leader===g.id&&!us.includes(u)).length, go=us.slice(0,Math.max(0,room));
+      for(const u of go){ u.leader=g.id; u.order=''; u.tgt=null; u.path=null; }
+      toast(go.length<us.length?`General ${g.nm} can lead ${WARBAND} troops; ${go.length} of them join.`:go.length>1?`${go.length} troops join General ${g.nm}.`:`It joins General ${g.nm}.`); break; }
     case 'hold': for(const u of cmdUnits()) if(u.kind!=='villager'){ u.order='hold'; u.ox=u.x; u.oy=u.y; u.tgt=null; u.path=null; } break;
     case 'tech': openTech(); break;
-    case 'mh': case 'hband': case 'mg': case 'hire': case 'guild': case 'build': case 'missions': missionAct(a,arg); break;
+    case 'mh': case 'hband': case 'gband': case 'mg': case 'hire': case 'guild': case 'build': case 'missions': missionAct(a,arg); break;
     case 'msend': { const u=arg==='hero'?h:unitById(+arg); if(!u) break;
       if(o.isB) giveMission(u,{type:'clear',id:o.id}); else { u.tgt=o; u.path=null; toast(`${who(u)} rides out to the fight.`); } break; }
     case 'sendarmy': { const t=garrison(); if(!t.length){ toast('The town guard is empty. Train troops at a Barracks.'); break; }
@@ -2802,8 +2878,8 @@ function renderMissions(){
     <p class="sub">Take a camp:</p><div class="acts">${campBtns('mh','',h)}</div></section>`;
   const gs=generals(), bar=myB('barracks').length>0;
   html+=`<section class="mcard"><header><h4>Generals</h4><span class="chip">${gs.length}/${MAX_GENERALS}</span></header>`+
-    (gs.length?'':`<p class="sub">Generals lead your troops: on a mission they take the town guard along as their warband.</p>`)+
-    gs.map(g=>`<div class="gen"><p><b>General ${g.nm}</b> · ${warband(g)} troops</p><p class="now">${missionText(g)}</p><div class="acts">${btn('mg','Defend the town',{arg:g.id+':defend',on:on(g,'defend')})}${btn('mg','Stand down',{arg:g.id+':none'})}</div><p class="sub">Take a camp:</p><div class="acts">${campBtns('mg',g.id+':',g)}</div></div>`).join('')+
+    (gs.length?'':`<p class="sub">Generals lead your troops: give each one an army with Take the town guard, or select troops and tap Join. A general with no troops calls up the town guard for a mission.</p>`)+
+    gs.map(g=>{ const wb=G.units.filter(u=>isTroop(u)&&u.leader===g.id); return `<div class="gen"><p><b>General ${g.nm}</b> · ${wb.length?mixText(wb):'no troops yet'}</p><p class="now">${missionText(g)}</p><div class="acts">${btn('gband',`Take the town guard (${Math.min(garrison().length,WARBAND-wb.length)})`,{arg:g.id+':take',off:!garrison().length||wb.length>=WARBAND})}${wb.length?btn('gband','Send the troops back',{arg:g.id+':back'}):''}${btn('mg','Defend the town',{arg:g.id+':defend',on:on(g,'defend')})}${btn('mg','Stand down',{arg:g.id+':none'})}</div><p class="sub">Take a camp:</p><div class="acts">${campBtns('mg',g.id+':',g)}</div></div>`; }).join('')+
     `<div class="acts">${btn('hire','Hire a general',{arg:'general',cost:UD.general.cost,off:!bar||gs.length>=MAX_GENERALS||!afford(UD.general.cost)})}</div>`+
     `<p class="sub">${bar?'':'Needs a Barracks. '}${garrison().length} troops in the town guard.</p></section>`;
   const bs=builders(), sites=G.blds.filter(b=>(b.type==='site'||b.up)&&!b.dead);
@@ -2877,7 +2953,7 @@ function load(){
       res:d.res, time:d.time, nextRaid:d.nextRaid, conquered:d.conquered, totalCamps:d.totalCamps, upg:d.upg, heroBuff:d.heroBuff, nid:d.nid, over:false, won:!!d.won, marker:null,
       tech:d.tech||{}, research:d.research||null, speed:d.speed||1, quest:d.quest||0, growT:d.growT||d.time+DAY*2,
       diff:DIFFS[d.diff]?d.diff:1, stats:Object.assign(newStats(),d.stats), guild:!!d.guild, mods:d.mods||{}, hordes:d.hordes||0, raidBoost:d.raidBoost||null,
-      evDay:d.evDay??Math.floor(d.time/DAY), recentEv:d.recentEv||[], hordeT:d.hordeT??Math.max(d.time+DAY,DAY*((DIFFS[d.diff]||DIFFS[1]).hordeDay-1)) };
+      evDay:d.evDay??Math.floor(d.time/DAY), era:0, recentEv:d.recentEv||[], hordeT:d.hordeT??Math.max(d.time+DAY,DAY*((DIFFS[d.diff]||DIFFS[1]).hordeDay-1)) };
     resetGrids();
     for(const [id,type,x,y,team,hp,maxhp,lvl,queue,rally,plan,prog,need,kind,up,soil,wear] of d.blds){ const b={id,isB:true,type,x,y,cx:x+.5,cy:y+.5,team,hp,maxhp,lvl,cd:0,spawnT:20,flash:0,lastHit:-99,dead:false,queue:queue||[],rally:rally||null,plan,prog:prog||0,need:need||0,kind:kind||undefined,up:up||null,wear:wear||0}; if(type==='farm') b.soil=soil??600*lvl; G.blds.push(b); bgrid[y*W+x]=b; }
     for(const [kind,team,x,y,hp,maxhp,atk,home,mode,lvl,job,xp,hl,carry,ctype,order,ox,oy,post,work,abT,nm,leader,mission,id] of d.units){ const u=mkUnit(kind,team,x,y,lvl); if(id) u.id=id; u.hp=hp; u.maxhp=maxhp; u.atk=atk; u.home=home; u.mode=mode;
@@ -2885,6 +2961,7 @@ function load(){
       u.order=order||''; u.ox=ox??x; u.oy=oy??y; u.post=post||null; u.work=work??-1; u.abT=abT||0; u.nm=nm||''; u.leader=leader||0; u.mission=mission||null;
       G.units.push(u); if(kind==='hero') G.hero=u; }
     if(!G.hero) return false;
+    G.era=eraFor(G.time);
     const hall=G.blds.find(b=>b.type==='hall'&&b.team===0);
     if(d.v===1&&hall) for(const j of ['wood','stone']){ const v=mkUnit('villager',0,hall.cx,hall.cy+1.1); v.job=j; G.units.push(v); }
     recomputeTerr(); buildMinimapBase();
