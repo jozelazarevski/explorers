@@ -25,7 +25,7 @@ Every day asks you to decide something. Pick the right troops for each camp, kee
 | Town Hall | H: hire villagers, scouts, builders and the Builders' Guild, set jobs | Town button |
 | Tech tree | R | Tech button |
 | Game speed | F cycles 1× / 2× / 4× | Speed button by the minimap |
-| Train | V villager · T soldier · Y archer · U knight | Tap a Barracks |
+| Train | V villager · T soldier · Y archer · U knight | Tap a Barracks, Archery Range, Stable or Siege Workshop |
 | Zoom | Mouse wheel or +/− | Pinch or +/− |
 | Jump camera | Click the minimap | Tap the minimap |
 | Sound on/off | M | Sound button on the pause screen |
@@ -33,7 +33,7 @@ Every day asks you to decide something. Pick the right troops for each camp, kee
 - **Difficulty:** pick Relaxed, Normal or Hard on the title screen before starting a new world. It sets how early, how often and how big raids are, when rams join them, how fast camps grow, and your starting resources.
 - **Goals:** a chain of 16 goals under the resource bar guides the early game and pays out resources for each one.
 - **Market:** build one to trade wood, stone and food for gold and back. A level 2 market pays 30% more for goods and asks 15% less for them, and a level 3 one twice that.
-- **Rally points:** set one on a Barracks and new troops march there and hold.
+- **Rally points:** set one on any military building and new troops march there and hold.
 - **Idle villagers:** a chip at the top counts villagers with nothing to do; tap it to select them.
 - **Scouts:** the map starts in fog. You begin with one scout, and more can be sent from the Town Hall or the Missions board (X). Each rides on its own to the nearest unexplored edge or treasure, spreads out from the others, keeps away from enemy camps and runs home to heal when anything hurts it. Chests hold loot, maps or a free soldier. Purple shrines make your hero permanently stronger.
 - **Villagers:** hire them at the Town Hall and split them between wood, stone, gold and farming. They carry what they gather to the Town Hall or the nearest Lumber Camp, Quarry or Gold Mine, and run home when attacked.
@@ -44,14 +44,19 @@ Every day asks you to decide something. Pick the right troops for each camp, kee
 - **Builders' Guild:** hire it at the Town Hall to get two builders. They live in the guild's own lodge and never take housing, so you can always hire the guild. More builders can be hired later, and those do need room. Every building is now a construction site that builders put up over a few seconds. Order a building on the Missions board and the builders choose the spot (farms and houses near the hall, lumber camps by forest, quarries by hills, towers facing the nearest camp), or pick one from the build bar and place it yourself.
 - **Command units separately:** whatever you select takes your orders. Troops sent somewhere hold that spot and fight anything within about 5 tiles. Tap an enemy to attack it, or use Back to their post to regroup. Villagers can be sent to any spot, tree, rock, gold vein or farm.
 - **Tap to act:** every building, unit, camp and resource opens a panel with its stats and actions. From there you can upgrade, demolish, train, hire, give missions or send a villager.
-- **Development tree:** 14 technologies in six branches (Economy, Farming, Defense, Military, Arms, Exploration). Research runs at the Town Hall, one at a time, and takes one to almost three minutes. Every technology you know makes the next one 10% dearer, so you won't have them all before the horde comes. The first five are open from the start. Steel Tools, Deep Mining, Irrigation, Fortification, Chivalry, Bronze Arms and Hero Training need a level 2 Town Hall. Iron and Steel Arms need a level 3 one.
+- **Development tree:** 15 technologies in six branches (Economy, Farming, Defense, Military, Arms, Exploration). Research runs at the Town Hall, one at a time, and takes one to almost three minutes. Every technology you know makes the next one 10% dearer, so you won't have them all before the horde comes. The first five are open from the start. Steel Tools, Deep Mining, Irrigation, Fortification, Chivalry, Engineering, Bronze Arms and Hero Training need a level 2 Town Hall. Iron and Steel Arms need a level 3 one. Archery needs an Archery Range, Chivalry a Stable and Engineering a Siege Workshop.
 - **Upgrades:** buildings go up to level 3 for more output, health and range. Level 2 costs three times the building and level 3 seven times, plus stone and gold, and the builders take a while to carry each one out. Nothing can be upgraded past the Town Hall's own level. The Town Hall becomes a castle (level 3) only after you have taken two camps.
 - **Build:** 13 buildings.
   - **Farms** make food.
   - **Lumber Camps** and **Quarries** collect from nearby forest and hills.
   - **Gold Mines** must touch a gold vein.
   - **Houses** raise troop capacity.
-  - **Barracks** train troops and hire generals.
+  - The military district:
+    - The **Barracks** is a log stockade with your banners. It trains soldiers and hires generals.
+    - An **Archery Range** trains archers, a **Stable** trains knights, and a **Siege Workshop** builds catapults once you know Engineering.
+    - Each level trains 25% faster.
+  - **Catapults** hurl stones from 7 tiles away. Each stone hits whatever stands around where it lands, and does triple damage to buildings, so catapults smash camps and shield walls. But they are slow, take 3 population, and riders run them down.
+  - **Spike traps** are cheap wooden stakes. The builders lay them on the road raiders take from the nearest camp. Raiders never see them, so they walk over them and get hurt and slowed. Each trap wears out after 5 uses (2 more per level).
   - **Towers** shoot raiders and widen your land; **Walls** slow raiders down.
   - **Storehouses** add 400 wood, stone and gold of storage per level, and villagers drop any goods there.
   - **Granaries** add 500 food of storage per level.
