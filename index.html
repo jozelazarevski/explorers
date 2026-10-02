@@ -1188,7 +1188,6 @@ function autoStrike(u){ if(u.tgt||u.cd>0) return; const f=nearestFoe(u,u.range+.
 function hireGuild(){
   const hall=hallB(); if(G.guild||!hall) return;
   if(!afford(GUILD_COST)){ toast(`The Builders' Guild asks ${costText(GUILD_COST)}.`,'bad'); return; }
-  if(popUsed()+2>popCap()){ toast('No room for the builders. Build or upgrade Houses first.','bad'); return; }
   pay(GUILD_COST); G.guild=true;
   for(let k=0;k<2;k++) G.units.push(mkUnit('builder',0,hall.cx-.4+k*.8,hall.cy+.9));
   toast("The Builders' Guild has come to town. Order buildings on the Missions board, or place them yourself.",'good'); sfx('good');
@@ -1292,7 +1291,9 @@ function setHint(text){
 
 // ---------- army, villagers, upgrades, research ----------
 function popCap(){ let c=8; for(const b of G.blds) if(b.team===0&&!b.dead){ if(b.type==='hall') c+=4*(b.lvl-1); if(b.type==='house') c+=4*b.lvl; if(b.type==='outpost') c+=2; } return Math.min(c,80); }
-function popUsed(){ let c=0; for(const u of G.units) if(u.team===0&&!u.dead&&u.kind!=='hero') c+=u.pop; for(const b of G.blds) if(b.team===0&&b.queue) for(const q of b.queue) c+=UD[q.kind].pop; return c; }
+// the Builders' Guild keeps its first two builders in its own lodge, so they never take housing
+function popUsed(){ let c=0, bl=0; for(const u of G.units) if(u.team===0&&!u.dead&&u.kind!=='hero'){ c+=u.pop; if(u.kind==='builder') bl++; }
+  for(const b of G.blds) if(b.team===0&&b.queue) for(const q of b.queue) c+=UD[q.kind].pop; return c-(G.guild?Math.min(2,bl):0); }
 const myB = type => G.blds.filter(b=>b.team===0&&!b.dead&&b.type===type);
 const hallB = () => G.blds.find(b=>b.type==='hall'&&!b.dead&&b.team===0);
 function hasBarracks(){ return myB('barracks').length>0; }
@@ -1423,6 +1424,8 @@ function upCost(b){
 }
 const upTime = b => b.type==='hall'?(b.lvl===1?45:90):(BUILD_TIME[b.type]||10)*(b.lvl===1?2:3);
 const canUp = b => b.team===0&&b.type!=='outpost'&&b.type!=='site'&&b.lvl<MAXLV;
+// the first resource a cost needs more of than your stores can hold, with a hint, or ''
+function storeShort(c){ const cp=G.cap||caps(); for(const k in c) if(c[k]>cp[k]) return `Your stores hold only ${cp[k]} ${k}. Build ${k==='food'?'a Granary':'a Storehouse'} to save up for this.`; return ''; }
 // why this building can't be upgraded right now, or '' if it can
 function upBlock(b){
   if(b.up) return '';
@@ -2596,7 +2599,7 @@ function selHTML(o){
     }
     if(o.up){ const n=builders().filter(u=>u.work===o.id&&u.working).length;
       body+=`<div class="q"><span>Upgrading to level ${o.lvl+1}</span>${meter(o.up.prog,o.up.need,'good')}<span>${Math.floor(o.up.prog/o.up.need*100)}%</span></div><p class="sub">${n?`${n} builder${n>1?'s':''} at work`:'Waiting for a builder'}</p>`; }
-    else if(canUp(o)){ const why=upBlock(o); acts+=btn('upgrade',`Upgrade to level ${o.lvl+1}`,{cost:upCost(o),off:!!why||!afford(upCost(o))}); if(why) acts+=`<span class="sub">${why}</span>`; }
+    else if(canUp(o)){ const why=upBlock(o)||storeShort(upCost(o)); acts+=btn('upgrade',`Upgrade to level ${o.lvl+1}`,{cost:upCost(o),off:!!why||!afford(upCost(o))}); if(why) acts+=`<span class="sub">${why}</span>`; }
     else if(o.type!=='outpost') acts+=`<span class="sub">Fully upgraded</span>`;
     if(o.type!=='hall'&&o.type!=='outpost') acts+=btn('demolish',armed('demo'+o.id)?'Tap again to demolish':'Demolish',{on:armed('demo'+o.id)});
   } else if(o.kind==='hero'){
@@ -2623,7 +2626,7 @@ function selHTML(o){
     const what=!o.job?'Idle at the Town Hall':o.job==='food'?(o.working?'Working a farm':'Heading to a farm'):o.working?`Gathering ${o.job}`:o.carry>=carryCap()?`Carrying ${o.ctype} home`:`Heading out for ${o.job}`;
     const what2=o.order==='move'?'Walking to a spot':(!o.job&&o.post?'Waiting where you sent it':what);
     body=hp+`<p>${what2}${o.carry?`, carrying ${o.carry}/${carryCap()} ${o.ctype}`:''}.</p><p class="sub">Tap the map to move it, or a tree, rock or farm to put it to work. Or choose a job:</p>`;
-    acts=JOBS.map(j=>btn('setjob',JOB_NAME[j],{arg:j,on:o.job===j})).join('');
+    acts=JOBS.map(j=>btn('setjob',JOB_NAME[j],{arg:j,on:o.job===j})).join('')+btn('dismiss',armed('dis'+o.id)?'Tap again to dismiss':'Dismiss',{on:armed('dis'+o.id)});
   } else if(o.team===0){
     head=UD[o.kind].name;
     const lead=leaderOf(o), st=o.order==='attack'?'Attacking':o.order==='move'?'Moving':o.order==='hold'?'Holding its position and guarding the area':lead?`In General ${lead.nm}'s warband`:'Guarding the town';
@@ -2737,7 +2740,7 @@ function renderTech(){
     const needs=st==='locked'?(t.req||[]).filter(q=>!has(q)).map(q=>'Needs '+TECH[q].name).concat(!hasB(t)?['Needs '+needBText(t)]:[],t.hall&&(hallB()||{lvl:0}).lvl<t.hall?[`Needs a level ${t.hall} Town Hall`]:[]).join(' · '):'';
     return `<button class="tn ${st}" data-tech="${t.id}"><b>${t.name}${st==='done'?' ✓':''}</b><span>${t.desc}</span>`+
       (st==='done'?'':`<span class="cost">${costHTML(techCost(t))}<span>· ${t.time}s</span></span>`)+
-      (needs?`<em>${needs}</em>`:'')+
+      (needs?`<em>${needs}</em>`:st!=='done'&&storeShort(techCost(t))?`<em>${storeShort(techCost(t))}</em>`:'')+
       (st==='active'?meter(G.research.tt-G.research.t,G.research.tt)+`<em>${Math.ceil(G.research.t)}s left</em>`:'')+`</button>`;
   }).join('')+'</section>').join('');
   const stat=G.research?`Researching ${TECH[G.research.id].name}.`:`${Object.keys(G.tech).length} of ${TECHS.length} researched.`;
