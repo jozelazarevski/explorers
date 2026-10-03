@@ -46,13 +46,14 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 .res{display:flex;align-items:center;gap:6px;padding:5px 10px 5px 8px;font-variant-numeric:tabular-nums;background:var(--panel);border:1px solid var(--edge);border-radius:4px}
 .res b{font-weight:600;min-width:2ch}
 .res small{color:var(--muted);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
-.ic{display:inline-block;width:11px;height:11px;flex:none}
-.ic.wood{background:var(--wood);clip-path:polygon(50% 0,100% 100%,0 100%)}
-.ic.stone{background:var(--stone)}
-.ic.gold{background:var(--gold);transform:rotate(45deg) scale(.8)}
-.ic.food{background:var(--food);clip-path:polygon(0 0,100% 0,50% 100%)}
-.ic.pop{background:var(--blue)}
-.ic.flag{background:var(--red);clip-path:polygon(0 0,100% 30%,0 60%)}
+.ic{display:inline-block;width:17px;height:17px;flex:none;background:center/contain no-repeat}
+/* pictures of the things themselves: logs, a boulder, coins, a loaf, people, an enemy camp */
+.ic.wood{background-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Crect x=%221%22 y=%229%22 width=%2211%22 height=%225%22 rx=%221%22 fill=%22%237d4f2a%22/%3E%3Crect x=%221%22 y=%229%22 width=%2211%22 height=%221.6%22 fill=%22%239a6233%22/%3E%3Cellipse cx=%2212%22 cy=%2211.5%22 rx=%222.4%22 ry=%222.5%22 fill=%22%23e3b47c%22/%3E%3Cellipse cx=%2212%22 cy=%2211.5%22 rx=%221.1%22 ry=%221.2%22 fill=%22%23c48a52%22/%3E%3Crect x=%223%22 y=%223.5%22 width=%228.5%22 height=%225%22 rx=%221%22 fill=%22%238b5a2b%22/%3E%3Crect x=%223%22 y=%223.5%22 width=%228.5%22 height=%221.6%22 fill=%22%23a8703d%22/%3E%3Cellipse cx=%2211.5%22 cy=%226%22 rx=%222.4%22 ry=%222.5%22 fill=%22%23ecc28c%22/%3E%3Cellipse cx=%2211.5%22 cy=%226%22 rx=%221.1%22 ry=%221.2%22 fill=%22%23c48a52%22/%3E%3C/svg%3E")}
+.ic.stone{background-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Cpolygon points=%221,14 3.5,7.5 8.5,4.5 13.5,7.5 15,14%22 fill=%22%23a39b8a%22/%3E%3Cpolygon points=%223.5,7.5 8.5,4.5 9,9 5,10%22 fill=%22%23d3ccbe%22/%3E%3Cpolygon points=%229,9 8.5,4.5 13.5,7.5%22 fill=%22%23b8b09f%22/%3E%3Cpolygon points=%229,9 13.5,7.5 15,14 10,14%22 fill=%22%237f776a%22/%3E%3Cpolygon points=%225,10 9,9 10,14 1,14%22 fill=%22%23948c7c%22/%3E%3C/svg%3E")}
+.ic.gold{background-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Cellipse cx=%228%22 cy=%2212.3%22 rx=%226.5%22 ry=%222.4%22 fill=%22%23a87a12%22/%3E%3Crect x=%221.5%22 y=%2210%22 width=%2213%22 height=%222.3%22 fill=%22%23c9971c%22/%3E%3Cellipse cx=%228%22 cy=%2210%22 rx=%226.5%22 ry=%222.4%22 fill=%22%23f5c542%22/%3E%3Cellipse cx=%228.5%22 cy=%228.3%22 rx=%226%22 ry=%222.3%22 fill=%22%23a87a12%22/%3E%3Crect x=%222.5%22 y=%225.6%22 width=%2212%22 height=%222.7%22 fill=%22%23d9a322%22/%3E%3Cellipse cx=%228.5%22 cy=%225.6%22 rx=%226%22 ry=%222.3%22 fill=%22%23ffd95a%22/%3E%3Cellipse cx=%227.3%22 cy=%225.1%22 rx=%222.6%22 ry=%22.8%22 fill=%22%23fff3c4%22/%3E%3C/svg%3E")}
+.ic.food{background-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Cpath d=%22M1.5 12.5 C1.5 6.5 4.5 4 8 4 C11.5 4 14.5 6.5 14.5 12.5 Z%22 fill=%22%23c9783c%22/%3E%3Cpath d=%22M1.5 12.5 C1.5 10 2 8.5 3 7.4 L14 11 C14.3 11.5 14.5 12 14.5 12.5 Z%22 fill=%22%23a85e2c%22/%3E%3Crect x=%221.2%22 y=%2212.3%22 width=%2213.6%22 height=%221.6%22 rx=%22.8%22 fill=%22%238a4b22%22/%3E%3Cpath d=%22M4.6 6.9 L6.2 9.7 M7.8 5.4 L9.4 8.4 M10.9 5.9 L12.3 8.6%22 stroke=%22%23f3cf8d%22 stroke-width=%221.1%22 stroke-linecap=%22round%22/%3E%3C/svg%3E")}
+.ic.pop{background-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Ccircle cx=%2211%22 cy=%224.6%22 r=%222.2%22 fill=%22%232f5fb3%22/%3E%3Cpath d=%22M7 14 C7 9.5 8.5 8 11 8 C13.5 8 15 9.5 15 14 Z%22 fill=%22%232f5fb3%22/%3E%3Ccircle cx=%226%22 cy=%225.2%22 r=%222.6%22 fill=%22%234a82e0%22/%3E%3Cpath d=%22M1 14.5 C1 9.8 3 8.4 6 8.4 C9 8.4 11 9.8 11 14.5 Z%22 fill=%22%234a82e0%22/%3E%3Ccircle cx=%225.3%22 cy=%224.5%22 r=%22.9%22 fill=%22%238bb6ff%22/%3E%3C/svg%3E")}
+.ic.flag{background-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Cpolygon points=%221,15 7,6 13,15%22 fill=%22%23d24a3f%22/%3E%3Cpolygon points=%227,6 13,15 8,15%22 fill=%22%239e2f27%22/%3E%3Cpolygon points=%225.6,15 7,12 8.4,15%22 fill=%22%232a1d17%22/%3E%3Crect x=%226.6%22 y=%221%22 width=%22.9%22 height=%226%22 fill=%22%233a2a1c%22/%3E%3Cpolygon points=%227.5,1 13,2.6 7.5,4.2%22 fill=%22%23ff6b5e%22/%3E%3C/svg%3E")}
 .res.camps b{color:var(--brass)}
 #top{pointer-events:none}
 #top .idle{pointer-events:auto;cursor:pointer;color:#1a1408;background:var(--brass);border-color:var(--brass);font-weight:700}
@@ -76,7 +77,7 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 .act{display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--panel);border:1px solid var(--edge);border-radius:4px;font-size:13px;min-height:36px}
 .act .cost{color:var(--muted);font-size:12px;display:flex;gap:6px;align-items:center;font-variant-numeric:tabular-nums}
 .act .cost span{display:inline-flex;gap:3px;align-items:center}
-.act .cost .ic{width:8px;height:8px}
+.act .cost .ic{width:12px;height:12px}
 .act:hover{border-color:var(--brass-dim)}
 .act.no,.bb.no{opacity:.45}
 .act.on{background:var(--brass);border-color:var(--brass);color:#1a1408}
@@ -156,7 +157,7 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 .job{display:flex;align-items:center;gap:6px;padding:4px 4px 4px 8px;border:1px solid var(--edge);border-radius:4px;font-size:13px}
 .job span{flex:1}.job b{min-width:2ch;text-align:right;font-variant-numeric:tabular-nums}
 .job .act{min-height:30px;padding:2px 10px;font-weight:700}
-.cost .ic{width:8px;height:8px}
+.cost .ic{width:12px;height:12px}
 .cost span{display:inline-flex;gap:3px;align-items:center}
 
 /* Development tree */
@@ -192,6 +193,7 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
   #top{right:calc(104px + env(safe-area-inset-right,0px));padding:calc(8px + env(safe-area-inset-top,0px)) 6px 0 calc(8px + env(safe-area-inset-left,0px));gap:4px}
   .res{padding:3px 6px 3px 5px;font-size:12px;gap:4px;border-radius:5px}
   .res small{display:none}
+  .res .ic{width:15px;height:15px}
   #quest{flex-wrap:nowrap;min-width:0;max-width:100%;gap:6px}
   #quest .qlabel{font-size:10px}
   #q-text{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
