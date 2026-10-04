@@ -958,12 +958,12 @@ function launchWave(){
   const hall=hallB(); if(!hall) return; const df=DF(), n=++G.wave; G.waveT=G.time+waveGap(n); G.open.push(n);
   if(eraOfWave(n)>G.era) evolve();
   const great=isGreat(n), lvl=Math.min(5,1+Math.floor(n/6));
-  let size=Math.min(50,Math.round((2+n)*df.size*(great?1.6:1)));
+  let size=Math.min(50,Math.round((2+n)*df.size*(great?1.4:1)));
   const camps=G.blds.filter(b=>b.type==='camp'&&b.team===1&&!b.dead&&b.lvl<6).sort((a,b)=>Math.hypot(a.cx-hall.cx,a.cy-hall.cy)-Math.hypot(b.cx-hall.cx,b.cy-hall.cy));
   const fort=G.blds.find(b=>b.type==='camp'&&b.team===1&&!b.dead&&b.lvl===6);
   let src=great&&fort?fort:camps[Math.floor(Math.random()*Math.min(3,camps.length))]||fort;
   const spite=G.raidBoost&&findB(G.raidBoost.from); if(spite&&spite.team===1&&!spite.dead){ src=spite; size=Math.round(size*1.5); } G.raidBoost=null;
-  const rams=great?1+Math.floor(n/5):n>=6&&n%2===0?1:0;
+  const rams=great?1+Math.floor(n/10):n>=6&&n%2===0?1:0;
   // the invaders, and everyone once the camps are gone, come through rifts
   if(G.era>=6||!src){ const r=riftSpot(); if(r){ const part=src?Math.round(size/2):size; spawnRaid(r,part,src?0:rams,lvl,great&&!src,G.era>=6); size-=part; } }
   if(src&&size>0) spawnRaid(src,size,rams,lvl,great,false);
@@ -972,11 +972,12 @@ function spawnRaid(c,size,rams,lvl,horde,invaders){
   const hall=hallB(); if(!hall) return;
   const ck=c.rift?(invaders?'invaders':'fortress'):campKind(c), mix=GUARD_MIX[ck], path=findPath(c.x,c.y,hall.x,hall.y,1,true,30000);
   const top=G.era>=1?armyFocus():null, ctr=top?(top==='knight'&&G.era>=3?'ogre':COUNTER_OF[top]):null;
+  const s0=path&&path.length>3?2:0, p0=s0?path[s0]:-1, sx=s0?p0%W+.5:c.cx, sy=s0?((p0/W)|0)+.5:c.cy, jit=s0?.6:1.5;
   for(let k=0;k<size+rams;k++){
     let kind=k>=size?'ram':mix[k%4];
     if(k<size){ if(ctr&&k%4===3) kind=ctr; if(G.era>=2&&k===1&&size>=7) kind='shaman'; if(G.era>=3&&((k===0&&size>=7)||(k===5&&size>=12))) kind='ogre'; if(horde&&k===2&&(G.wave>=10||G.finalWave)) kind='warlord'; }
-    const u=mkUnit(kind,1,c.cx+(Math.random()-.5)*1.5,c.cy+(Math.random()-.5)*1.5,lvl);
-    u.mode='raid'; u.wave=G.wave; u.path=path?path.slice():null; u.pi=0; G.units.push(u);
+    const u=mkUnit(kind,1,sx+(Math.random()-.5)*jit,sy+(Math.random()-.5)*jit,lvl);
+    u.mode='raid'; u.wave=G.wave; u.path=path?path.slice(s0):null; u.pi=0; G.units.push(u);
   }
   const dir=dirWord(c.cx-hall.cx,c.cy-hall.cy), mach=G.era>=5?'war wagon':'battering ram', rm=rams?` with ${rams>1?rams+' '+mach+'s':'a '+mach}`:'';
   const adapt=ctr?` They bring ${FOE_NAME[ctr].toLowerCase()}s against your ${UD[top].name.toLowerCase()}s.`:'', n=G.wave||0;
@@ -1859,6 +1860,10 @@ function enemyAI(u,dt){
     const hall=G.blds.find(b=>b.type==='hall'&&!b.dead);
     if(!hall) return;
     if(!u.path&&u.pt<=0){ u.pt=3; setPath(u,hall.x,hall.y,true,20000); }
+    u.stk=(u.stk||0)+dt;
+    if(u.stk>4){ if(u.path&&Math.hypot(u.x-u.sx0,u.y-u.sy0)<.3){ const i=u.path[u.pi], tx=i%W+.5, ty=((i/W)|0)+.5;
+        if(Math.hypot(tx-u.x,ty-u.y)<1.6&&PASS[G.terr[i]]&&!bgrid[i]){ u.x=tx; u.y=ty; } else u.path=null; }
+      u.stk=0; u.sx0=u.x; u.sy0=u.y; }
     if(followPath(u,dt)){ if(lastBlock&&lastBlock.team===0) u.tgt=lastBlock; }
     else if(!u.path) { moveToward(u,hall.cx,hall.cy,dt,.5); if(lastBlock&&lastBlock.team===0) u.tgt=lastBlock; }
   }
