@@ -323,7 +323,7 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
         <dt>Train</dt><dd>Soldiers<span class="kb"> (T)</span> and generals come from the Barracks, archers<span class="kb"> (Y)</span> from an Archery Range, knights<span class="kb"> (U)</span> from a Stable and catapults from a Siege Workshop. Bigger ones train faster.</dd>
         <dt>Defend</dt><dd>Troops that are not with a general guard the town. Towers and the Town Hall shoot raiders. A hero or general on a defend mission meets them on the road, and one waiting in town fights them at the gate.</dd>
         <dt>The waves</dt><dd>Defending your town is the point. Raiders come in numbered waves, each sooner, bigger and harder than the last; every fifth is a great wave with siege engines, led by a warlord from wave 10. The chip at the top counts down to the next. The horde advances too: it studies your army, brings shamans, ogres, gunpowder and war machines, and in the end invaders step out of rifts with plasma rifles.</dd>
-        <dt>The ages</dt><dd>Advance your civilization at the Town Hall: Bronze, Iron, Medieval, Gunpowder, Industrial, Modern and Future. Each age makes your troops, towers and walls stronger and changes what they are, from spearmen to musketeers, riflemen and plasma troopers, knights to tanks and mechs, catapults to cannons and plasma cannons. Later ages need land, a Blacksmith, a Siege Workshop or more technologies.</dd>
+        <dt>The ages</dt><dd>Advance your civilization at the Town Hall: Bronze, Iron, Medieval, Gunpowder, Industrial, Modern and Future. Each age makes your troops, towers and walls stronger, your people 15% more productive, and changes what your army is, from spearmen to musketeers, riflemen and plasma troopers, knights to tanks and mechs, catapults to cannons and plasma cannons. Later ages need waves held, a Blacksmith, a Siege Workshop or more technologies.</dd>
         <dt>Know the enemy</dt><dd>Every camp is a brute warband, a slinger nest, a rider camp or a shield fort, and its raids are the same. Archers cut down brutes but bounce off shields; knights ride down slingers and break shield walls; soldiers' spears stop riders, which otherwise run down archers and villagers. Before you send anyone, the camp shows a battle forecast; a general takes the troops that fight that camp best.</dd>
         <dt>Upkeep</dt><dd>Everyone eats, and soldiers and generals want wages. Without food your people starve; without gold your soldiers desert. The food and gold chips show what you gain or lose each second. Farms, gold mines, a Market and taken camps pay for a bigger army.</dd>
         <dt>The council</dt><dd>Most mornings brings a decision with no free answer: pay tribute or face a bigger raid, hire sellswords, dig wells, pay healers, and more.</dd>
@@ -504,7 +504,9 @@ const TECH = Object.fromEntries(TECHS.map(t=>[t.id,t]));
 const has = id => !!(G && G.tech && G.tech[id]);
 // the council's decisions lift or sour the town's mood for a day
 const mood = () => { const m=G&&G.mods||{}; return m.cheer>G.time?1.25:m.sulk>G.time?.8:1; };
-const gatherMult = () => (has('tools')?1.3:1)*(has('steel')?1.4:1)*mood();
+// every age brings better tools and, later, machines: your people gather and produce 15% more per age
+const ageWork = () => 1+.15*((G&&G.age)||0);
+const gatherMult = () => (has('tools')?1.3:1)*(has('steel')?1.4:1)*mood()*ageWork();
 const carryCap = () => has('steel')?15:10;
 const farmMult = () => (has('agri')?1.5:1)*(has('irrig')?1.5:1)*mood()*(G.mods&&G.mods.drought>G.time?.5:1);
 const lvlMult = b => 1+.6*((b.lvl||1)-1);
@@ -952,7 +954,7 @@ function riftSpot(){ const hall=hallB(); if(!hall) return null;
 function finalInvasion(){
   const hall=hallB(); if(!hall) return; const n=++G.wave; G.finalWave=n; G.open.push(n); G.waveT=G.time+600;
   toast('The Sky Shield rises over your land, and the invaders throw everything they have at it. Survive the final invasion!','bad'); sfx('horn');
-  for(let k=0;k<3;k++){ const r=riftSpot(); if(r) spawnRaid(r,Math.min(40,Math.round((10+n*.6)*DF().size)),2,5,k===0,true); }
+  for(let k=0;k<3;k++){ const r=riftSpot(); if(r) spawnRaid(r,Math.min(30,Math.round((6+n*.5)*DF().size)),2,5,k===0,true); }
 }
 function launchWave(){
   const hall=hallB(); if(!hall) return; const df=DF(), n=++G.wave; G.waveT=G.time+waveGap(n); G.open.push(n);
@@ -1541,7 +1543,7 @@ function villagerAI(u,dt){
     if(!f){ if(hall&&Math.hypot(u.x-hall.cx,u.y-hall.cy)>2.5) goTo(u,hall.x,hall.y,dt); return; }
     if(Math.hypot(u.x-f.cx,u.y-f.cy)>1.1){ goTo(u,f.x,f.y,dt); return; }
     u.working=true; u.face=Math.atan2(f.cy-u.y,f.cx-u.x); u.gt-=dt;
-    if(u.gt<=0){ u.gt=2; earn('food',farmTake(f,.9*farmMult()*lvlMult(f))); }
+    if(u.gt<=0){ u.gt=2; earn('food',farmTake(f,.9*farmMult()*lvlMult(f)*ageWork())); }
     return;
   }
   if(u.fr>0){ u.fr-=dt; return; }
@@ -1872,7 +1874,7 @@ function enemyAI(u,dt){
 const towerRange = b => 6.5+(has('fort')?2:0)+.5*(b.lvl-1)+.4*Math.max(0,(G.age||0)-2);
 const towerDmg = b => 10*(has('fort')?1.5:1)*(1+.4*(b.lvl-1))*ageMult();
 function rates(b){
-  const m=lvlMult(b), mine=has('mining')?1.5:1;
+  const m=lvlMult(b)*ageWork(), mine=has('mining')?1.5:1;
   switch(b.type){
     case 'hall': return {food:.3*m, wood:.2*m, gold:.1*m};
     case 'farm': return {food:b.soil>0?.3*farmMult()*m:0};
