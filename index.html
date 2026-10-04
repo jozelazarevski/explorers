@@ -98,7 +98,8 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 .bb.sel{background:var(--panel-2);border-color:var(--brass)}
 
 #toasts{position:fixed;left:50%;top:calc(96px + env(safe-area-inset-top,0px));transform:translateX(-50%);display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none;width:min(420px,calc(100% - 32px))}
-.toast{padding:7px 14px;background:var(--panel);border:1px solid var(--edge);border-left:3px solid var(--brass);border-radius:4px;font-size:13px;animation:tin .25s ease-out}
+.toast{padding:6px 13px;background:rgba(18,24,33,.66);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.08);border-left:3px solid var(--brass);border-radius:8px;font-size:13px;box-shadow:0 4px 14px rgba(0,0,0,.18);animation:tin .25s ease-out;transition:opacity .5s,transform .5s}
+.toast.out{opacity:0;transform:translateY(-4px)}
 .toast.bad{border-left-color:var(--red)}
 .toast.good{border-left-color:var(--good)}
 @keyframes tin{from{transform:translateY(-6px);opacity:0}to{transform:none;opacity:1}}
@@ -355,16 +356,16 @@ const DIFFS = [
 const DF = () => DIFFS[G.diff] || DIFFS[1];
 
 const PAL = [
-  ['#1b4880','#1e4d86','#21528b','#245790'],
-  ['#2c6cae','#2f71b3','#3276b8','#357bbd'],
-  ['#d8c188','#dec890','#e4cf98','#e9d6a1'],
-  ['#5c9b3d','#64a443','#6cad49','#75b650'],
-  ['#467f33','#4b8737','#518e3b','#56953f'],
-  ['#928970','#999078','#a09780','#a79e88'],
-  ['#928970','#999078','#a09780','#a79e88'],
-  ['#6a6257','#6f675b','#746c60','#797165'],
-  ['#dde5ec','#e4ebf1','#ebf0f5','#f1f5f8'],
-  ['#9a8462','#a08a68','#a6906e','#ac9674'],
+  ['#2b5f86','#2d6289','#2f658c','#31688f'],
+  ['#3f82a6','#4285a9','#4588ac','#488baf'],
+  ['#e0cd9b','#e3d09f','#e6d3a3','#e9d6a7'],
+  ['#7aa95a','#7dac5c','#80af5f','#83b261'],
+  ['#5f8c49','#618f4b','#64924d','#66954f'],
+  ['#ada590','#b0a893','#b3ab96','#b6ae99'],
+  ['#ada590','#b0a893','#b3ab96','#b6ae99'],
+  ['#857d71','#888074','#8b8377','#8e867a'],
+  ['#e2e8ed','#e6ebf0','#e9eef3','#edf1f5'],
+  ['#ab9572','#ae9875','#b19b78','#b49e7b'],
 ];
 const TEAM = [
   { c:'#3f83f2', d:'#2a62c4', l:'#8bb6ff' },
@@ -728,7 +729,7 @@ function reveal(cx,cy,r){
   const x0=Math.max(0,Math.floor(cx-r)), x1=Math.min(W-1,Math.ceil(cx+r)), y0=Math.max(0,Math.floor(cy-r)), y1=Math.min(H-1,Math.ceil(cy+r));
   for(let y=y0;y<=y1;y++) for(let x=x0;x<=x1;x++){
     const i=y*W+x; if(G.expl[i]) continue;
-    const dx=x+.5-cx, dy=y+.5-cy; if(dx*dx+dy*dy<=r*r){ G.expl[i]=1; mmPixel(i); invalidate(i); }
+    const dx=x+.5-cx, dy=y+.5-cy; if(dx*dx+dy*dy<=r*r){ G.expl[i]=1; mmPixel(i); invalidate(i); fogMark(x,y); }
   }
 }
 
@@ -876,8 +877,8 @@ function burst(x,y,c,n){ for(let k=0;k<n;k++){ const a=Math.random()*6.283, s=1+
 function floatText(x,y,txt,c){ G.texts.push({x,y,txt,c,life:1.2}); }
 function toast(msg,kind=''){
   const el=document.createElement('div'); el.className='toast '+kind; el.textContent=kh(msg);
-  const box=$('toasts'); box.appendChild(el); while(box.children.length>4) box.firstChild.remove();
-  setTimeout(()=>el.remove(),3800);
+  const box=$('toasts'); box.appendChild(el); while(box.children.length>3) box.firstChild.remove();
+  setTimeout(()=>el.classList.add('out'),3400); setTimeout(()=>el.remove(),3900);
 }
 
 // ---------- sound (synthesized, no files) ----------
@@ -1958,7 +1959,7 @@ function sh(hex,k){ // hex colour #rrggbb scaled by k
   const n=parseInt(hex.slice(1),16), f=v=>Math.min(255,Math.round(v*k));
   c=`rgb(${f(n>>16)},${f(n>>8&255)},${f(n&255)})`; shC.set(key,c); return c;
 }
-const SHADE='rgba(12,24,14,.24)';
+const SHADE='rgba(30,40,24,.2)';
 // A box on the ground footprint (x,y,w,d), h tall: its top and its south wall show.
 function box(g,x,y,w,d,h,c){ rect(g,x,y+d-h,w,h,sh(c,K.wall)); rect(g,x,y-h,w,d,c); }
 function bshadow(g,x,y,w,d,h){ quad(g,x+w,y-h+.08,x+w+h*.5,y+.08,x+w+h*.5,y+d+.04,x+w,y+d+.04,SHADE); rect(g,x+.03,y+d,w,.04,SHADE); }
@@ -2024,25 +2025,34 @@ function facet(ax,ay,az,bx,by,bz,cx,cy,cz,amp){
 const isLandT=t=>t>=T.SAND;
 const tShade=i=>G.shade[i]>3?0:G.shade[i]; // older worlds stored -1 as 255
 function drawGround(g,gx,gy,x,y){
-  const i=gy*W+gx, t=G.terr[i], c=PAL[t][tShade(i)], h=hash2(gx,gy,G.seed), amp=t<=T.WATER?.35:1.3;
+  const i=gy*W+gx, t=G.terr[i], c=PAL[t][tShade(i)], h=hash2(gx,gy,G.seed), amp=t<=T.WATER?.2:t>=T.HILL&&t<=T.SNOW?.9:t===T.GRASS?.38:.5;
   const a=vH(gx,gy), b=vH(gx+1,gy), d=vH(gx,gy+1), e=vH(gx+1,gy+1);
   rect(g,x,y,1.02,1.02,c);
   if((gx+gy)&1){ tri(g,x,y,x+1.01,y,x,y+1.01,sh(c,facet(0,0,a,1,0,b,0,1,d,amp))); tri(g,x+1.01,y,x+1.01,y+1.01,x,y+1.01,sh(c,facet(1,0,b,1,1,e,0,1,d,amp))); }
   else { tri(g,x,y,x+1.01,y,x+1.01,y+1.01,sh(c,facet(0,0,a,1,0,b,1,1,e,amp))); tri(g,x,y,x+1.01,y+1.01,x,y+1.01,sh(c,facet(0,0,a,1,1,e,0,1,d,amp))); }
+  // where two sides and the corner between them are some other ground, that ground takes the corner: staircases
+  // of tiles become diagonal edges, and both tiles of a step agree on the same line
+  const nt=(dx,dy)=>{ const xx=gx+dx, yy=gy+dy; return xx<0||yy<0||xx>=W||yy>=H?t:G.terr[yy*W+xx]; }, cut=[0,0,0,0];
+  [[-1,-1],[1,-1],[1,1],[-1,1]].forEach(([dx,dy],k)=>{ const u=nt(dx,0); if(u===t||u!==nt(0,dy)||u!==nt(dx,dy)) return;
+    cut[k]=1; const cx=x+(dx>0?1.01:0), cy=y+(dy>0?1.01:0), j=clamp(gy+dy,0,H-1)*W+clamp(gx+dx,0,W-1);
+    tri(g,cx,cy,cx-dx*.5,cy,cx,cy-dy*.5,PAL[u][tShade(j)]);
+    if(u<=T.WATER&&isLandT(t)){ g.strokeStyle='rgba(232,244,255,.32)'; g.lineWidth=.07; g.beginPath(); g.moveTo(cx-dx*.5,cy); g.lineTo(cx,cy-dy*.5); g.stroke(); } });
   switch(t){
-    case T.DEEP: case T.WATER: {
-      const f='rgba(225,240,255,.3)';
-      if(gy>0&&isLandT(G.terr[i-W])) rect(g,x,y,1,.08,f);
-      if(gy<H-1&&isLandT(G.terr[i+W])) rect(g,x,y+.92,1,.08,f);
-      if(gx>0&&isLandT(G.terr[i-1])) rect(g,x,y,.08,1,f);
-      if(gx<W-1&&isLandT(G.terr[i+1])) rect(g,x+.92,y,.08,1,f);
-      break; }
-    case T.SAND: if(h<.5){ rect(g,x+h*1.6,y+.3,.06,.05,'#c9b074'); rect(g,x+.7-h,y+.75,.05,.05,'#c9b074'); } break;
+    case T.DEEP: case T.WATER: { // surf along the shore, following the rounded corners
+      const f='rgba(232,244,255,.32)', L=k=>cut[k]?.5:0, land=j=>isLandT(G.terr[j]);
+      if(gy>0&&land(i-W)) rect(g,x+L(0),y,1-L(0)-L(1),.07,f);
+      if(gy<H-1&&land(i+W)) rect(g,x+L(3),y+.93,1-L(3)-L(2),.07,f);
+      if(gx>0&&land(i-1)) rect(g,x,y+L(0),.07,1-L(0)-L(3),f);
+      if(gx<W-1&&land(i+1)) rect(g,x+.93,y+L(1),.07,1-L(1)-L(2),f);
+      g.strokeStyle=f; g.lineWidth=.07; g.beginPath();
+      [[0,0],[1,0],[1,1],[0,1]].forEach(([ax,ay],k)=>{ if(!cut[k]||!isLandT(nt(ax?1:-1,0))) return; const cx=x+ax, cy=y+ay; g.moveTo(cx+(ax?-.5:.5),cy); g.lineTo(cx,cy+(ay?-.5:.5)); });
+      g.stroke(); break; }
+    case T.SAND: if(h<.5){ rect(g,x+h*1.6,y+.3,.06,.05,'#d2bd88'); rect(g,x+.7-h,y+.75,.05,.05,'#d2bd88'); } break;
     case T.GRASS:
-      if(h<.35){ const bx=x+.2+h, by=y+.82; tri(g,bx,by,bx+.04,by-.15,bx+.07,by,'#6cae4a'); tri(g,bx+.05,by,bx+.1,by-.11,bx+.13,by,'#4f8f35'); }
-      if(h>.93) rect(g,x+.62,y+.3,.08,.08,h>.965?'#f4e27a':'#f1f1f1');
+      if(h<.35){ const bx=x+.2+h, by=y+.82; tri(g,bx,by,bx+.04,by-.15,bx+.07,by,'#8dba69'); tri(g,bx+.05,by,bx+.1,by-.11,bx+.13,by,'#6a9a4c'); }
+      if(h>.93) rect(g,x+.62,y+.3,.07,.07,h>.965?'#f3dc86':'#f4efe4');
       break;
-    case T.DIRT: if(h<.6){ rect(g,x+.2+h*.5,y+.4,.08,.05,'#877155'); rect(g,x+.7-h*.3,y+.78,.06,.05,'#877155'); } break;
+    case T.DIRT: if(h<.6){ rect(g,x+.2+h*.5,y+.4,.08,.05,'#9a8463'); rect(g,x+.7-h*.3,y+.78,.06,.05,'#9a8463'); } break;
   }
 }
 function treeSpots(gx,gy,x,y){ const i=gy*W+gx, a=G.amt[i], h=hash2(gx,gy,G.seed), s=[];
@@ -2052,7 +2062,9 @@ function treeSpots(gx,gy,x,y){ const i=gy*W+gx, a=G.amt[i], h=hash2(gx,gy,G.seed
   if(a>=4&&h<.5) s.push([x+.22,y+.95,.65]);
   return s;
 }
-function rockSpots(gx,gy,x,y){ const a=G.amt[gy*W+gx], s=[[x+.34,y+.56,.4]]; if(a>2) s.push([x+.72,y+.84,.3]); if(a>4) s.push([x+.74,y+.4,.22]); return s.sort((p,q)=>p[1]-q[1]); }
+// a few rocks per hill tile, placed a little differently on each, so hills read as stony ground rather than gravel
+function rockSpots(gx,gy,x,y){ const a=G.amt[gy*W+gx], h=hash2(gx,gy,G.seed+5), s=[[x+.3+h*.25,y+.52+h*.12,.42+h*.08]];
+  if(a>2&&h<.55) s.push([x+.74-h*.2,y+.86,.3]); if(a>4&&h<.2) s.push([x+.76,y+.36,.22]); return s.sort((p,q)=>p[1]-q[1]); }
 function drawShadow(g,gx,gy,x,y){
   const t=G.terr[gy*W+gx];
   if(t===T.FOREST) for(const [cx,cy,s] of treeSpots(gx,gy,x,y)) oct(g,cx+.14*s,cy+.02,.24*s,.08*s,SHADE);
@@ -2062,13 +2074,13 @@ function drawObjects(g,gx,gy,x,y){
   const i=gy*W+gx, t=G.terr[i], h=hash2(gx,gy,G.seed), sv=tShade(i);
   switch(t){
     case T.FOREST: { let k=0; for(const [cx,cy,s] of treeSpots(gx,gy,x,y)){ const r=hash2(gx*4+k++,gy,G.seed+3);
-      if(r<.55) pine(g,cx,cy,s,r<.25?'#2c6f35':'#347a3a'); else leafy(g,cx,cy,s,r<.8?'#3f8f3a':'#4d9a3b'); } break; }
-    case T.HILL: if(G.amt[i]>0) for(const [cx,cy,w] of rockSpots(gx,gy,x,y)) boulder(g,cx,cy,w,w*.7,'#a39b8a'); break;
-    case T.GOLD: for(const [cx,cy,w] of rockSpots(gx,gy,x,y)) boulder(g,cx,cy,w*.9,w*.6,'#9a9282');
+      if(r<.55) pine(g,cx,cy,s,r<.25?'#38704a':'#3f7a4e'); else leafy(g,cx,cy,s,r<.8?'#4f8f47':'#609c4f'); } break; }
+    case T.HILL: if(G.amt[i]>0) for(const [cx,cy,w] of rockSpots(gx,gy,x,y)) boulder(g,cx,cy,w,w*.7,'#c2baa6'); break;
+    case T.GOLD: for(const [cx,cy,w] of rockSpots(gx,gy,x,y)) boulder(g,cx,cy,w*.9,w*.6,'#b8b09c');
       crystal(g,x+.58,y+.52,.1,.38); crystal(g,x+.7,y+.56,.07,.24); if(G.amt[i]>3) crystal(g,x+.28,y+.86,.08,.28); if(G.amt[i]>6) crystal(g,x+.84,y+.3,.06,.2); break;
     case T.MOUNT: case T.SNOW: { // broad overlapping peaks, mostly low humps with the odd tall one, so ranges look rugged
       const r=hash2(gx,gy,G.seed+7), snow=t===T.SNOW, ph=(snow?.55:.3)+.8*r*r+(sv===3?.2:0), ax=x+.5+(h-.5)*.5, ay=y+.55-ph+(r-.5)*.15;
-      peak(g,x-.22,y+.04,x+1.22,y+1.1,ax,ay,snow?['#d2dbe4','#d9e1e9','#e0e7ee','#e7edf3'][sv]:['#857c6d','#8d8474','#958c7c','#9d9484'][sv],!snow&&ph>.85?.3+.1*r:0,'#eef3f8'); break; }
+      peak(g,x-.22,y+.04,x+1.22,y+1.1,ax,ay,snow?['#d6dee6','#dbe2ea','#e0e7ee','#e5ebf1'][sv]:['#9c9384','#a09787','#a49b8b','#a89f8f'][sv],!snow&&ph>.85?.3+.1*r:0,'#f1f4f7'); break; }
   }
 }
 
@@ -2659,6 +2671,28 @@ function buildChunk(cx,cy,c){
   // trees, rocks and peaks back to front; hidden ones stay out so nothing pokes out of the fog
   for(let ly=0;ly<CH;ly++) for(let lx=0;lx<CH;lx++){ const gx=X0+lx, gy=Y0+ly; if(ex(gx,gy)) drawObjects(g,gx,gy,lx,ly); }
 }
+// The fog is a soft mask, one pixel per tile, blurred and drawn smoothly over the map, so the unknown fades in
+// over a couple of tiles instead of in black steps. Only the patch around newly explored ground is redone.
+const fogCv=document.createElement('canvas'); fogCv.width=W; fogCv.height=H;
+const fogCx=fogCv.getContext('2d'), fogBase=new Float32Array(N), fogP1=new Float32Array(N), fogF=new Float32Array(N), fogImg=fogCx.createImageData(W,H);
+let fogG=null, fogBox=null, fogT=0;
+function fogMark(x,y){ const b=fogBox; if(!b) fogBox=[x,y,x,y]; else { if(x<b[0]) b[0]=x; if(y<b[1]) b[1]=y; if(x>b[2]) b[2]=x; if(y>b[3]) b[3]=y; } }
+function blur3(src,dst,x0,y0,x1,y1){
+  for(let y=y0;y<=y1;y++){ const ya=y>0?y-1:0, yb=y<H-1?y+1:H-1;
+    for(let x=x0;x<=x1;x++){ const xa=x>0?x-1:0, xb=x<W-1?x+1:W-1; let s=0;
+      for(let yy=ya;yy<=yb;yy++){ const r=yy*W; for(let xx=xa;xx<=xb;xx++) s+=src[r+xx]; }
+      dst[y*W+x]=s/((yb-ya+1)*(xb-xa+1)); } } }
+function buildFog(full){
+  const E=G.expl, b=full?[0,0,W-1,H-1]:fogBox, R=k=>[Math.max(0,b[0]-k),Math.max(0,b[1]-k),Math.min(W-1,b[2]+k),Math.min(H-1,b[3]+k)];
+  for(let y=b[1];y<=b[3];y++) for(let x=b[0];x<=b[2];x++) fogBase[y*W+x]=E[y*W+x]?0:1;
+  // two 3×3 blurs: the first changes within a tile of the new ground, the second within two
+  blur3(fogBase,fogP1,...R(1)); const [x0,y0,x1,y1]=R(2); blur3(fogP1,fogF,x0,y0,x1,y1);
+  const d=fogImg.data;
+  for(let y=y0;y<=y1;y++) for(let x=x0;x<=x1;x++){ const i=y*W+x, v=E[i]?fogF[i]*.8:Math.max(fogF[i],.6), o=i*4;
+    d[o]=16; d[o+1]=23; d[o+2]=34; d[o+3]=Math.round(255*Math.min(1,v*1.18)); }
+  fogCx.putImageData(fogImg,0,0,x0,y0,x1-x0+1,y1-y0+1); fogBox=null; fogG=G; fogT=performance.now();
+}
+let vignette=null, vigKey='';
 function nightFactor(){ const p=(G.time%DAY)/DAY; const ss=(a,b,v)=>clamp((v-a)/(b-a),0,1); return ss(.6,.72,p)*(1-ss(.9,1,p)); }
 
 function render(t){
@@ -2676,14 +2710,11 @@ function render(t){
 
   ctx.setTransform(S,0,0,S,OX,OY);
   // sparkles, territory, fog paths in one sweep
-  const spark=new Path2D(), border=new Path2D(), fogA=new Path2D(), fogB=new Path2D(), terrFill=new Path2D();
+  const spark=new Path2D(), border=new Path2D(), terrFill=new Path2D();
   const E=G.expl, tt=t*.25;
   for(let y=y0;y<=y1;y++) for(let x=x0;x<=x1;x++){
     const i=y*W+x;
-    if(!E[i]){
-      const edge=(x>0&&E[i-1])||(x<W-1&&E[i+1])||(y>0&&E[i-W])||(y<H-1&&E[i+W]);
-      (edge?fogB:fogA).rect(x,y,1.02,1.02); continue;
-    }
+    if(!E[i]) continue;
     const tr=G.terr[i];
     if(tr<=T.WATER){ const hh=hash2(x,y,9); if(hh<.12){ const o=(hh*40+tt)%1; spark.rect(x+o*.8,y+.3+hh*3,.18,.04); } }
     if(terrT[i]){
@@ -2695,8 +2726,9 @@ function render(t){
     }
   }
   ctx.fillStyle='rgba(230,244,255,.35)'; ctx.fill(spark);
-  ctx.fillStyle='rgba(79,143,247,.07)'; ctx.fill(terrFill);
-  ctx.strokeStyle='rgba(120,170,255,.85)'; ctx.lineWidth=.07; ctx.setLineDash([.25,.15]); ctx.stroke(border); ctx.setLineDash([]);
+  ctx.fillStyle='rgba(120,170,255,.05)'; ctx.fill(terrFill);
+  ctx.lineCap='round'; ctx.strokeStyle='rgba(30,60,110,.18)'; ctx.lineWidth=.16; ctx.stroke(border);
+  ctx.strokeStyle='rgba(200,224,255,.6)'; ctx.lineWidth=.05; ctx.stroke(border); ctx.lineCap='butt';
 
   // valid build spots
   if(buildSel){
@@ -2765,8 +2797,9 @@ function render(t){
   }
 
   // fog
-  ctx.fillStyle='#0c1016'; ctx.fill(fogA);
-  ctx.fillStyle='rgba(12,16,22,.72)'; ctx.fill(fogB);
+  if(fogG!==G) buildFog(true); else if(fogBox&&performance.now()-fogT>100) buildFog(false);
+  { const fx=Math.max(0,x0-2), fy=Math.max(0,y0-2), fw=Math.min(W,x1+3)-fx, fh=Math.min(H,y1+3)-fy;
+    ctx.imageSmoothingEnabled=true; ctx.drawImage(fogCv,fx,fy,fw,fh,fx,fy,fw,fh); }
 
   // night
   if(NIGHT>0.01){
@@ -2780,8 +2813,12 @@ function render(t){
     ctx.globalAlpha=1;
   }
 
-  // floating texts (screen space)
+  // a light vignette draws the eye to the middle
   ctx.setTransform(1,0,0,1,0,0);
+  if(vigKey!==cw+'x'+chh){ vigKey=cw+'x'+chh; const r=Math.hypot(cw,chh)/2; vignette=ctx.createRadialGradient(cw/2,chh*.48,r*.45,cw/2,chh*.48,r*1.05);
+    vignette.addColorStop(0,'rgba(12,20,32,0)'); vignette.addColorStop(1,'rgba(12,20,32,.32)'); }
+  ctx.fillStyle=vignette; ctx.fillRect(0,0,cw,chh);
+  // floating texts (screen space)
   ctx.font=`600 ${Math.round(13*DPR)}px "Chakra Petch", system-ui, sans-serif`; ctx.textAlign='center';
   for(const f of G.texts){ ctx.globalAlpha=clamp(f.life,0,1); ctx.fillStyle='rgba(0,0,0,.6)'; ctx.fillText(f.txt,OX+f.x*S+1,OY+f.y*S+1); ctx.fillStyle=f.c; ctx.fillText(f.txt,OX+f.x*S,OY+f.y*S); }
   ctx.globalAlpha=1;
