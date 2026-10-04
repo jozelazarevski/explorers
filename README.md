@@ -1,6 +1,6 @@
 # explorers
 
-**Shardlands**: a small explore-build-conquer game in a low-poly 3/4 view, drawn only with flat-shaded triangles and boxes. It's one file (`index.html`) with no build step and no dependencies.
+**Shardlands**: a small defend-and-build game in a low-poly 3/4 view, drawn only with flat-shaded triangles and boxes. You hold your town against ever more brutal waves of raiders while you climb the ages, from bronze spears to plasma rifles. It's one file (`index.html`) with no build step and no dependencies.
 
 **Play:** https://jozelazarevski.github.io/explorers/, or open `index.html` in any browser. It works on desktop and on phones.
 
@@ -8,7 +8,7 @@
 
 You run the realm by handing out missions instead of steering anyone around. Your hero takes missions alone, generals lead your troops, the Builders' Guild puts up what you order, scouts explore and villagers gather. Everyone reports back when a mission is done, and the camera stays on your realm instead of chasing anyone.
 
-Every day asks you to decide something. Pick the right troops for each camp, keep your army fed and paid, answer the council's dilemmas each morning, and get ready for the warlord's horde before it marches.
+Defending your town is the point. Raiders come in waves, each sooner, bigger and harder than the last, and you hold them off while you advance your civilization from the Bronze Age to a sci-fi Future. Every day also asks you to decide something: pick the right troops, keep your army fed and paid, and answer the council each morning.
 
 | | Desktop | Touch |
 |---|---|---|
@@ -31,7 +31,7 @@ Every day asks you to decide something. Pick the right troops for each camp, kee
 | Sound on/off | M | Sound button on the pause screen |
 
 - **Difficulty:** pick Relaxed, Normal or Hard on the title screen before starting a new world. It sets how early, how often and how big raids are, when rams join them, how fast camps grow, and your starting resources.
-- **Goals:** a chain of 19 goals under the resource bar guides the early game and pays out resources for each one.
+- **Goals:** a chain of 22 goals under the resource bar guides the early game and pays out resources for each one.
 - **Council and the new buildings:** a Temple lets the priests stop a fever for free, a Granary lets you ration through a drought, and a Market gets a better deal from caravans.
 - **Market:** build one to trade wood, stone and food for gold and back. A level 2 market pays 30% more for goods and asks 15% less for them, and a level 3 one twice that.
 - **Rally points:** set one on any military building and new troops march there and hold.
@@ -76,7 +76,18 @@ Every day asks you to decide something. Pick the right troops for each camp, kee
   - Forests (about 32 wood a tile), hills (about 48 stone) and gold veins (about 160 gold a tile) are used up, whether villagers gather them or a Lumber Camp, Quarry or Mine draws on them. Their panels show how much is left within reach. When a camp runs dry, build a new one by fresh ground, or take enemy camps for more land.
   - Farms hold about 600 food of soil per level (more with Agriculture and Irrigation). When the soil wears out, the farm is re-sown for 40 wood per level, or lies fallow until you have it.
   - Storage is limited. The Town Hall holds 500 of each resource (800 at level 2, 1,200 as a castle), and anything beyond what your stores hold goes to waste. A resource chip turns gold when that store is full.
-- **The horde evolves:** on days 5, 9 and 15 on Normal (7, 12 and 20 on Relaxed; 4, 7 and 11 on Hard) the horde enters a new age. Its fighters, including those already in the field, get tougher each time (6% on Normal, 5% on Relaxed, 9% on Hard), and you can see it on their bronze, iron, then steel shoulder plates.
+- **The waves:** defending your town is the heart of the game.
+  - **Escalation:** raiders come in numbered waves. On Normal the first comes at about 5:45, and the gap between waves shrinks from about 3 minutes to just over a minute. Each wave is bigger, from 4 raiders up to about 50, and tougher (5% per wave on Normal).
+  - **Great waves:** every fifth wave is a great wave with siege engines, led by a warlord.
+  - **Where they come from:** waves march from the enemy camps, and through rifts at the edge of your land once the camps are gone.
+  - **The countdown:** a chip at the top counts down to the next wave and turns red in the last 30 seconds. "Wave N beaten" appears when its last raider falls, and the end screen shows how many waves you held.
+- **The horde evolves:** every fifth wave it enters a new era.
+  - **Bronze:** its scouts study your army and bring counters to your most common troops.
+  - **Iron:** shamans heal its fighters, and camps of level 4 and up raise watchtowers.
+  - **Steel:** ogres join it.
+  - **Gunpowder:** its gunners carry muskets with longer range.
+  - **Machine:** war wagons replace its rams and its gunners carry rifles.
+  - **Alien:** invaders with plasma rifles step out of rifts.
   - **Bronze:** its scouts study your army, and raids bring the counter to your most common troops. Riders hunt your archers and catapults, slingers pick off soldiers, and brutes (later ogres) drag down knights.
   - **Iron:** shamans heal the fighters around them in bigger raids and camps, and camps of level 4 or more raise watchtowers that shoot anyone within 5 tiles. The battle forecast counts the tower.
   - **Steel:** ogres march with the raids and guard the big camps. They are huge, tough and hard on knights and walls.
@@ -93,9 +104,21 @@ Every day asks you to decide something. Pick the right troops for each camp, kee
 - **Upkeep:** villagers, scouts and builders eat. Soldiers, archers, knights and generals eat and draw wages. The food and gold chips show the net gain or loss per second and turn red when you will run out within a minute. Out of food, your people starve and get hurt. Out of gold, unpaid troops desert one by one. The Town Hall panel shows the full upkeep.
 - **The council:** most mornings the game pauses for a decision with no free answer. You can pay a camp's tribute or face a raid twice as big within the minute. Other choices: hire sellswords, dig wells against a drought, pay healers during a fever, pay a deserter to weaken a camp, buy from a caravan, hold a harvest festival (a quarter faster work for a day, or slower if refused), or take in refugees who will need feeding.
 - **The warlord's horde:** on day 10 (Normal; day 14 Relaxed, day 8 Hard) the fortress sends a horde of every kind of fighter with battering rams, then a bigger one every three days until the fortress falls. A morning message warns you three days ahead, and a chip counts down the last day.
-- **Town Hall:** your seat sits behind its own walls, under a big banner in your colour. At level 1 it's a hall inside a log palisade, at level 2 a stone keep with two towers and a gatehouse, and as a castle (level 3) it has four towers. Nothing can be built inside its walls.
-- **Conquer:** red camps get tougher the farther they are from home, and the farthest one is a fortress with a warlord. Destroy a camp to claim its land and loot. Take every camp to win.
-- **Defend:** after the first nights, camps send raids at your Town Hall. A red chip at the top counts down the last 30 seconds before each raid sets out. Red arrows at the screen edge and red dots on the minimap show where raiders are. From day 4 (on Normal) raids bring battering rams: slow, tough machines that ignore people and smash walls and buildings, so meet them on the road. Every two days (on Normal) the remaining camps grow a level stronger. If your Town Hall falls, the game is over.
+- **Ages of civilization:** advance at the Town Hall. Each advance is carried out by your builders and costs more than the last; later ones need more storage, so build Storehouses and Granaries. Each age makes your troops, towers, walls and buildings stronger, raises storage and strengthens your hero.
+
+  | Age | Needs | Troops | Knights | Siege | Towers | Walls | Town Hall |
+  |---|---|---|---|---|---|---|---|
+  | Bronze | | Spearmen, archers | Knights | Catapults | Wooden watchtower | Palisade | Hall in a palisade |
+  | Iron | | Swordsmen | | | Stone tower | Stone | Stone keep |
+  | Medieval | 2 camps taken | Men-at-arms, crossbowmen | | Trebuchets | Castle tower | Castle wall | Castle |
+  | Gunpowder | A Blacksmith | Musketeers, sharpshooters | Dragoons | Cannons | Cannon tower | Bastion | Castle with cannons |
+  | Industrial | A Siege Workshop | Riflemen, marksmen | Armoured cars | Artillery | Gun nest | Concrete | Brick headquarters |
+  | Modern | 10 technologies | Infantry, snipers | Tanks | Rocket launchers | Missile turret | Bunker | Glass tower |
+  | Future | 13 technologies | Plasma troopers, railgunners | Mechs | Plasma cannons | Laser turret | Energy wall | Domed citadel |
+
+  Shots modernize too, from arrows to bullets, shells, rockets, plasma bolts and lasers. Nothing can be built inside the Town Hall's walls.
+- **Winning:** reach the Future Age and raise the **Sky Shield**, a wonder costing 2,500 wood, 2,500 stone, 2,000 gold and 2,000 food. Raising it draws a final invasion through three rifts, and surviving that wins the game. Taking every camp, fortress included, also wins. If your Town Hall falls, the game is over.
+- **Defend:** troops guard the town, or follow the hero or a general. Towers and the Town Hall shoot raiders; walls and spike traps slow them. Raiders bring battering rams, and later war wagons, that go for buildings, so meet them on the road. Red arrows at the screen edge and red dots on the minimap show where raiders are.
 - **Sound:** every hit, arrow, axe blow, build and fanfare is synthesized in the browser, with no audio files. Sounds fade with distance from the view.
 - **Stats:** the pause screen and the end screen show the day, camps taken, enemies defeated, units raised and lost, buildings, resources gathered and treasures found.
 
