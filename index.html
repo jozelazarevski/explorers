@@ -250,7 +250,7 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
   <div class="res" title="Troops / population cap"><i class="ic pop"></i><b id="r-pop">0/5</b></div>
   <div class="res camps" title="Enemy camps conquered"><i class="ic flag"></i><b id="r-camps">0/0</b></div>
   <div class="res" title="Days survived and your age of civilization"><span id="r-day">Day 1</span></div>
-  <div class="res raid" id="r-raid" title="The next wave of raiders, and when it sets out. Every fifth is a great wave led by a warlord" hidden></div>
+  <div class="res raid" id="r-raid" title="The next wave of raiders, and when it sets out. Every fifth is a great wave, and from the tenth a warlord leads it" hidden></div>
   <div class="res horde" id="r-horde" title="When the warlord's horde marches on your town, until you take the fortress" hidden></div>
   <div class="res" id="r-mods" title="What the council's decisions are doing to your town" hidden></div>
   <div class="res" id="r-techw" title="Current research" hidden><span id="r-tech"></span></div>
@@ -317,7 +317,7 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
         <dt>Your hero</dt><dd>Takes one mission at a time, fights back, goes home to heal when hurt and levels up. To send them somewhere yourself, select them<span class="kb"> (E)</span> and tap the map. <span class="kb">Z</span><span class="tc">Their Whirlwind</span> hits everything close by. Troops can follow the hero as a warband of up to 12: use Follow the hero on a soldier, or Take the town guard on the hero.</dd>
         <dt>Villagers</dt><dd>Hire them at the Town Hall<span class="kb"> (H)</span> and set their jobs. They gather and farm for you.</dd>
         <dt>Goals</dt><dd>Follow the goal under the resource bar for rewards<span class="tc">; tap it to read it in full</span>.</dd>
-        <dt>Grow</dt><dd>Research in the tech tree<span class="kb"> (R)</span>: each technology makes the next dearer, and the later ones need a bigger Town Hall, so choose. Builders upgrade buildings, but none can outgrow the Town Hall, and the hall needs two taken camps to become a castle (level 3). <span class="kb">F</span><span class="tc">The 1× button</span> changes game speed.</dd>
+        <dt>Grow</dt><dd>Research in the tech tree<span class="kb"> (R)</span>: each technology makes the next dearer, and the later ones need a bigger Town Hall, so choose. Builders upgrade buildings, but none can outgrow the Town Hall, which grows with the ages. <span class="kb">F</span><span class="tc">The 1× button</span> changes game speed.</dd>
         <dt>Build</dt><dd>Hire the Builders' Guild at the Town Hall. Then order buildings on the Missions board and the builders pick the spot, or choose one <span class="kb">with keys 1–0 or the bar below and click</span><span class="tc">with Build and tap</span> a green square inside your blue border. Builders put it up. Storehouses and Granaries add storage, a Market trades, a Blacksmith forges arms for research and a Temple heals. Spike traps on the raiders' road hurt and slow them. Builders also mend damaged buildings and rebuild burned ones for a little wood and stone; switch it off on the Missions board.</dd>
         <dt>Resources run out</dt><dd>Forests, hills and gold veins are used up, whether villagers gather them or a Lumber Camp, Quarry or Mine draws on them; then build a new one by fresh ground, or take camps for more land. Farms wear out and are re-sown with wood. Your stores only hold so much, and anything more goes to waste.</dd>
         <dt>Train</dt><dd>Soldiers<span class="kb"> (T)</span> and generals come from the Barracks, archers<span class="kb"> (Y)</span> from an Archery Range, knights<span class="kb"> (U)</span> from a Stable and catapults from a Siege Workshop. Bigger ones train faster.</dd>
@@ -1554,14 +1554,13 @@ function villagerAI(u,dt){
 
 // building upgrades
 // Level 2 costs three times the building, level 3 seven times, plus stone and gold. Nothing can outgrow the
-// Town Hall, and the hall itself needs land (two taken camps) to become a castle. Builders carry upgrades out.
-const CASTLE_CAMPS=2;
+// Town Hall, which grows with the ages below. Builders carry upgrades out.
 // Ages of civilization, advanced at the Town Hall: from bronze spears to plasma rifles. The first two advances turn the
 // hall into a keep and a castle. Each age makes your troops, towers and walls stronger and changes what they are.
 const AGES=[
   {name:'Bronze Age'},
   {name:'Iron Age',       cost:{wood:300,stone:200,gold:80,food:150},    time:45,  news:'Spearmen become swordsmen and the Town Hall becomes a stone keep.'},
-  {name:'Medieval Age',   cost:{wood:600,stone:500,gold:200,food:350},   time:75,  camps:1, news:'Your keep becomes a castle, archers take up crossbows and catapults become trebuchets.'},
+  {name:'Medieval Age',   cost:{wood:600,stone:500,gold:200,food:350},   time:75,  waves:4, news:'Your keep becomes a castle, archers take up crossbows and catapults become trebuchets.'},
   {name:'Gunpowder Age',  cost:{wood:900,stone:700,gold:400,food:500},   time:100, needB:'blacksmith', news:'Muskets and cannons: soldiers become musketeers who shoot, knights become dragoons and towers carry cannons.'},
   {name:'Industrial Age', cost:{wood:1200,stone:1000,gold:600,food:700}, time:120, needB:'workshop', news:'Rifles and artillery: soldiers become riflemen, knights armoured cars, and towers become machine-gun nests.'},
   {name:'Modern Age',     cost:{wood:1500,stone:1300,gold:900,food:900}, time:150, techs:8, news:'Tanks and rocket launchers roll out, towers become missile turrets and walls become bunkers.'},
@@ -1605,7 +1604,8 @@ function storeShort(c){ const cp=G.cap||caps(); for(const k in c) if(c[k]>cp[k])
 function upBlock(b){
   if(b.up) return '';
   if(!G.guild) return "Hire the Builders' Guild to upgrade buildings.";
-  if(b.type==='hall'){ const A=AGES[G.age+1], n=(A.camps||0)-G.conquered, nt=(A.techs||0)-Object.keys(G.tech).length;
+  if(b.type==='hall'){ const A=AGES[G.age+1], n=(A.camps||0)-G.conquered, nt=(A.techs||0)-Object.keys(G.tech).length, nw=(A.waves||0)-(G.stats.waves||0);
+    if(nw>0) return `The ${A.name} comes to a people who have held the line: hold back ${nw} more wave${nw>1?'s':''} first.`;
     if(n>0) return `The ${A.name} needs more land: take ${n} more camp${n>1?'s':''} first.`;
     if(A.needB&&!myB(A.needB).length) return `The ${A.name} needs a ${BD[A.needB].name} first.`;
     if(nt>0) return `The ${A.name} needs ${A.techs} technologies; you know ${A.techs-nt}.`;

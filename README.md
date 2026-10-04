@@ -54,7 +54,7 @@ Defending your town is the point. Raiders come in waves, each sooner, bigger and
 - **Command units separately:** whatever you select takes your orders. Troops sent somewhere hold that spot and fight anything within about 5 tiles. Tap an enemy to attack it, or use Back to their post to regroup. Villagers can be sent to any spot, tree, rock, gold vein or farm.
 - **Tap to act:** every building, unit, camp and resource opens a panel with its stats and actions. From there you can upgrade, demolish, train, hire, give missions or send a villager.
 - **Development tree:** 15 technologies in six branches (Economy, Farming, Defense, Military, Arms, Exploration). Research runs at the Town Hall, one at a time, and takes one to almost three minutes. Every technology you know makes the next one 10% dearer, so you won't have them all before the horde comes. The first five are open from the start. Steel Tools, Deep Mining, Irrigation, Fortification, Chivalry, Engineering, Bronze Arms and Hero Training need a level 2 Town Hall. Iron and Steel Arms need a level 3 one. Archery needs an Archery Range, Chivalry a Stable and Engineering a Siege Workshop.
-- **Upgrades:** buildings go up to level 3 for more output, health and range. Level 2 costs three times the building and level 3 seven times, plus stone and gold, and the builders take a while to carry each one out. Nothing can be upgraded past the Town Hall's own level. The Town Hall becomes a castle (level 3) only after you have taken two camps.
+- **Upgrades:** buildings go up to level 3 for more output, health and range. Level 2 costs three times the building and level 3 seven times, plus stone and gold, and the builders take a while to carry each one out. Nothing can be upgraded past the Town Hall's own level. The Town Hall itself grows with the ages: a stone keep in the Iron Age and a castle in the Medieval Age.
 - **Build:** 13 buildings.
   - **Farms** make food.
   - **Lumber Camps** and **Quarries** collect from nearby forest and hills.
@@ -110,7 +110,7 @@ Defending your town is the point. Raiders come in waves, each sooner, bigger and
   |---|---|---|---|---|---|---|---|
   | Bronze | | Spearmen, archers | Knights | Catapults | Wooden watchtower | Palisade | Hall in a palisade |
   | Iron | | Swordsmen | | | Stone tower | Stone | Stone keep |
-  | Medieval | 1 camp taken | Men-at-arms, crossbowmen | | Trebuchets | Castle tower | Castle wall | Castle |
+  | Medieval | 4 waves held | Men-at-arms, crossbowmen | | Trebuchets | Castle tower | Castle wall | Castle |
   | Gunpowder | A Blacksmith | Musketeers, sharpshooters | Dragoons | Cannons | Cannon tower | Bastion | Castle with cannons |
   | Industrial | A Siege Workshop | Riflemen, marksmen | Armoured cars | Artillery | Gun nest | Concrete | Brick headquarters |
   | Modern | 8 technologies | Infantry, snipers | Tanks | Rocket launchers | Missile turret | Bunker | Glass tower |
