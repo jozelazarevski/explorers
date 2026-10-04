@@ -470,6 +470,8 @@ const CAMP_TIP={
   fortress:"The warlord's seat, held by every kind of fighter. Bring a big, mixed army.",
 };
 const RAID_WHAT={brutes:'brutes',slingers:'slingers',riders:'riders',shields:'shieldbearers',fortress:'fighters',invaders:'invaders'};
+// plural of a unit name: spearmen, men-at-arms, riflemen, tanks
+const plural = s => s==='man-at-arms'?'men-at-arms':/(infantry|artillery)$/.test(s)?s:/[^a]man$/.test(s)?s.slice(0,-3)+'men':s+'s';
 const FOE_NAME={invader:'Invader',brute:'Brute',slinger:'Slinger',rider:'Rider',shield:'Shieldbearer',warlord:'Warlord',ram:'Battering ram',shaman:'Shaman',ogre:'Ogre'};
 const FOE_TIP={invader:'Steps out of a rift with a plasma rifle. Towers and massed troops bring them down.',shaman:'Heals the fighters around it. Cut it down first.',ogre:'Huge and tough, and it smashes knights and walls. Archers and catapults wear it down from afar.',
   brute:'No armour: archers cut them down. They drag knights from the saddle.',slinger:'Throws stones from afar and picks off soldiers. Knights ride them down; stones glance off plate.',
@@ -982,7 +984,7 @@ function spawnRaid(c,size,rams,lvl,horde,invaders){
     u.mode='raid'; u.wave=G.wave; u.path=path?path.slice(s0):null; u.pi=0; G.units.push(u);
   }
   const dir=dirWord(c.cx-hall.cx,c.cy-hall.cy), mach=G.era>=5?'war wagon':'battering ram', rm=rams?` with ${rams>1?rams+' '+mach+'s':'a '+mach}`:'';
-  const adapt=ctr?` They bring ${FOE_NAME[ctr].toLowerCase()}s against your ${UD[top].name.toLowerCase()}s.`:'', n=G.wave||0;
+  const adapt=ctr?` They bring ${plural(FOE_NAME[ctr].toLowerCase())} against your ${plural(UD[top].name.toLowerCase())}.`:'', n=G.wave||0;
   toast((c.rift?`A rift tears open to the ${dir}! ${size} ${invaders?'invaders':'raiders'}${rm} pour out.`:horde?`Great wave ${n}: ${size} raiders${rm}${n>=10?', led by a warlord,':''} march from the ${dir}!`:`Wave ${n}: ${size} raiders, mostly ${RAID_WHAT[ck]||'fighters'}${rm}, march from the ${dir}.`)+adapt,'bad');
   sfx('horn');
 }
@@ -1220,7 +1222,7 @@ function musterPick(g,camp){
   return free.slice(0,Math.max(0,WARBAND-have));
 }
 function bandFor(g,camp){ const own=G.units.filter(u=>isTroop(u)&&u.leader===g.id); return [g,...own,...(own.length?[]:musterPick(g,camp))]; }
-function mixText(us){ const c={}; for(const u of us) c[u.kind]=(c[u.kind]||0)+1; return Object.keys(c).map(k=>`${c[k]} ${UD[k].name.toLowerCase()}${c[k]>1?'s':''}`).join(', '); }
+function mixText(us){ const c={}; for(const u of us) c[u.kind]=(c[u.kind]||0)+1; return Object.keys(c).map(k=>`${c[k]} ${c[k]>1?plural(UD[k].name.toLowerCase()):UD[k].name.toLowerCase()}`).join(', '); }
 function genRelease(g){ const b=G.units.filter(u=>isTroop(u)&&u.leader===g.id); for(const u of b){ u.leader=0; u.tgt=null; u.path=null; } if(b.length) toast(`${cap1(nTroops(b.length,'goes','go'))} back to guarding the town.`); }
 function genMuster(g){ const m=g.mission, before=warband(g); muster(g,m&&m.type==='clear'?findB(m.id):null); const n=warband(g)-before;
   toast(n?`${cap1(nTroops(n,'joins','join'))} General ${g.nm}.`:before>=WARBAND?`General ${g.nm} already leads a full warband.`:'No troops are guarding the town. Train some first.'); }
@@ -2943,7 +2945,7 @@ function selHTML(o){
   if(o.group){
     const c={}; for(const u of o.group) c[u.kind]=(c[u.kind]||0)+1;
     head=`${o.group.length} units selected`;
-    body=`<p class="sub">${Object.keys(c).map(k=>`${c[k]} ${UD[k].name.toLowerCase()}${c[k]>1?'s':''}`).join(' · ')}</p><p>Tap the map to move them there. Tap an enemy or camp to attack${c.villager?', or a tree, rock or farm to put villagers to work':''}.</p>`;
+    body=`<p class="sub">${Object.keys(c).map(k=>`${c[k]} ${c[k]>1?plural(UD[k].name.toLowerCase()):UD[k].name.toLowerCase()}`).join(' · ')}</p><p>Tap the map to move them there. Tap an enemy or camp to attack${c.villager?', or a tree, rock or farm to put villagers to work':''}.</p>`;
     if(o.group.some(isTroop)) acts=btn('followhero','Follow the hero')+generals().map(g=>btn('joingen',`Join General ${g.nm}`,{arg:String(g.id)})).join('')+btn('follow','Back to their post')+btn('guard','Guard the town')+btn('hold','Hold here');
     if(c.villager) acts+=JOBS.map(j=>btn('setjob',JOB_NAME[j],{arg:j})).join('');
     acts+=btn('close','Deselect');
@@ -2954,7 +2956,7 @@ function selHTML(o){
     acts=btn('sendv','Send a villager');
   } else if(o.isB&&o.team===1){
     const k=campKind(o), cnt={}; for(const u of G.units) if(!u.dead&&u.team===1&&u.home===o.id) cnt[u.kind]=(cnt[u.kind]||0)+1;
-    const gl=Object.keys(cnt).map(x=>`${cnt[x]} ${FOE_NAME[x].toLowerCase()}${cnt[x]>1?'s':''}`).join(', ');
+    const gl=Object.keys(cnt).map(x=>`${cnt[x]} ${cnt[x]>1?plural(FOE_NAME[x].toLowerCase()):FOE_NAME[x].toLowerCase()}`).join(', ');
     head=`${CAMP_NAME[k]} <span class="chip bad">Level ${o.lvl}</span>`;
     body=hp+`<p>Guards: ${gl||'none left'}. Taking it is worth about ${40*o.lvl} gold and its land.</p><p class="sub">${CAMP_TIP[k]}${campTower(o)?' Its watchtower shoots anyone who comes within 5 tiles.':''} The horde fights with ${ERA[G.era].name.toLowerCase()} arms.</p>`;
     acts=warActs(o);
