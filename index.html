@@ -1564,10 +1564,10 @@ const AGES=[
   {name:'Bronze Age'},
   {name:'Iron Age',       cost:{wood:300,stone:200,gold:80,food:150},    time:45,  news:'Spearmen become swordsmen and the Town Hall becomes a stone keep.'},
   {name:'Medieval Age',   cost:{wood:600,stone:500,gold:200,food:350},   time:75,  waves:4, news:'Your keep becomes a castle, archers take up crossbows and catapults become trebuchets.'},
-  {name:'Gunpowder Age',  cost:{wood:900,stone:700,gold:400,food:500},   time:100, needB:'blacksmith', news:'Muskets and cannons: soldiers become musketeers who shoot, knights become dragoons and towers carry cannons.'},
-  {name:'Industrial Age', cost:{wood:1200,stone:1000,gold:600,food:700}, time:120, needB:'workshop', news:'Rifles and artillery: soldiers become riflemen, knights armoured cars, and towers become machine-gun nests.'},
-  {name:'Modern Age',     cost:{wood:1500,stone:1300,gold:900,food:900}, time:150, techs:8, news:'Tanks and rocket launchers roll out, towers become missile turrets and walls become bunkers.'},
-  {name:'Future Age',     cost:{wood:1900,stone:1700,gold:1200,food:1200},time:180, techs:11, news:'Plasma troopers, mechs and laser turrets behind energy walls. Now raise the Sky Shield.'} ];
+  {name:'Gunpowder Age',  cost:{wood:750,stone:600,gold:320,food:450},   time:90,  needB:'blacksmith', news:'Muskets and cannons: soldiers become musketeers who shoot, knights become dragoons and towers carry cannons.'},
+  {name:'Industrial Age', cost:{wood:950,stone:800,gold:480,food:600},  time:105, needB:'workshop', news:'Rifles and artillery: soldiers become riflemen, knights armoured cars, and towers become machine-gun nests.'},
+  {name:'Modern Age',     cost:{wood:1200,stone:1000,gold:700,food:800}, time:120, techs:8, news:'Tanks and rocket launchers roll out, towers become missile turrets and walls become bunkers.'},
+  {name:'Future Age',     cost:{wood:1500,stone:1300,gold:950,food:1000},time:140, techs:11, news:'Plasma troopers, mechs and laser turrets behind energy walls. Now raise the Sky Shield.'} ];
 // how much stronger your troops, towers and walls are in each age
 const AGE_MULT=[1,1.25,1.55,2,2.6,3.3,4.2];
 const ageMult = () => AGE_MULT[(G&&G.age)||0];
