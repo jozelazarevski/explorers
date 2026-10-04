@@ -77,8 +77,8 @@ Defending your town is the point. Raiders come in waves, each sooner, bigger and
   - Farms hold about 600 food of soil per level (more with Agriculture and Irrigation). When the soil wears out, the farm is re-sown for 40 wood per level, or lies fallow until you have it.
   - Storage is limited. The Town Hall holds 500 of each resource (800 at level 2, 1,200 as a castle), and anything beyond what your stores hold goes to waste. A resource chip turns gold when that store is full.
 - **The waves:** defending your town is the heart of the game.
-  - **Escalation:** raiders come in numbered waves. On Normal the first comes at about 5:45, and the gap between waves shrinks from about 3 minutes to just over a minute. Each wave is bigger, from 4 raiders up to about 50, and tougher (5% per wave on Normal).
-  - **Great waves:** every fifth wave is a great wave with siege engines, led by a warlord.
+  - **Escalation:** raiders come in numbered waves. On Normal the first comes at about 5:45, and the gap between waves shrinks from about 3½ minutes to under 1½. Each wave is bigger, from 3 raiders up to about 50, and tougher (3.5% per wave on Normal).
+  - **Great waves:** every fifth wave is a great wave with siege engines, led by a warlord from wave 10 on.
   - **Where they come from:** waves march from the enemy camps, and through rifts at the edge of your land once the camps are gone.
   - **The countdown:** a chip at the top counts down to the next wave and turns red in the last 30 seconds. "Wave N beaten" appears when its last raider falls, and the end screen shows how many waves you held.
 - **The horde evolves:** every fifth wave it enters a new era.
@@ -110,11 +110,11 @@ Defending your town is the point. Raiders come in waves, each sooner, bigger and
   |---|---|---|---|---|---|---|---|
   | Bronze | | Spearmen, archers | Knights | Catapults | Wooden watchtower | Palisade | Hall in a palisade |
   | Iron | | Swordsmen | | | Stone tower | Stone | Stone keep |
-  | Medieval | 2 camps taken | Men-at-arms, crossbowmen | | Trebuchets | Castle tower | Castle wall | Castle |
+  | Medieval | 1 camp taken | Men-at-arms, crossbowmen | | Trebuchets | Castle tower | Castle wall | Castle |
   | Gunpowder | A Blacksmith | Musketeers, sharpshooters | Dragoons | Cannons | Cannon tower | Bastion | Castle with cannons |
   | Industrial | A Siege Workshop | Riflemen, marksmen | Armoured cars | Artillery | Gun nest | Concrete | Brick headquarters |
-  | Modern | 10 technologies | Infantry, snipers | Tanks | Rocket launchers | Missile turret | Bunker | Glass tower |
-  | Future | 13 technologies | Plasma troopers, railgunners | Mechs | Plasma cannons | Laser turret | Energy wall | Domed citadel |
+  | Modern | 8 technologies | Infantry, snipers | Tanks | Rocket launchers | Missile turret | Bunker | Glass tower |
+  | Future | 11 technologies | Plasma troopers, railgunners | Mechs | Plasma cannons | Laser turret | Energy wall | Domed citadel |
 
   Shots modernize too, from arrows to bullets, shells, rockets, plasma bolts and lasers. Nothing can be built inside the Town Hall's walls.
 - **Winning:** reach the Future Age and raise the **Sky Shield**, a wonder costing 2,500 wood, 2,500 stone, 2,000 gold and 2,000 food. Raising it draws a final invasion through three rifts, and surviving that wins the game. Taking every camp, fortress included, also wins. If your Town Hall falls, the game is over.
