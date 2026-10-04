@@ -553,6 +553,8 @@ function depositLeft(b){ const dp=DEPOSIT[b.type]; if(!dp) return 0; let n=0;
 const soilMax = f => 600*f.lvl, resowCost = f => ({wood:40*f.lvl});
 function farmTake(f,n){
   if(!(f.soil>0)) return 0;
+  // with the granaries full the crop is left standing, so the soil is not worn out for nothing
+  const room=Math.max(0,(G.cap?G.cap.food:1e9)-G.res.food); if(n>room){ (G.spill||(G.spill={})).food=1; n=room; }
   f.soil-=n/farmMult(); if(f.soil<=0){ f.soil=0; resow(f); }
   return n; }
 function resow(f){

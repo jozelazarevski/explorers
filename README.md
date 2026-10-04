@@ -74,7 +74,7 @@ Defending your town is the point. Raiders come in waves, each sooner, bigger and
   - A **Temple** makes your people heal 4–8 times as fast nearby and brings your fallen hero back in 6 seconds instead of 12.
 - **Resources run out:**
   - Forests (about 32 wood a tile), hills (about 48 stone) and gold veins (about 160 gold a tile) are used up, whether villagers gather them or a Lumber Camp, Quarry or Mine draws on them. Their panels show how much is left within reach. When a camp runs dry, build a new one by fresh ground, or take enemy camps for more land.
-  - Farms hold about 600 food of soil per level (more with Agriculture and Irrigation). When the soil wears out, the farm is re-sown for 40 wood per level, or lies fallow until you have it.
+  - Farms hold about 600 food of soil per level (more with Agriculture and Irrigation). When the soil wears out, the farm is re-sown for 40 wood per level, or lies fallow until you have it. While the granaries are full the crop is left standing, so the soil is not worn out for nothing.
   - Storage is limited. The Town Hall holds 500 of each resource (800 at level 2, 1,200 as a castle), and anything beyond what your stores hold goes to waste. A resource chip turns gold when that store is full.
 - **The waves:** defending your town is the heart of the game.
   - **Escalation:** raiders come in numbered waves. On Normal the first comes at about 5:45, and the gap between waves shrinks from about 3½ minutes to under 1½. Each wave is bigger, from 3 raiders up to about 50, and tougher (3.5% per wave on Normal).
