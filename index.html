@@ -58,6 +58,19 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 #top{pointer-events:none}
 #top .idle{pointer-events:auto;cursor:pointer;color:#1a1408;background:var(--brass);border-color:var(--brass);font-weight:700}
 #quest{flex-basis:100%;max-width:min(560px,100%);flex-wrap:wrap;gap:4px 8px;font-size:13px}
+/* the tug of war: your might against the horde's */
+#power{flex-basis:100%;max-width:min(560px,100%);display:flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums}
+#power[hidden]{display:none}
+#power .side{display:flex;align-items:center;gap:4px;font-weight:700;font-size:14px;text-shadow:0 1px 2px rgba(0,0,0,.7)}
+#power .me{color:#cfe0ff}#power .foe{color:#ffd0cb}
+#power .crest{width:20px;height:20px;flex:none;background:center/contain no-repeat;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
+#power .crest.me{background-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Cpath d=%22M8 1 L14 3 L14 8 C14 11.5 11.5 14 8 15 C4.5 14 2 11.5 2 8 L2 3 Z%22 fill=%22%233f83f2%22 stroke=%22%23cfe0ff%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M5 6.5 L8 9.5 L11 6.5%22 fill=%22none%22 stroke=%22%23ffffff%22 stroke-width=%221.8%22/%3E%3C/svg%3E")}
+#power .crest.foe{background-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Cpath d=%22M2 2 L5 6 M14 2 L11 6%22 stroke=%22%23ece4d2%22 stroke-width=%222%22 stroke-linecap=%22round%22/%3E%3Cpath d=%22M3 8 C3 4.5 5.5 3.5 8 3.5 C10.5 3.5 13 4.5 13 8 L12 11.5 L10 11.5 L10 14 L6 14 L6 11.5 L4 11.5 Z%22 fill=%22%23d9443a%22 stroke=%22%23ffd0cb%22 stroke-width=%221%22/%3E%3Crect x=%225%22 y=%227.5%22 width=%222.2%22 height=%222%22 fill=%22%231b0f0e%22/%3E%3Crect x=%228.8%22 y=%227.5%22 width=%222.2%22 height=%222%22 fill=%22%231b0f0e%22/%3E%3C/svg%3E")}
+#power .bar{position:relative;flex:1;height:18px;border-radius:9px;overflow:hidden;background:linear-gradient(#e2574c,#a8261f);border:1px solid rgba(255,255,255,.25);box-shadow:0 2px 8px rgba(0,0,0,.35)}
+#pw-fill{position:absolute;left:0;top:0;bottom:0;width:50%;background:linear-gradient(#5b9bff,#2a5fc4);border-right:2px solid #fff;transition:width .45s ease-out}
+#power .bar span{position:absolute;top:0;line-height:17px;font-size:11px;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.8)}
+#pw-pa{left:7px}#pw-pb{right:7px}#pw-lab{left:0;right:0;text-align:center;opacity:.85;letter-spacing:.06em;text-transform:uppercase;font-size:9.5px!important}
+#power.battle .bar{border-color:#ffd27a;box-shadow:0 0 10px rgba(255,140,60,.55)}
 #quest .qlabel{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--brass);font-weight:700}
 #quest .cost{display:flex;gap:6px;color:var(--muted);font-size:12px}
 
@@ -97,7 +110,7 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 .bb:hover{background:var(--panel-2)}
 .bb.sel{background:var(--panel-2);border-color:var(--brass)}
 
-#toasts{position:fixed;left:50%;top:calc(96px + env(safe-area-inset-top,0px));transform:translateX(-50%);display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none;width:min(420px,calc(100% - 32px))}
+#toasts{position:fixed;left:50%;top:calc(var(--hudb,96px) + 6px);transform:translateX(-50%);display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none;width:min(420px,calc(100% - 32px))}
 .toast{padding:6px 13px;background:rgba(18,24,33,.66);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.08);border-left:3px solid var(--brass);border-radius:8px;font-size:13px;box-shadow:0 4px 14px rgba(0,0,0,.18);animation:tin .25s ease-out;transition:opacity .5s,transform .5s}
 .toast.out{opacity:0;transform:translateY(-4px)}
 .toast.bad{border-left-color:var(--red)}
@@ -220,6 +233,7 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
   .x{width:40px;height:40px}
   #toasts{top:calc(var(--hudb,96px) + 6px);left:calc(8px + env(safe-area-inset-left,0px));right:calc(104px + env(safe-area-inset-right,0px));width:auto;transform:none;align-items:stretch}
   .toast{font-size:12px;padding:6px 10px}
+  #power .side{font-size:12px}#power .crest{width:17px;height:17px}#power .bar{height:16px}#power .bar span{line-height:15px;font-size:10px}#pw-lab{display:none}
   #card{padding:20px 18px}
   #card h1{font-size:30px}
   #stats div{padding:5px 6px}
@@ -257,6 +271,11 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
   <div class="res" id="r-techw" title="Current research" hidden><span id="r-tech"></span></div>
   <button class="res idle" id="r-idle" title="Select villagers with nothing to do" hidden></button>
   <div id="quest" class="res" title="Current goal"><span class="qlabel">Goal</span><span id="q-text"></span><span id="q-rew" class="cost"></span></div>
+  <div id="power" title="Your might against the horde's: your troops, hero and towers against the raiders on the field, or against the next wave before it marches" hidden>
+    <span class="side me"><i class="crest me"></i><b id="pw-me">0</b></span>
+    <div class="bar"><div id="pw-fill"></div><span id="pw-pa">50%</span><span id="pw-lab"></span><span id="pw-pb">50%</span></div>
+    <span class="side foe"><b id="pw-foe">0</b><i class="crest foe"></i></span>
+  </div>
 </div>
 
 <div id="mmwrap">
@@ -323,7 +342,7 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
         <dt>Resources run out</dt><dd>Forests, hills and gold veins are used up, whether villagers gather them or a Lumber Camp, Quarry or Mine draws on them; then build a new one by fresh ground, or take camps for more land. Farms wear out and are re-sown with wood. Your stores only hold so much, and anything more goes to waste.</dd>
         <dt>Train</dt><dd>Soldiers<span class="kb"> (T)</span> and generals come from the Barracks, archers<span class="kb"> (Y)</span> from an Archery Range, knights<span class="kb"> (U)</span> from a Stable and catapults from a Siege Workshop. Bigger ones train faster.</dd>
         <dt>Defend</dt><dd>Troops that are not with a general guard the town. Towers and the Town Hall shoot raiders. A hero or general on a defend mission meets them on the road, and one waiting in town fights them at the gate.</dd>
-        <dt>The waves</dt><dd>Defending your town is the point. Raiders come in numbered waves, each sooner, bigger and harder than the last; every fifth is a great wave with siege engines, led by a warlord from wave 10. The chip at the top counts down to the next. The horde advances too: it studies your army, brings shamans, ogres, gunpowder and war machines, and in the end invaders step out of rifts with plasma rifles.</dd>
+        <dt>The waves</dt><dd>Defending your town is the point. Raiders come in numbered waves, each sooner, bigger and harder than the last; every fifth is a great wave with siege engines, led by a warlord from wave 10. The chip at the top counts down to the next, and the power bar weighs your might against the horde's: the raiders on the field, or the next wave before it marches. The horde advances too: it studies your army, brings shamans, ogres, gunpowder and war machines, and in the end invaders step out of rifts with plasma rifles.</dd>
         <dt>The ages</dt><dd>Advance your civilization at the Town Hall: Bronze, Iron, Medieval, Gunpowder, Industrial, Modern and Future. Each age makes your troops, towers and walls stronger, your people 15% more productive, and changes what your army is, from spearmen to musketeers, riflemen and plasma troopers, knights to tanks and mechs, catapults to cannons and plasma cannons. Later ages need waves held, a Blacksmith, a Siege Workshop or more technologies.</dd>
         <dt>Know the enemy</dt><dd>Every camp is a brute warband, a slinger nest, a rider camp or a shield fort, and its raids are the same. Archers cut down brutes but bounce off shields; knights ride down slingers and break shield walls; soldiers' spears stop riders, which otherwise run down archers and villagers. Before you send anyone, the camp shows a battle forecast; a general takes the troops that fight that camp best.</dd>
         <dt>Upkeep</dt><dd>Everyone eats, and soldiers and generals want wages. Without food your people starve; without gold your soldiers desert. The food and gold chips show what you gain or lose each second. Farms, gold mines, a Market and taken camps pay for a bigger army.</dd>
@@ -828,8 +847,9 @@ function shotOf(u){
   return u.kind==='invader'?'plasma':G.era>=4?'bullet':'arrow'; }
 function strike(u,o){
   const d=u.atk*mult(u.kind,o);
-  if(u.ranged){ const cat=u.kind==='catapult', pk=shotOf(u); G.proj.push({x:u.x,y:u.y-.2,t:o,dmg:d,team:u.team,spd:SHOT_SPD[pk],stone:cat?u.atk:0,pk}); sfx(cat?'crash':'shoot',u.x,u.y); }
-  else { hurt(o,d,u); burst(ox_(o),oy_(o)-.1,o.team===0?'#cfe0ff':'#ffd1cc',u.siege?12:4); sfx(u.siege?'crash':'hit',u.x,u.y); }
+  if(u.ranged){ const cat=u.kind==='catapult', pk=shotOf(u); G.proj.push({x:u.x,y:u.y-.2,t:o,dmg:d,team:u.team,spd:SHOT_SPD[pk],stone:cat?u.atk:0,pk}); sfx(cat?'crash':'shoot',u.x,u.y);
+    if(pk!=='arrow'&&pk!=='stone') muzzle(u.x+Math.cos(u.face)*.3,u.y-.25+Math.sin(u.face)*.3,pk==='laser'||pk==='plasma'); }
+  else { hurt(o,d,u); burst(ox_(o),oy_(o)-.1,o.team===0?'#cfe0ff':'#ffd1cc',u.siege?12:4); sfx(u.siege?'crash':'hit',u.x,u.y); if(u.siege) boom(ox_(o),oy_(o)-.1,.4); }
 }
 function hurt(o,d,src){
   if(o.dead) return;
@@ -837,7 +857,7 @@ function hurt(o,d,src){
   if(o.hp<=0){ if(o.isB) destroyB(o); else killU(o); }
 }
 function killU(u){
-  u.dead=true; burst(u.x,u.y,u.team===0?TEAM[0].c:TEAM[1].c,u.siege?18:10);
+  u.dead=true; burst(u.x,u.y,u.team===0?TEAM[0].c:TEAM[1].c,u.siege?18:10); if(u.siege||machineOf(u)) boom(u.x,u.y-.1,.7);
   sfx(u.siege?'crash':'die',u.x,u.y);
   if(u.kind==='hero'){ u.respawn=myB('temple').length?6:12; u.path=null; u.tgt=null; toast('Your hero has fallen. They will be back at the Town Hall shortly…','bad'); sfx('bad'); }
   else if(u.team===1){ const g=Math.round((u.siege?6:1)+u.lvl*.8); G.res.gold+=g; G.stats.kills++; floatText(u.x,u.y-.5,'+'+g,'#f5c542');
@@ -846,7 +866,7 @@ function killU(u){
 }
 function destroyB(b){
   if(b.type==='camp'){ conquer(b); return; }
-  b.dead=true; bgrid[b.y*W+b.x]=null; burst(b.cx,b.cy,'#b8ad97',16); sfx('crash',b.cx,b.cy);
+  b.dead=true; bgrid[b.y*W+b.x]=null; burst(b.cx,b.cy,'#b8ad97',16); sfx('crash',b.cx,b.cy); if(b.type!=='site'&&b.type!=='spikes') boom(b.cx,b.cy,1);
   if(b.type==='hall'){ gameOver(); return; }
   if(b.type!=='site'&&b.type!=='outpost'){ (G.ruins||(G.ruins=[])).push({type:b.type,x:b.x,y:b.y}); }
   toast(`Raiders destroyed your ${BD[b.type].name}.${G.guild&&G.autoRepair&&b.type!=='site'?' The builders will rebuild it once the raiders are gone.':''}`,'bad');
@@ -874,6 +894,13 @@ function gainXP(n){
 
 // ---------- fx ----------
 function burst(x,y,c,n){ for(let k=0;k<n;k++){ const a=Math.random()*6.283, s=1+Math.random()*3; G.parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-1,life:.5+Math.random()*.4,max:.9,c,s:.06+Math.random()*.08}); } }
+// a fireball where something heavy lands: smoke rises after it and a scorch mark stays on the ground a while
+function boom(x,y,r,cool){ (G.fx||(G.fx=[])).push({x,y,r,t:0,max:.5,cool});
+  for(let k=0;k<Math.round(3+r*6);k++){ const a=Math.random()*6.283, s=.3+Math.random()*.9;
+    G.parts.push({x:x+Math.cos(a)*r*.3,y:y+Math.sin(a)*r*.2,vx:Math.cos(a)*s*.5,vy:-.5-Math.random()*.7,life:.8+Math.random()*.9,max:1.7,c:cool?'#5f6f86':'#5e5650',s:.14+r*.18,sm:1}); }
+  burst(x,y,cool?'#b8fff0':'#ffcf6a',Math.round(5+r*8));
+  const sc=G.scorch||(G.scorch=[]); sc.push({x,y,r:r*.75,t:G.time}); if(sc.length>48) sc.shift(); }
+function muzzle(x,y,cool){ (G.fx||(G.fx=[])).push({x,y,r:.16,t:0,max:.08,fl:1,cool}); }
 function floatText(x,y,txt,c){ G.texts.push({x,y,txt,c,life:1.2}); }
 function toast(msg,kind=''){
   const el=document.createElement('div'); el.className='toast '+kind; el.textContent=kh(msg);
@@ -1724,7 +1751,7 @@ function update(dt){
     if(b.team===0){
       if((b.type==='tower'||b.type==='hall'||(b.type==='outpost'&&b.lvl===6)) && b.cd<=0){
         const tw=b.type==='tower', r=tw?towerRange(b):5, f=nearestFoe({x:b.cx,y:b.cy,team:0},r);
-        if(f&&!f.isB){ b.cd=tw?1.1/(1+.2*(b.lvl-1)):1.5; const pk=shotOf({team:0,kind:tw?'tower':'hall'}); G.proj.push({x:b.cx,y:b.cy-.8,t:f,dmg:tw?towerDmg(b)*mult('tower',f):6*mult('hall',f)*ageMult(),team:0,spd:SHOT_SPD[pk],pk}); sfx('shoot',b.cx,b.cy); }
+        if(f&&!f.isB){ b.cd=tw?1.1/(1+.2*(b.lvl-1)):1.5; const pk=shotOf({team:0,kind:tw?'tower':'hall'}); if(pk!=='arrow') muzzle(b.cx,b.cy-.8,pk==='laser'); G.proj.push({x:b.cx,y:b.cy-.8,t:f,dmg:tw?towerDmg(b)*mult('tower',f):6*mult('hall',f)*ageMult(),team:0,spd:SHOT_SPD[pk],pk}); sfx('shoot',b.cx,b.cy); }
       }
       if(b.queue&&b.queue.length){ const q=b.queue[0]; q.t-=dt*(TRAINS[b.type]?1+.25*(b.lvl-1):1); if(q.t<=0){ b.queue.shift(); spawnFrom(b,q); } }
       if((b.type==='hall'||b.type==='outpost')&&G.time-b.lastHit>8&&b.hp<b.maxhp) b.hp=Math.min(b.maxhp,b.hp+2*dt);
@@ -1764,6 +1791,7 @@ function update(dt){
     const tx=ox_(p.t), ty=oy_(p.t)-.15, dx=tx-p.x, dy=ty-p.y, d=Math.hypot(dx,dy), st=p.spd*dt;
     p.a=Math.atan2(dy,dx);
     if(d<=st+.1){ p.done=true; if(p.t.team!==p.team) hurt(p.t,p.dmg);
+      if(p.stone||p.pk==='rocket'||(p.pk==='plasma'&&p.team===0)) boom(tx,ty,p.stone?.6:.42,p.pk==='plasma');
       if(p.stone){ burst(tx,ty,'#b8ad97',10); for(const o of G.units) if(o!==p.t&&!o.dead&&o.team!==p.team&&Math.hypot(o.x-tx,o.y-ty-.15)<1) hurt(o,p.stone*mult('catapult',o)*.5); }
       else burst(tx,ty,'#fff3c4',2); }
     else { p.x+=dx/d*st; p.y+=dy/d*st; }
@@ -1787,8 +1815,10 @@ function update(dt){
     u.hp=Math.min(u.maxhp,u.hp+(u.kind==='hero'?4:2)*m*dt); } } }
 
   // fx
-  for(const p of G.parts){ p.life-=dt; p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=4*dt; p.vx*=.96; }
+  for(const p of G.parts){ p.life-=dt; p.x+=p.vx*dt; p.y+=p.vy*dt; if(p.sm){ p.vy*=.97; p.s+=.28*dt; } else p.vy+=4*dt; p.vx*=.96; }
   G.parts=G.parts.filter(p=>p.life>0);
+  if(G.fx){ for(const f of G.fx) f.t+=dt; G.fx=G.fx.filter(f=>f.t<f.max); }
+  if(G.scorch&&G.scorch.length&&G.time-G.scorch[0].t>40) G.scorch.shift();
   for(const t of G.texts){ t.life-=dt; t.y-=dt*.8; }
   G.texts=G.texts.filter(t=>t.life>0);
   if(G.marker){ G.marker.t-=dt; if(G.marker.t<=0) G.marker=null; }
@@ -2453,18 +2483,18 @@ const AGE_LOOK={
 const ERA_LOOK={ slinger:[,,,,{weapon:'musket',head:'tricorne'},{weapon:'rifle',head:'combat'},{weapon:'rifle',head:'combat'}],
   brute:[,,,,{weapon:'axe'},{weapon:'axe',head:'combat'},{weapon:'axe',head:'combat'}], shield:[,,,,,{weapon:'rifle',head:'combat'},{weapon:'rifle',head:'combat'}] };
 function lookOf(u){ const t=u.team===0?AGE_LOOK[u.kind]:ERA_LOOK[u.kind]; return t?t[u.team===0?G.age:G.era]||null:null; }
-function drawPerson(g,u,x,y,t,fl){
+function drawPerson(g,u,x,y,t,fl,ks=1,ph=0){
   if(u.spin>0) u={...u,face:u.face+(.5-u.spin)*25};
   const lk=G&&lookOf(u), st=lk?{...STYLE[u.kind],...lk}:STYLE[u.kind], tc=TEAM[u.team], F=c=>fl?'#fff':c, sd=darkSide(u.face);
   const dk=(x0,y0,w,h,c)=>rect(g,sd>0?x0:-x0-w,y0,w,h,c); // shaded half, on the side away from the light
-  const step=u.moving?Math.sin(t*13+u.id):0;
-  let swing=u.cd>u.rate-.18?1-(u.rate-u.cd)/.18:0;
+  const step=u.moving?Math.sin(t*13+u.id+ph):0;
+  let swing=u.cd>u.rate-.18-ph*.03?Math.max(0,1-(u.rate-u.cd-ph*.03)/.18):0;
   if(u.kind==='villager'||u.kind==='builder') swing=u.working?Math.max(0,Math.sin(t*9+u.id)):0;
   let tunic=st.tunic, tunicD=st.tunicD;
   if(st.team){ tunic=st.light?tc.l:st.dark?tc.d:tc.c; tunicD=st.light?tc.c:st.dark?'#5c1512':tc.d; }
   if(st.armor){ tunic='#bcc5cf'; tunicD='#8f99a5'; }
   const rough=u.kind==='brute'||u.kind==='warlord', og=u.kind==='ogre', skin=F(og?'#8fa86a':rough?'#c98e6a':'#e9bd93'), skinD=F(og?'#728a52':rough?'#ae7453':'#d19f74');
-  const k=st.sc*(u.kind==='hero'?1.05:1.15);
+  const k=st.sc*(u.kind==='hero'?1.05:1.15)*ks;
   g.save(); g.translate(x,y); g.scale(k,k); g.rotate(u.face+Math.PI/2);
   if(st.horse){ const hs=u.moving?Math.sin(t*16+u.id)*.03:0; // the horse under its rider: body, neck and head forward, tail behind
     rect(g,-.16,-.3,.32,.62,F('#7a5230')); dk(0,-.3,.16,.62,F('#5e3e24')); rect(g,-.08,-.54+hs,.16,.26,F('#7a5230')); rect(g,-.06,-.58+hs,.12,.07,F('#3b2a1d')); rect(g,-.03,.3,.06,.16,F('#3b2a1d')); }
@@ -2589,15 +2619,46 @@ function machineOf(u){
   if(u.kind==='knight'&&u.team===0&&G&&G.age>=4) return G.age>=6?'mech':G.age===5?'tank':'car';
   if(u.kind==='ram') return G&&G.era>=5?'wagon':'ram';
   return null; }
+// Foot troops and raiders march as small squads, and their figures fall one by one as the squad is hurt.
+const SQUAD={soldier:3,archer:3,brute:3,slinger:3,shield:3,invader:3,knight:2,rider:2};
+// where each figure stands, relative to the squad's heading: forward, then to the right
+const FORM={3:[[.13,0],[-.11,.21],[-.11,-.21]],2:[[.06,.17],[-.06,-.17]]};
+// Soft round lights: a radial fade drawn once per colour, then stretched wherever a glow is wanted.
+const glowSpr=new Map();
+function softGlow(g,x,y,rx,ry,rgb,a){
+  let c=glowSpr.get(rgb);
+  if(!c){ c=document.createElement('canvas'); c.width=c.height=64; const cg=c.getContext('2d'), gr=cg.createRadialGradient(32,32,0,32,32,32);
+    gr.addColorStop(0,`rgba(${rgb},1)`); gr.addColorStop(.45,`rgba(${rgb},.42)`); gr.addColorStop(1,`rgba(${rgb},0)`); cg.fillStyle=gr; cg.fillRect(0,0,64,64); glowSpr.set(rgb,c); }
+  const a0=g.globalAlpha; g.globalAlpha=a0*a; g.drawImage(c,x-rx,y-ry,rx*2,ry*2); g.globalAlpha=a0;
+}
+const TEAMRGB=['90,150,255','255,80,60'];
 function drawUnit(g,u,t){
   const x=u.x, y=u.y, fl=u.flash>0, st=STYLE[u.kind], sc=st.sc;
-  const mk=machineOf(u), bob=u.moving&&!mk?Math.abs(Math.sin(t*14+u.id))*.04:0;
-  oct(g,x+.07*sc,y+.1,.22*sc,.08*sc,SHADE);
-  if(mk==='tank'||mk==='car'||mk==='wagon') drawTank(g,u,x,y-.14,t,fl,mk); else (mk==='catapult'?drawCatapult:mk==='mech'?drawMech:mk==='ram'?drawRam:drawPerson)(g,u,x,y-bob-.14,t,fl);
+  const mk=machineOf(u), bob=u.moving&&!mk?Math.abs(Math.sin(t*14+u.id))*.04:0, n=mk?0:SQUAD[u.kind]||0;
+  // a glow in the army's colour under every fighter, so the two sides read as blue and red masses
+  if(u.team===1||isTroop(u)||u.kind==='hero'||u.kind==='general') softGlow(g,x,y+.08,(n?.6:.42)*sc,(n?.3:.2)*sc,TEAMRGB[u.team],.5);
+  if(n){
+    const alive=Math.max(1,Math.ceil(n*clamp(u.hp/u.maxhp,0,1)-.001)), fx=Math.cos(u.face), fy=Math.sin(u.face), fig=[];
+    for(let k=0;k<alive;k++){ const [a,b]=FORM[n][k]; fig.push([x+fx*a-fy*b,y+fy*a+fx*b,k]); }
+    fig.sort((p,q)=>p[1]-q[1]);
+    for(const [px,py] of fig) oct(g,px+.05,py+.08,.15*sc,.055*sc,SHADE);
+    for(const [px,py,k] of fig){ const bb=u.moving?Math.abs(Math.sin(t*14+u.id+k*1.7))*.035:0; drawPerson(g,u,px,py-bb-.12,t,fl,.74,k*1.7); }
+  } else {
+    oct(g,x+.07*sc,y+.1,.22*sc,.08*sc,SHADE);
+    if(mk==='tank'||mk==='car'||mk==='wagon') drawTank(g,u,x,y-.14,t,fl,mk); else (mk==='catapult'?drawCatapult:mk==='mech'?drawMech:mk==='ram'?drawRam:drawPerson)(g,u,x,y-bob-.14,t,fl);
+  }
   if(u.hp<u.maxhp){
     const w=.5*Math.max(1,sc*.8), top=y-.14-.42*sc-.1;
     rect(g,x-w/2,top,w,.07,'rgba(0,0,0,.6)'); rect(g,x-w/2,top,w*clamp(u.hp/u.maxhp,0,1),.07,u.team?'#ff6b5e':'#7fd37a');
   }
+}
+// A building below half health burns: one to three flames on its roof, smoke drifting up from them.
+function drawFire(g,o,t){
+  const f=o.hp/o.maxhp, n=f<.2?3:f<.35?2:1, big=o.type==='hall'||o.lvl===6?1.4:1;
+  for(let k=0;k<n;k++){ const h=hash2(o.id,k,7), fx=o.cx+(h-.5)*.7*big, fy=o.y+.25+hash2(k,o.id,3)*.35, fl=Math.sin(t*14+k*2+o.id)*.05, s=(.16+.06*k)*big;
+    g.globalCompositeOperation='lighter'; softGlow(g,fx,fy-.12,s*2.6,s*2,'255,122,42',.55); g.globalCompositeOperation='source-over';
+    tri(g,fx-s,fy,fx,fy-s*2.2-fl,fx+s,fy,'#ff6b2a'); tri(g,fx-s*.6,fy,fx+.02,fy-s*1.5+fl,fx+s*.6,fy,'#ffb238'); tri(g,fx-s*.28,fy,fx,fy-s*.8,fx+s*.28,fy,'#fff1b0');
+    if(Math.random()<.06*n) G.parts.push({x:fx,y:fy-s*2,vx:(Math.random()-.5)*.3,vy:-.6-Math.random()*.4,life:1.4+Math.random(),max:2.4,c:'#4f4844',s:.1+.08*big,sm:1}); }
 }
 function drawFeature(g,f,t){
   const x=f.x, y=f.y;
@@ -2750,6 +2811,15 @@ function render(t){
   // rubble where raiders burned a building down
   for(const r of G.ruins||[]) if(vis(r.x,r.y)){ rect(ctx,r.x+.1,r.y+.2,.8,.7,'rgba(40,32,26,.45)');
     for(const [dx,dy,w] of [[.25,.45,.12],[.55,.35,.1],[.7,.65,.13],[.35,.75,.09]]) oct(ctx,r.x+dx,r.y+dy,w,w*.7,'#8a8174'); rect(ctx,r.x+.4,r.y+.5,.3,.04,'#3a2a1c'); }
+  // scorch marks where shells and fireballs landed
+  for(const sc of G.scorch||[]) if(vis(sc.x,sc.y)) softGlow(ctx,sc.x,sc.y+.05,sc.r*1.4,sc.r*.9,'42,33,24',.4*(1-(G.time-sc.t)/40));
+  // towers with raiders closing in show their reach as a glowing ring
+  { const rd=G.units.filter(u=>u.team===1&&!u.dead&&u.mode==='raid');
+    if(rd.length){ ctx.strokeStyle='#ff9a3c'; ctx.lineWidth=.07; ctx.setLineDash([.4,.22]); ctx.fillStyle='#ff9a3c';
+      for(const b of G.blds){ if(b.team!==0||b.dead||b.type!=='tower'||!vis(b.x,b.y)) continue; const r=towerRange(b);
+        if(!rd.some(u=>Math.hypot(u.x-b.cx,u.y-b.cy)<r+3)) continue;
+        ctx.beginPath(); ctx.ellipse(b.cx,b.cy,r,r,0,0,6.283); ctx.globalAlpha=.04; ctx.fill(); ctx.globalAlpha=.32+.12*Math.sin(t*5); ctx.stroke(); }
+      ctx.setLineDash([]); ctx.globalAlpha=1; } }
   // entities sorted by depth
   const list=[];
   for(const b of G.blds) if(vis(b.x,b.y)) list.push([b.y+1,b]);
@@ -2760,6 +2830,7 @@ function render(t){
     if(o.isB){
       if(o.type==='site') drawSite(ctx,o,t); else { drawBuilding(ctx,o.type,o.x,o.y,o.team,o.lvl,t,o.type==='wall'?wallNb(o.x,o.y):o.type==='farm'&&!(o.soil>0)?1:o.type==='camp'&&campTower(o)?1:0); if(o.up) drawScaffold(ctx,o); }
       if(o.type==='camp'&&o.team===1&&o.lvl<6) drawEmblem(ctx,o);
+      if(o.hp<o.maxhp*.5&&o.type!=='wall'&&o.type!=='spikes'&&o.type!=='site') drawFire(ctx,o,t);
       const [bx,by,bw,bh]=bBox(o);
       if(o.team===0&&o.lvl>1&&o.type!=='outpost'){ rect(ctx,o.x+.02,o.y+.88,.12*(o.lvl-1)+.04,.12,'rgba(0,0,0,.45)'); pips(ctx,o.x+.04,o.y+.9,o.lvl-1,'#f3c64b'); }
       if(o.flash>0){ ctx.fillStyle='rgba(255,255,255,.3)'; ctx.fillRect(bx+.08,by+.08,bw-.16,bh-.12); }
@@ -2785,7 +2856,7 @@ function render(t){
     if(p.pk==='rocket'){ rect(ctx,p.x-.04,p.y-.04,.08,.08,'#d9e2ea'); oct(ctx,p.x-c*.12,p.y-sn*.12,.06,.05,'#ff9a3c'); continue; }
     if(p.pk==='shell'){ oct(ctx,p.x,p.y,.07,.07,'#2b2b2b'); continue; }
     if(p.stone){ oct(ctx,p.x,p.y,.09,.08,'#8f877a'); continue; } tri(ctx,p.x+Math.cos(a)*.18,p.y+Math.sin(a)*.18,p.x+Math.cos(a+2.6)*.08,p.y+Math.sin(a+2.6)*.08,p.x+Math.cos(a-2.6)*.08,p.y+Math.sin(a-2.6)*.08,p.team?'#ffb3ad':'#fff3c4'); }
-  for(const p of G.parts){ ctx.globalAlpha=clamp(p.life/p.max,0,1); rect(ctx,p.x-p.s/2,p.y-p.s/2,p.s,p.s,p.c); }
+  for(const p of G.parts){ const a=clamp(p.life/p.max,0,1); if(p.sm){ ctx.globalAlpha=a*.42; oct(ctx,p.x,p.y,p.s,p.s*.82,p.c); } else { ctx.globalAlpha=a; rect(ctx,p.x-p.s/2,p.y-p.s/2,p.s,p.s,p.c); } }
   ctx.globalAlpha=1;
 
   // build ghost
@@ -2803,15 +2874,32 @@ function render(t){
 
   // night
   if(NIGHT>0.01){
-    ctx.setTransform(1,0,0,1,0,0); ctx.fillStyle=`rgba(10,18,46,${.45*NIGHT})`; ctx.fillRect(0,0,cw,chh);
+    ctx.setTransform(1,0,0,1,0,0); ctx.fillStyle=`rgba(30,16,62,${.5*NIGHT})`; ctx.fillRect(0,0,cw,chh);
     ctx.setTransform(S,0,0,S,OX,OY);
-    ctx.globalAlpha=NIGHT;
+    ctx.globalAlpha=NIGHT; ctx.globalCompositeOperation='lighter';
     for(const [,o] of list){
-      if(o.isB&&o.team===1&&o.type==='camp') oct(ctx,o.cx+.2,o.y+.8,.9,.5,'rgba(255,150,60,.2)');
-      if(o.isB&&o.team===0&&o.type!=='wall'&&o.type!=='farm') oct(ctx,o.cx,o.y+.85,.75,.38,'rgba(255,210,110,.16)');
+      if(o.isB){
+        if(o.team===1&&o.type==='camp') softGlow(ctx,o.cx+.2,o.y+.7,1.3,.9,'255,110,50',.4);
+        if(o.team===0&&o.type!=='wall'&&o.type!=='farm') softGlow(ctx,o.cx,o.y+.75,1.1,.7,'255,190,100',.3);
+        if(o.hp<o.maxhp*.5&&o.type!=='wall'&&o.type!=='spikes'&&o.type!=='site') softGlow(ctx,o.cx,o.y+.4,1.6,1.2,'255,120,40',.45);
+      } else if(o.kind){
+        if(o.team===1) softGlow(ctx,o.x,o.y-.1,.8,.6,'255,110,50',.35);
+        else if(isTroop(o)||o.kind==='hero'||o.kind==='general') softGlow(ctx,o.x,o.y-.1,.75,.55,'110,160,255',.3);
+      }
     }
-    ctx.globalAlpha=1;
+    ctx.globalCompositeOperation='source-over'; ctx.globalAlpha=1;
   }
+  // fireballs and muzzle flashes glow, at night too
+  if(G.fx&&G.fx.length){ ctx.globalCompositeOperation='lighter';
+    for(const f of G.fx){ const p=f.t/f.max, a=1-p;
+      if(f.fl){ softGlow(ctx,f.x,f.y,f.r*2,f.r*1.6,f.cool?'159,252,255':'255,233,160',a); continue; }
+      const r=f.r*(.45+.8*Math.sqrt(p));
+      softGlow(ctx,f.x,f.y,r*2.1,r*1.6,f.cool?'47,183,201':'255,90,20',a*.9);
+      softGlow(ctx,f.x,f.y-.05,r*1.3,r*1,f.cool?'111,240,224':'255,168,42',a);
+      softGlow(ctx,f.x,f.y-.08,r*.7,r*.55,'255,244,204',a*a); }
+    ctx.globalCompositeOperation='source-over'; ctx.lineWidth=.05;
+    for(const f of G.fx) if(!f.fl){ const p=f.t/f.max, r=f.r*(.5+1.7*p); ctx.globalAlpha=(1-p)*.5; ctx.strokeStyle=f.cool?'#c8fff6':'#ffe2b0'; ctx.beginPath(); ctx.ellipse(f.x,f.y,r,r*.6,0,0,6.283); ctx.stroke(); }
+    ctx.globalAlpha=1; }
 
   // a light vignette draws the eye to the middle
   ctx.setTransform(1,0,0,1,0,0);
@@ -2882,8 +2970,26 @@ const ACT_ICONS={
 };
 $('homebtn').addEventListener('click',lookHome);
 
+// A side's might: its total health times its total damage per second, square-rooted so that it grows in step with
+// the size of the army. This is what decides a fight between two crowds, as the battle forecast also assumes.
+function mightOf(us){ let hp=0,dps=0; for(const u of us){ hp+=Math.max(0,u.hp); dps+=u.atk/u.rate; } return {hp,dps}; }
+// roughly what the next wave will bring, before it marches
+function waveEstimate(n){ const df=DF(), great=isGreat(n), lvl=Math.min(5,1+Math.floor(n/6)), m=1+(df.waveStep||.05)*n, kinds=G.era>=6?['invader','shield','rider','slinger']:['brute','slinger','rider','shield'];
+  const size=Math.min(50,Math.round((2+n)*df.size*(great?1.4:1))), rams=great?1+Math.floor(n/10):n>=6&&n%2===0?1:0, fh=(1+(lvl-1)*.45)*m, fa=(1+(lvl-1)*.32)*m;
+  const hp=kinds.reduce((s,k)=>s+UD[k].hp,0)/4, dps=kinds.reduce((s,k)=>s+UD[k].atk/UD[k].rate,0)/4;
+  return {hp:(size*hp+rams*UD.ram.hp)*fh, dps:(size*dps+rams*UD.ram.atk/UD.ram.rate)*fa}; }
+function powerHud(){
+  const el=$('power'), hall=hallB(); el.hidden=!hall||G.over; if(el.hidden) return;
+  const me=mightOf(G.units.filter(u=>!u.dead&&u.team===0&&(isTroop(u)||u.kind==='hero'||u.kind==='general')));
+  for(const b of G.blds) if(b.team===0&&!b.dead&&b.type==='tower'){ me.hp+=b.hp; me.dps+=towerDmg(b)*(1+.2*(b.lvl-1))/1.1; }
+  const foes=G.units.filter(u=>!u.dead&&u.team===1&&u.mode==='raid'), battle=foes.length>0, fo=battle?mightOf(foes):waveEstimate(G.wave+1);
+  const a=Math.sqrt(me.hp*me.dps)*8, b=Math.sqrt(fo.hp*fo.dps)*8, pa=a+b>0?a/(a+b)*100:50, fmt=v=>v>=1000?(v/1000).toFixed(2)+'k':String(Math.round(v));
+  $('pw-me').textContent=fmt(a); $('pw-foe').textContent=fmt(b); $('pw-fill').style.width=pa.toFixed(1)+'%';
+  $('pw-pa').textContent=pa.toFixed(1)+'%'; $('pw-pb').textContent=(100-pa).toFixed(1)+'%';
+  $('pw-lab').textContent=battle?'Battle':`vs wave ${G.wave+1}`; el.classList.toggle('battle',battle);
+}
 function updateHud(){
-  const r=G.res;
+  const r=G.res; powerHud();
   $('r-wood').textContent=Math.floor(r.wood); $('r-stone').textContent=Math.floor(r.stone);
   $('r-gold').textContent=Math.floor(r.gold); $('r-food').textContent=Math.floor(r.food);
   $('r-pop').textContent=`${popUsed()}/${popCap()}`; $('r-camps').textContent=`${G.conquered}/${G.totalCamps}`;
