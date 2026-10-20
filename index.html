@@ -341,7 +341,7 @@ button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
         <dt>Build</dt><dd>Hire the Builders' Guild at the Town Hall. Then order buildings on the Missions board and the builders pick the spot, or choose one <span class="kb">with keys 1–0 or the bar below and click</span><span class="tc">with Build and tap</span> a green square inside your blue border. Builders put it up. Storehouses and Granaries add storage, a Market trades, a Blacksmith forges arms for research and a Temple heals. Spike traps on the raiders' road hurt and slow them. Builders also mend damaged buildings and rebuild burned ones for a little wood and stone; switch it off on the Missions board.</dd>
         <dt>Resources run out</dt><dd>Forests, hills and gold veins are used up, whether villagers gather them or a Lumber Camp, Quarry or Mine draws on them; then build a new one by fresh ground, or take camps for more land. Farms wear out and are re-sown with wood. Your stores only hold so much, and anything more goes to waste.</dd>
         <dt>Train</dt><dd>Soldiers<span class="kb"> (T)</span> and generals come from the Barracks, archers<span class="kb"> (Y)</span> from an Archery Range, knights<span class="kb"> (U)</span> from a Stable and catapults from a Siege Workshop. Bigger ones train faster.</dd>
-        <dt>Defend</dt><dd>Troops that are not with a general guard the town. Towers and the Town Hall shoot raiders. In a pinch, drop a Turret: it lands at once, no builders needed, one every 15 seconds. From the Medieval Age a Dragon Roost hatches a dragon that flies over walls and breathes fire; from wave 15 the horde brings dragons too. A hero or general on a defend mission meets them on the road, and one waiting in town fights them at the gate.</dd>
+        <dt>Defend</dt><dd>Troops that are not with a general guard the town. Towers and the Town Hall shoot raiders. In a pinch, drop a Turret: it lands at once, no builders needed, one every 15 seconds. From the Medieval Age a Dragon Roost hatches a dragon that flies over walls and breathes fire, and later ages turn it into a war balloon, an airship, a gunship and a starfighter; from wave 15 the horde brings dragons too. A hero or general on a defend mission meets them on the road, and one waiting in town fights them at the gate.</dd>
         <dt>The waves</dt><dd>Defending your town is the point. Raiders come in numbered waves, each sooner, bigger and harder than the last; every fifth is a great wave with siege engines, led by a warlord from wave 10. The chip at the top counts down to the next, and the power bar weighs your might against the horde's: the raiders on the field, or the next wave before it marches. The horde advances too: it studies your army, brings shamans, ogres, gunpowder and war machines, and in the end invaders step out of rifts with plasma rifles.</dd>
         <dt>The ages</dt><dd>Advance your civilization at the Town Hall: Bronze, Iron, Medieval, Gunpowder, Industrial, Modern and Future. Each age makes your troops, towers and walls stronger, your people 15% more productive, and changes what your army is, from spearmen to musketeers, riflemen and plasma troopers, knights to tanks and mechs, catapults to cannons and plasma cannons. Later ages need waves held, a Blacksmith, a Siege Workshop or more technologies.</dd>
         <dt>Know the enemy</dt><dd>Every camp is a brute warband, a slinger nest, a rider camp or a shield fort, and its raids are the same. Archers cut down brutes but bounce off shields; knights ride down slingers and break shield walls; soldiers' spears stop riders, which otherwise run down archers and villagers. Before you send anyone, the camp shows a battle forecast; a general takes the troops that fight that camp best.</dd>
@@ -501,7 +501,7 @@ const FOE_TIP={dragon:'Flies over walls and burns everything around where it bre
   brute:'No armour: archers cut them down. They drag knights from the saddle.',slinger:'Throws stones from afar and picks off soldiers. Knights ride them down; stones glance off plate.',
   rider:"Runs down archers and villagers. Soldiers' spears stop them.",shield:'Arrows and towers barely hurt. Knights break the wall.',
   warlord:'Leader of the fortress.',ram:'Smashes walls and buildings but ignores people. Slow, so troops can catch it on the road.'};
-const UNIT_TIP={dragon:'Flies over walls and rivers and breathes fire on everything around its target. Archers and towers are its bane.',soldier:'Spears: strong against riders, but slingers pick them off.',archer:'Arrows: strong against brutes, weak against shields.',knight:'Charge: strong against slingers and shield walls.',catapult:'Hurls stones from afar that hit everything around where they land: smashes camps and shield walls, but riders run it down.'};
+const UNIT_TIP={dragon:'Flies over walls and rivers and strikes everything around its target from above: fire, then bombs, rockets and lasers as the ages pass. Archers and towers are its bane.',soldier:'Spears: strong against riders, but slingers pick them off.',archer:'Arrows: strong against brutes, weak against shields.',knight:'Charge: strong against slingers and shield walls.',catapult:'Hurls stones from afar that hit everything around where they land: smashes camps and shield walls, but riders run it down.'};
 // What each of your people eats (food/s) and is paid (gold/s).
 const UPKEEP={ villager:[.05,0], scout:[.05,0], builder:[.05,0], soldier:[.08,.02], archer:[.08,.03], knight:[.12,.05], general:[.1,.1], catapult:[.05,.08] };
 const JOBS = ['wood','stone','gold','food'];
@@ -850,12 +850,21 @@ const SHOT_SPD={arrow:12,stone:8,bullet:24,shell:14,rocket:15,laser:40,plasma:18
 function shotOf(u){
   if(u.team===0){ const a=G.age; if(u.kind==='catapult') return a>=6?'plasma':a===5?'rocket':a>=3?'shell':'stone'; if(u.kind==='tower'||u.kind==='hall') return a>=6?'laser':a===5&&u.kind==='tower'?'rocket':a>=3?'bullet':'arrow'; if(AGE_UNITS[u.kind]) return a>=6?'laser':a>=3?'bullet':'arrow'; return 'arrow'; }
   return u.kind==='invader'?'plasma':G.era>=4?'bullet':'arrow'; }
+// everything of the other side around where a blow from the air lands is hurt
+function airHit(team,atk,tx,ty){
+  for(const v of G.units) if(!v.dead&&v.team!==team&&Math.hypot(v.x-tx,v.y-ty)<1.3) hurt(v,atk*mult('dragon',v));
+  for(const b of G.blds) if(!b.dead&&b.team!==team&&b.type!=='site'&&!(team===1&&hidden(b))&&Math.hypot(b.cx-tx,b.cy-ty)<1.2) hurt(b,atk*mult('dragon',b));
+}
+// A dragon breathes fire; in later ages your flyer drops bombs, fires rockets or strafes with a laser.
+// Bombs and rockets take a moment to arrive, and hurt only when they land.
 function breathe(u,o){
-  const tx=ox_(o), ty=oy_(o), hx=u.x+Math.cos(u.face)*.7, hy=u.y-.95+Math.sin(u.face)*.7;
-  for(let k=0;k<16;k++){ const f=Math.random(), sp=2.2+f*1.4; G.parts.push({x:hx,y:hy,vx:(tx-hx)*sp+(Math.random()-.5)*.8,vy:(ty-hy)*sp+(Math.random()-.5)*.8-1.6,life:.3+f*.25,max:.55,c:k%3?'#ffb238':'#ff5a1f',s:.1+f*.12}); }
-  boom(tx,ty,.45); sfx('crash',tx,ty);
-  for(const v of G.units) if(!v.dead&&v.team!==u.team&&Math.hypot(v.x-tx,v.y-ty)<1.3) hurt(v,u.atk*mult('dragon',v),u);
-  for(const b of G.blds) if(!b.dead&&b.team!==u.team&&b.type!=='site'&&!hidden(b)&&Math.hypot(b.cx-tx,b.cy-ty)<1.2) hurt(b,u.atk*mult('dragon',b),u);
+  const tx=ox_(o), ty=oy_(o), a=u.team===0?G.age:0;
+  if(a<3){ const hx=u.x+Math.cos(u.face)*.7, hy=u.y-.95+Math.sin(u.face)*.7;
+    for(let k=0;k<16;k++){ const f=Math.random(), sp=2.2+f*1.4; G.parts.push({x:hx,y:hy,vx:(tx-hx)*sp+(Math.random()-.5)*.8,vy:(ty-hy)*sp+(Math.random()-.5)*.8-1.6,life:.3+f*.25,max:.55,c:k%3?'#ffb238':'#ff5a1f',s:.1+f*.12}); }
+    boom(tx,ty,.45); sfx('crash',tx,ty); airHit(u.team,u.atk,tx,ty); return; }
+  const sx=u.x, sy=u.y-1;
+  if(a>=6){ (G.fx||(G.fx=[])).push({beam:1,x:sx,y:sy,x2:tx,y2:ty,t:0,max:.2}); boom(tx,ty,.35,true); sfx('shoot',tx,ty); airHit(u.team,u.atk,tx,ty); return; }
+  (G.strikes||(G.strikes=[])).push({sx,sy,tx,ty,t:0,dur:a===5?.3:.5,style:a===5?'rocket':'bomb',team:u.team,atk:u.atk}); sfx(a===5?'shoot':'build',sx,sy);
 }
 function strike(u,o){
   if(u.kind==='dragon'){ breathe(u,o); return; }
@@ -1508,7 +1517,7 @@ function hasBarracks(){ return myB('barracks').length>0; }
 function train(kind,b,job){
   const d=UD[kind];
   if(kind==='builder'&&!G.guild){ toast("Hire the Builders' Guild first.",'bad'); return; }
-  if(kind==='dragon'&&G.units.filter(u=>u.kind==='dragon'&&u.team===0&&!u.dead).length+G.blds.reduce((n,x)=>n+(x.queue||[]).filter(q=>q.kind==='dragon').length,0)>=myB('roost').length){ toast('Each Dragon Roost keeps one dragon. Build another roost for another.','bad'); return; }
+  if(kind==='dragon'&&G.units.filter(u=>u.kind==='dragon'&&u.team===0&&!u.dead).length+G.blds.reduce((n,x)=>n+(x.queue||[]).filter(q=>q.kind==='dragon').length,0)>=myB('roost').length){ toast(`Each ${BD.roost.name} keeps one ${UD.dragon.name.toLowerCase()}. Build another for another.`,'bad'); return; }
   if(kind==='general'&&generals().length+G.blds.reduce((n,x)=>n+(x.queue||[]).filter(q=>q.kind==='general').length,0)>=MAX_GENERALS){ toast(`You can have at most ${MAX_GENERALS} generals.`); return; }
   if(kind==='villager'||kind==='scout'||kind==='builder'){ b=b||hallB(); if(!b){ toast('You need a Town Hall to hire villagers.','bad'); return; } }
   else {
@@ -1640,9 +1649,11 @@ const AGE_UNITS={
   soldier: [['Spearman',1.1,0],['Swordsman',1.1,0],['Man-at-arms',1.15,0],['Musketeer',3,1],['Rifleman',3.8,1],['Infantry',4.2,1],['Plasma trooper',4.6,1]],
   archer:  [['Archer',4.5,1],['Archer',4.5,1],['Crossbowman',5,1],['Sharpshooter',5.5,1],['Marksman',6,1],['Sniper',6.8,1],['Railgunner',7.5,1]],
   knight:  [['Knight',1.2,0],['Knight',1.2,0],['Knight',1.2,0],['Dragoon',3,1],['Armoured car',3.5,1],['Tank',4.5,1],['Mech',5,1]],
-  catapult:[['Catapult',7,1],['Catapult',7,1],['Trebuchet',7.5,1],['Cannon',8,1],['Artillery',8.5,1],['Rocket launcher',9,1],['Plasma cannon',9.5,1]] };
+  catapult:[['Catapult',7,1],['Catapult',7,1],['Trebuchet',7.5,1],['Cannon',8,1],['Artillery',8.5,1],['Rocket launcher',9,1],['Plasma cannon',9.5,1]],
+  dragon:  [['Dragon',2.4,0],['Dragon',2.4,0],['Dragon',2.4,0],['War balloon',2.4,0],['Airship',2.6,0],['Gunship',3,0],['Starfighter',3.2,0]] };
 const AGE_BLD={ tower:['Watchtower','Stone Tower','Castle Tower','Cannon Tower','Gun Nest','Missile Turret','Laser Turret'],
-  wall:['Palisade','Stone Wall','Castle Wall','Bastion','Concrete Wall','Bunker Wall','Energy Wall'] };
+  wall:['Palisade','Stone Wall','Castle Wall','Bastion','Concrete Wall','Bunker Wall','Energy Wall'],
+  roost:['Dragon Roost','Dragon Roost','Dragon Roost','Balloon Yard','Airship Dock','Helipad','Starport'] };
 function applyAge(){ const a=G.age||0; setTimeout(()=>{ try{ drawIcons(); }catch(e){} },0);
   for(const k in AGE_UNITS){ const [nm,rg,rd]=AGE_UNITS[k][a]; UD[k].name=nm; UD[k].range=rg; UD[k].ranged=rd; }
   for(const k in AGE_BLD) BD[k].name=AGE_BLD[k][a];
@@ -1857,6 +1868,7 @@ function update(dt){
   for(const p of G.parts){ p.life-=dt; p.x+=p.vx*dt; p.y+=p.vy*dt; if(p.sm){ p.vy*=.97; p.s+=.28*dt; } else p.vy+=4*dt; p.vx*=.96; }
   G.parts=G.parts.filter(p=>p.life>0);
   if(G.fx){ for(const f of G.fx) f.t+=dt; G.fx=G.fx.filter(f=>f.t<f.max); }
+  if(G.strikes&&G.strikes.length){ for(const k of G.strikes){ k.t+=dt; if(k.t>=k.dur){ boom(k.tx,k.ty,k.style==='rocket'?.45:.55); sfx('crash',k.tx,k.ty); airHit(k.team,k.atk,k.tx,k.ty); } } G.strikes=G.strikes.filter(k=>k.t<k.dur); }
   if(G.scorch&&G.scorch.length&&G.time-G.scorch[0].t>40) G.scorch.shift();
   for(const t of G.texts){ t.life-=dt; t.y-=dt*.8; }
   G.texts=G.texts.filter(t=>t.life>0);
@@ -2164,7 +2176,7 @@ function win(g,x,y){ rect(g,x,y,.09,.09,NIGHT>.35?'#ffd76a':'#4a3b30'); }
 const RC={ blue:'#4a82e0', red:'#d24a3f', clay:'#c8664a', thatch:'#d9bb5c', slate:'#7e8795', moss:'#5b8e49', dark:'#5a4e49' };
 // how far each building reaches above the top of its tile, for outlines, health bars and tapping
 const BTOP={ hall:.5, house:.2, farm:.2, lumber:.2, quarry:.45, mine:.3, barracks:.2, tower:.6, turret:.35, wall:.1, camp:.2, outpost:.2, storehouse:.25, granary:.5, market:.2, blacksmith:.3, temple:.45, range:.2, stable:.25, workshop:.35, roost:.55, spikes:0, skyshield:1.1 };
-const bTop = (type,lvl) => lvl===6&&(type==='camp'||type==='outpost') ? 1.2 : BTOP[type]||0;
+const bTop = (type,lvl) => lvl===6&&(type==='camp'||type==='outpost') ? 1.2 : type==='roost'&&G&&(G.age===3||G.age===4) ? 1.05 : BTOP[type]||0;
 function bBox(o){ const tp=bTop(o.type==='site'?o.plan:o.type,o.lvl); return o.type==='hall' ? [o.x-.45,o.y-1.35,1.9,2.7] : o.lvl===6&&(o.type==='camp'||o.type==='outpost') ? [o.x-.45,o.y-tp,1.9,2.5] : [o.x-.04,o.y-tp,1.08,1.04+tp]; }
 function log(g,x,y,len){ rect(g,x,y-.08,len,.04,'#a0683a'); rect(g,x,y-.04,len,.04,'#7d4f2a'); oct(g,x,y-.04,.035,.04,'#d7a46a'); rect(g,x-.01,y-.05,.02,.02,'#a8743c'); }
 function tent(g,x,y,w,d,c){ bshadow(g,x,y,w,d,.18); roof(g,x,y,w,d,.26,c); tri(g,x+w/2-.05,y+d,x+w/2,y+d-.13,x+w/2+.05,y+d,'#2a1d17'); }
@@ -2423,7 +2435,8 @@ function drawBuilding(g,type,x,y,team,lvl,t,nb=0){
       if(lvl>=3) rect(g,x+.08,y+.53,.84,.03,'#f3c64b');
       break;
     case 'turret': drawTurret(g,x,y,t,-.6,0,1); break;
-    case 'roost': { // a stone platform with a twig nest and eggs under a perch arch flying the team's pennant
+    case 'roost': { const ra=team===0&&G?G.age:2; if(ra>=3){ roostAge(g,x,y,t,tc,ra); break; }
+      // a stone platform with a twig nest and eggs under a perch arch flying the team's pennant
       bshadow(g,x+.06,y+.44,.88,.48,.22); box(g,x+.06,y+.44,.88,.48,.22,'#8d8577'); rect(g,x+.06,y+.44,.88,.04,'#a39b8a');
       oct(g,x+.5,y+.42,.36,.2,'#6b4a2b'); oct(g,x+.5,y+.4,.27,.14,'#4a3320');
       for(let k=0;k<7;k++){ const a=k/7*6.283; rect(g,x+.5+Math.cos(a)*.3-.05,y+.42+Math.sin(a)*.17,.1,.025,'#8a6238'); }
@@ -2707,7 +2720,38 @@ function drawUnit(g,u,t){
   }
 }
 // A building below half health burns: one to three flames on its roof, smoke drifting up from them.
+// Your flyer after the Medieval Age: a striped war balloon, a zeppelin, a helicopter gunship, a starfighter.
+function drawCraft(g,u,x,y,t,fl,a){
+  const F=c=>fl?'#fff':c, tc=TEAM[0], alt=1+.05*Math.sin(t*2+u.id);
+  softGlow(g,x+.12,y+.12,a===4?1.1:.85,.32,'18,14,28',.38);
+  g.save(); g.translate(x,y-alt);
+  if(a===3){ // the basket hangs under a striped envelope on four ropes
+    const sw=Math.sin(t*1.5+u.id)*.03;
+    g.strokeStyle='rgba(70,50,30,.85)'; g.lineWidth=.02; g.beginPath(); g.moveTo(-.2,.18); g.lineTo(-.07+sw,.4); g.moveTo(.2,.18); g.lineTo(.07+sw,.4); g.stroke();
+    rect(g,-.09+sw,.38,.18,.14,F('#8a6238')); rect(g,-.09+sw,.38,.18,.035,F('#b08a5a'));
+    oct(g,0,0,.42,.44,F(tc.d)); oct(g,0,0,.3,.44,F('#eef2f6')); oct(g,0,0,.15,.44,F(tc.c)); oct(g,-.13,-.17,.12,.1,'rgba(255,255,255,.35)');
+  } else if(a===4){ // a long envelope with fins, the gondola under its belly and a spinning propeller
+    g.rotate(u.face);
+    tri(g,-.5,0,-.72,-.22,-.66,0,F(tc.d)); tri(g,-.5,0,-.72,.22,-.66,0,F(tc.d));
+    oct(g,0,0,.66,.24,F('#c9d2db')); oct(g,0,.04,.62,.16,F('#aab4c0')); rect(g,-.5,-.03,1,.06,F(tc.c)); oct(g,.12,-.1,.28,.06,'rgba(255,255,255,.45)');
+    rect(g,-.12,.18,.3,.1,F('#5d4632')); g.save(); g.translate(-.74,0); g.rotate(t*25); rect(g,-.02,-.14,.04,.28,'rgba(40,40,40,.7)'); g.restore();
+  } else if(a===5){ // a helicopter: body, tail boom and rotor, the main rotor a blur of two blades
+    g.rotate(u.face+Math.PI/2);
+    rect(g,-.03,.18,.06,.5,F('#4a5560')); rect(g,-.12,.62,.24,.05,F('#4a5560')); g.save(); g.translate(.06,.66); g.rotate(t*40); rect(g,-.01,-.09,.02,.18,'rgba(30,30,30,.7)'); g.restore();
+    oct(g,0,0,.17,.3,F('#56616c')); oct(g,0,-.12,.11,.13,F('#9fd8ff')); rect(g,-.17,-.02,.34,.05,F(tc.c));
+    for(const k of [-1,1]) rect(g,k*.2-.03,-.05,.06,.18,F('#3a4048'));
+    oct(g,0,0,.62,.62,'rgba(60,60,60,.12)'); g.save(); g.rotate(t*30); rect(g,-.62,-.025,1.24,.05,'rgba(30,30,30,.55)'); rect(g,-.025,-.62,.05,1.24,'rgba(30,30,30,.55)'); g.restore();
+  } else { // a starfighter: a swept hull, cockpit and twin glowing engines
+    g.rotate(u.face+Math.PI/2);
+    g.globalCompositeOperation='lighter'; for(const k of [-.1,.1]) softGlow(g,k,.36+.04*Math.sin(t*20),.12,.22,'90,230,255',.9); g.globalCompositeOperation='source-over';
+    quad(g,0,-.2,.5,.26,.36,.3,0,.12,F('#aab6c2')); quad(g,0,-.2,-.5,.26,-.36,.3,0,.12,F('#d9e2ea'));
+    tri(g,0,-.55,-.13,.3,.13,.3,F('#e9eef3')); tri(g,0,-.55,0,.3,.13,.3,F('#c3ccd6'));
+    oct(g,0,-.14,.06,.12,F('#36e0ff')); rect(g,-.46,.2,.1,.04,F(tc.c)); rect(g,.36,.2,.1,.04,F(tc.c));
+  }
+  g.restore();
+}
 function drawDragon(g,u,x,y,t,fl){
+  if(u.team===0&&G&&G.age>=3){ drawCraft(g,u,x,y,t,fl,G.age); return; }
   const F=c=>fl?'#fff':c, red=u.team===1, c1=red?'#c23a2e':'#3b78d8', c2=red?'#86231c':'#22509e', c3=red?'#f3a24a':'#9fd8ff', bel=red?'#e9b87a':'#d4ecff';
   const flap=Math.sin(t*6+u.id), alt=.9+.07*Math.sin(t*2.2+u.id), breath=u.cd>u.rate-.4;
   softGlow(g,x+.12,y+.12,1,.34,'18,14,28',.38);
@@ -2726,6 +2770,26 @@ function drawDragon(g,u,x,y,t,fl){
   for(let k=0;k<4;k++) tri(g,-.035,-.18+k*.12,.035,-.18+k*.12,0,-.27+k*.12,F(c3));
   if(breath){ g.globalCompositeOperation='lighter'; softGlow(g,0,-.9,.24,.34,'255,150,50',.95); g.globalCompositeOperation='source-over'; }
   g.restore();
+}
+// The roost in later ages: a mooring mast for balloons and airships, a helipad, then a starport with glowing lights.
+function roostAge(g,x,y,t,tc,a){
+  const p=.5+.5*Math.sin((t||0)*3);
+  if(a<=4){
+    bshadow(g,x+.06,y+.46,.88,.46,.18); box(g,x+.06,y+.46,.88,.46,.18,'#9a9283'); rect(g,x+.06,y+.46,.88,.04,'#b3ab9a');
+    for(const dx of [.16,.3]) { oct(g,x+dx,y+.72,.07,.05,'#7d8794'); rect(g,x+dx-.07,y+.58,.14,.14,'#8f99a5'); oct(g,x+dx,y+.58,.07,.05,'#aab4c0'); }
+    box(g,x+.6,y+.2,.12,.1,.9,a===4?'#6f7a86':'#7a5a3a'); rect(g,x+.5,y-.74,.32,.06,a===4?'#aab4c0':'#a07c50'); oct(g,x+.66,y-.76,.16,.06,a===4?'#d9e2ea':'#c9a15a');
+    rect(g,x+.645,y-1.02,.03,.28,'#3a2a1c'); tri(g,x+.675,y-1.02,x+.675,y-.9,x+.86+Math.sin((t||0)*4)*.03,y-.96,tc.c);
+  } else if(a===5){
+    bshadow(g,x+.04,y+.5,.92,.46,.08); box(g,x+.04,y+.5,.92,.46,.08,'#5d6670'); rect(g,x+.04,y+.5,.92,.03,'#7d8794');
+    oct(g,x+.5,y+.36,.36,.2,'#e9eef3'); oct(g,x+.5,y+.36,.3,.16,'#5d6670');
+    rect(g,x+.38,y+.27,.05,.2,'#f3c64b'); rect(g,x+.57,y+.27,.05,.2,'#f3c64b'); rect(g,x+.38,y+.345,.24,.05,'#f3c64b');
+    for(const [dx,dy] of [[.1,.18],[.86,.18],[.1,.56],[.86,.56]]) oct(g,x+dx,y+dy,.04,.03,p>.5?'#ff6b5e':'#7a3530');
+  } else {
+    bshadow(g,x+.02,y+.52,.96,.48,.1); oct(g,x+.5,y+.42,.5,.3,'#aab6c2'); oct(g,x+.5,y+.38,.48,.28,'#d9e2ea');
+    g.globalCompositeOperation='lighter'; softGlow(g,x+.5,y+.38,.52,.32,'60,220,255',.35+.25*p); g.globalCompositeOperation='source-over';
+    oct(g,x+.5,y+.38,.36,.2,'#c3ccd6'); oct(g,x+.5,y+.38,.2,.11,'#7ef0ff');
+    for(let k=0;k<8;k++){ const an=k/8*6.283; oct(g,x+.5+Math.cos(an)*.42,y+.38+Math.sin(an)*.24,.03,.025,(k+Math.floor((t||0)*6))%8<2?'#e8fdff':'#36a8c8'); }
+  }
 }
 function drawTurret(g,x,y,t,aim,drop,lvl){
   const a=G?G.age||0:0, h=drop>0?drop*drop*16:0, m=a>=3, tc=TEAM[0];
@@ -2979,16 +3043,22 @@ function render(t){
     }
     ctx.globalCompositeOperation='source-over'; ctx.globalAlpha=1;
   }
+  for(const k of G.strikes||[]){ const p=clamp(k.t/k.dur,0,1), x=k.sx+(k.tx-k.sx)*p, y=k.sy+(k.ty-k.sy)*p;
+    if(k.style==='bomb'){ const r=.07+.05*p; oct(ctx,x+.03,y,r,r*1.15,'#2b2b2b'); rect(ctx,x-.04,y-r*1.4,.08,.05,'#5d6670'); }
+    else { const a=Math.atan2(k.ty-k.sy,k.tx-k.sx); for(let i=1;i<5;i++) softGlow(ctx,x-Math.cos(a)*i*.12,y-Math.sin(a)*i*.12,.09+i*.02,.09+i*.02,'150,140,130',.35/i);
+      rect(ctx,x-.05,y-.05,.1,.1,'#d9e2ea'); ctx.globalCompositeOperation='lighter'; softGlow(ctx,x-Math.cos(a)*.1,y-Math.sin(a)*.1,.14,.14,'255,154,60',.9); ctx.globalCompositeOperation='source-over'; } }
   // fireballs and muzzle flashes glow, at night too
   if(G.fx&&G.fx.length){ ctx.globalCompositeOperation='lighter';
     for(const f of G.fx){ const p=f.t/f.max, a=1-p;
+      if(f.beam){ ctx.globalAlpha=a; ctx.lineCap='round'; ctx.strokeStyle='rgba(60,220,255,.55)'; ctx.lineWidth=.22; ctx.beginPath(); ctx.moveTo(f.x,f.y); ctx.lineTo(f.x2,f.y2); ctx.stroke();
+        ctx.strokeStyle='#e8fdff'; ctx.lineWidth=.07; ctx.stroke(); ctx.lineCap='butt'; ctx.globalAlpha=1; continue; }
       if(f.fl){ softGlow(ctx,f.x,f.y,f.r*2,f.r*1.6,f.cool?'159,252,255':'255,233,160',a); continue; }
       const r=f.r*(.45+.8*Math.sqrt(p));
       softGlow(ctx,f.x,f.y,r*2.1,r*1.6,f.cool?'47,183,201':'255,90,20',a*.9);
       softGlow(ctx,f.x,f.y-.05,r*1.3,r*1,f.cool?'111,240,224':'255,168,42',a);
       softGlow(ctx,f.x,f.y-.08,r*.7,r*.55,'255,244,204',a*a); }
     ctx.globalCompositeOperation='source-over'; ctx.lineWidth=.05;
-    for(const f of G.fx) if(!f.fl){ const p=f.t/f.max, r=f.r*(.5+1.7*p); ctx.globalAlpha=(1-p)*.5; ctx.strokeStyle=f.cool?'#c8fff6':'#ffe2b0'; ctx.beginPath(); ctx.ellipse(f.x,f.y,r,r*.6,0,0,6.283); ctx.stroke(); }
+    for(const f of G.fx) if(!f.fl&&!f.beam){ const p=f.t/f.max, r=f.r*(.5+1.7*p); ctx.globalAlpha=(1-p)*.5; ctx.strokeStyle=f.cool?'#c8fff6':'#ffe2b0'; ctx.beginPath(); ctx.ellipse(f.x,f.y,r,r*.6,0,0,6.283); ctx.stroke(); }
     ctx.globalAlpha=1; }
 
   // a light vignette draws the eye to the middle

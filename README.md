@@ -66,7 +66,7 @@ Defending your town is the point. Raiders come in waves, each sooner, bigger and
     - Each level trains 25% faster.
   - **Catapults** hurl stones from 7 tiles away. Each stone hits whatever stands around where it lands, and does triple damage to buildings, so catapults smash camps and shield walls. But they are slow, take 3 population, and riders run them down.
   - **Turrets** drop straight from the sky: no builders, no waiting. Tap Turret on the build bar and then a spot inside your border, or order one on the Missions board and it lands about three tiles from the nearest raider. A turret turns its gun on raiders within 5 tiles and fires fast, a crossbow at first, then guns, missile pods and lasers as the ages pass. One drop every 15 seconds, for 40 gold and 30 stone; you can field four, and one more with each age.
-  - **Dragons** hatch at a Dragon Roost, which needs the Medieval Age; each roost keeps one dragon. A dragon flies straight over walls, rivers and mountains and breathes fire on everything around its target, buildings included. It costs 150 food, 60 wood and 220 gold, and takes 4 population. The horde has dragons too: from wave 15 one flies with every great wave, and two from wave 30 and in the final invasion. Archers and towers hit dragons hard.
+  - **Dragons** hatch at a Dragon Roost, which needs the Medieval Age; each roost keeps one dragon. A dragon flies straight over walls, rivers and mountains and breathes fire on everything around its target, buildings included. Your flyer changes with the ages, and so does its home: a war balloon that drops bombs (Balloon Yard) in the Gunpowder Age, an airship (Airship Dock) in the Industrial, a gunship firing rockets (Helipad) in the Modern and a starfighter with a laser (Starport) in the Future. Bombs and rockets take a moment to land. It costs 150 food, 60 wood and 220 gold, and takes 4 population. The horde has dragons too: from wave 15 one flies with every great wave, and two from wave 30 and in the final invasion. Archers and towers hit dragons hard.
   - **Spike traps** are cheap wooden stakes. The builders lay them on the road raiders take from the nearest camp. Raiders never see them, so they walk over them and get hurt and slowed. Each trap wears out after 5 uses (2 more per level).
   - **Towers** shoot raiders and widen your land; **Walls** slow raiders down.
   - **Storehouses** add 400 wood, stone and gold of storage per level, and villagers drop any goods there.
@@ -110,15 +110,15 @@ Defending your town is the point. Raiders come in waves, each sooner, bigger and
 - **The warlord's horde:** on day 10 (Normal; day 14 Relaxed, day 8 Hard) the fortress sends a horde of every kind of fighter with battering rams, then a bigger one every three days until the fortress falls. A morning message warns you three days ahead, and a chip counts down the last day.
 - **Ages of civilization:** advance at the Town Hall. Each advance is carried out by your builders and costs more than the last; later ones need more storage, so build Storehouses and Granaries. Each age makes your troops, towers, walls and buildings stronger, makes your villagers and buildings gather and produce 15% more, raises storage and strengthens your hero.
 
-  | Age | Needs | Troops | Knights | Siege | Towers | Walls | Town Hall |
-  |---|---|---|---|---|---|---|---|
-  | Bronze | | Spearmen, archers | Knights | Catapults | Wooden watchtower | Palisade | Hall in a palisade |
-  | Iron | | Swordsmen | | | Stone tower | Stone | Stone keep |
-  | Medieval | 4 waves held | Men-at-arms, crossbowmen | | Trebuchets | Castle tower | Castle wall | Castle |
-  | Gunpowder | A Blacksmith | Musketeers, sharpshooters | Dragoons | Cannons | Cannon tower | Bastion | Castle with cannons |
-  | Industrial | A Siege Workshop | Riflemen, marksmen | Armoured cars | Artillery | Gun nest | Concrete | Brick headquarters |
-  | Modern | 8 technologies | Infantry, snipers | Tanks | Rocket launchers | Missile turret | Bunker | Glass tower |
-  | Future | 11 technologies | Plasma troopers, railgunners | Mechs | Plasma cannons | Laser turret | Energy wall | Domed citadel |
+  | Age | Needs | Troops | Knights | Siege | Flyer | Towers | Walls | Town Hall |
+  |---|---|---|---|---|---|---|---|---|
+  | Bronze | | Spearmen, archers | Knights | Catapults | | Wooden watchtower | Palisade | Hall in a palisade |
+  | Iron | | Swordsmen | | | | Stone tower | Stone | Stone keep |
+  | Medieval | 4 waves held | Men-at-arms, crossbowmen | | Trebuchets | Dragon | Castle tower | Castle wall | Castle |
+  | Gunpowder | A Blacksmith | Musketeers, sharpshooters | Dragoons | Cannons | War balloon | Cannon tower | Bastion | Castle with cannons |
+  | Industrial | A Siege Workshop | Riflemen, marksmen | Armoured cars | Artillery | Airship | Gun nest | Concrete | Brick headquarters |
+  | Modern | 8 technologies | Infantry, snipers | Tanks | Rocket launchers | Gunship | Missile turret | Bunker | Glass tower |
+  | Future | 11 technologies | Plasma troopers, railgunners | Mechs | Plasma cannons | Starfighter | Laser turret | Energy wall | Domed citadel |
 
   Shots modernize too, from arrows to bullets, shells, rockets, plasma bolts and lasers. Nothing can be built inside the Town Hall's walls.
 - **Winning:** reach the Future Age and raise the **Sky Shield**, a wonder costing 2,500 wood, 2,500 stone, 2,000 gold and 2,000 food. Raising it draws a final invasion through three rifts, and surviving that wins the game. Taking every camp, fortress included, also wins. If your Town Hall falls, the game is over.
