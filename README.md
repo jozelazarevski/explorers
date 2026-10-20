@@ -65,6 +65,8 @@ Defending your town is the point. Raiders come in waves, each sooner, bigger and
     - An **Archery Range** trains archers, a **Stable** trains knights, and a **Siege Workshop** builds catapults once you know Engineering.
     - Each level trains 25% faster.
   - **Catapults** hurl stones from 7 tiles away. Each stone hits whatever stands around where it lands, and does triple damage to buildings, so catapults smash camps and shield walls. But they are slow, take 3 population, and riders run them down.
+  - **Turrets** drop straight from the sky: no builders, no waiting. Tap Turret on the build bar and then a spot inside your border, or order one on the Missions board and it lands about three tiles from the nearest raider. A turret turns its gun on raiders within 5 tiles and fires fast, a crossbow at first, then guns, missile pods and lasers as the ages pass. One drop every 15 seconds, for 40 gold and 30 stone; you can field four, and one more with each age.
+  - **Dragons** hatch at a Dragon Roost, which needs the Medieval Age; each roost keeps one dragon. A dragon flies straight over walls, rivers and mountains and breathes fire on everything around its target, buildings included. It costs 150 food, 60 wood and 220 gold, and takes 4 population. The horde has dragons too: from wave 15 one flies with every great wave, and two from wave 30 and in the final invasion. Archers and towers hit dragons hard.
   - **Spike traps** are cheap wooden stakes. The builders lay them on the road raiders take from the nearest camp. Raiders never see them, so they walk over them and get hurt and slowed. Each trap wears out after 5 uses (2 more per level).
   - **Towers** shoot raiders and widen your land; **Walls** slow raiders down.
   - **Storehouses** add 400 wood, stone and gold of storage per level, and villagers drop any goods there.
@@ -78,7 +80,7 @@ Defending your town is the point. Raiders come in waves, each sooner, bigger and
   - Storage is limited. The Town Hall holds 500 of each resource in the Bronze Age, rising with every age to 3,000 in the Future Age, and anything beyond what your stores hold goes to waste. A resource chip turns gold when that store is full.
 - **The waves:** defending your town is the heart of the game.
   - **Escalation:** raiders come in numbered waves. On Normal the first comes at about 5:45, and the gap between waves shrinks from about 3½ minutes to under 1½. Each wave is bigger, from 3 raiders up to about 50, and tougher (3.5% per wave on Normal).
-  - **Great waves:** every fifth wave is a great wave with siege engines, led by a warlord from wave 10 on.
+  - **Great waves:** every fifth wave is a great wave with siege engines, led by a warlord from wave 10 on, with a dragon overhead from wave 15.
   - **Where they come from:** waves march from the enemy camps, and through rifts at the edge of your land once the camps are gone.
   - **The countdown:** a chip at the top counts down to the next wave and turns red in the last 30 seconds. "Wave N beaten" appears when its last raider falls, and the end screen shows how many waves you held.
   - **The power bar:** a tug of war under the goal weighs your might, your troops, hero and towers, against the horde's: the raiders on the field during a battle, or the next wave before it marches. Might is a side's total health times its total damage, square-rooted, so it grows with the size of the army.
