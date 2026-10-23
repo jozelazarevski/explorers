@@ -375,16 +375,16 @@ const DIFFS = [
 const DF = () => DIFFS[G.diff] || DIFFS[1];
 
 const PAL = [
-  ['#2b5f86','#2d6289','#2f658c','#31688f'],
-  ['#3f82a6','#4285a9','#4588ac','#488baf'],
-  ['#e0cd9b','#e3d09f','#e6d3a3','#e9d6a7'],
-  ['#7aa95a','#7dac5c','#80af5f','#83b261'],
-  ['#5f8c49','#618f4b','#64924d','#66954f'],
-  ['#ada590','#b0a893','#b3ab96','#b6ae99'],
-  ['#ada590','#b0a893','#b3ab96','#b6ae99'],
-  ['#857d71','#888074','#8b8377','#8e867a'],
-  ['#e2e8ed','#e6ebf0','#e9eef3','#edf1f5'],
-  ['#ab9572','#ae9875','#b19b78','#b49e7b'],
+  ['#3a77b5','#3c7ab8','#3e7dbb','#4080be'],
+  ['#4c91cf','#4f94d2','#5297d5','#559ad8'],
+  ['#e6d39c','#e8d6a0','#ead9a4','#ecdca8'],
+  ['#8db553','#90b856','#93bb59','#96be5c'],
+  ['#5e9a47','#619d4a','#64a04d','#67a350'],
+  ['#c9a77a','#cca97d','#cfac80','#d2af83'],
+  ['#c9a77a','#cca97d','#cfac80','#d2af83'],
+  ['#8e96b2','#9199b5','#949cb8','#979fbb'],
+  ['#e3eaf3','#e7edf5','#eaf0f7','#eef3f9'],
+  ['#c38c5a','#c68f5d','#c99260','#cc9563'],
 ];
 const TEAM = [
   { c:'#3f83f2', d:'#2a62c4', l:'#8bb6ff' },
@@ -2109,6 +2109,8 @@ function facet(ax,ay,az,bx,by,bz,cx,cy,cz,amp){
 }
 const isLandT=t=>t>=T.SAND;
 const tShade=i=>G.shade[i]>3?0:G.shade[i]; // older worlds stored -1 as 255
+// the colour of the bank where land meets water: sand, earth, or rock
+const cliffOf = lt => lt===T.SAND?'#c9a46c':lt>=T.HILL&&lt<=T.SNOW?'#9a8f8a':'#9a6e45';
 function drawGround(g,gx,gy,x,y){
   const i=gy*W+gx, t=G.terr[i], c=PAL[t][tShade(i)], h=hash2(gx,gy,G.seed), amp=t<=T.WATER?.2:t>=T.HILL&&t<=T.SNOW?.9:t===T.GRASS?.38:.5;
   const a=vH(gx,gy), b=vH(gx+1,gy), d=vH(gx,gy+1), e=vH(gx+1,gy+1);
@@ -2121,23 +2123,30 @@ function drawGround(g,gx,gy,x,y){
   [[-1,-1],[1,-1],[1,1],[-1,1]].forEach(([dx,dy],k)=>{ const u=nt(dx,0); if(u===t||u!==nt(0,dy)||u!==nt(dx,dy)) return;
     cut[k]=1; const cx=x+(dx>0?1.01:0), cy=y+(dy>0?1.01:0), j=clamp(gy+dy,0,H-1)*W+clamp(gx+dx,0,W-1);
     tri(g,cx,cy,cx-dx*.5,cy,cx,cy-dy*.5,PAL[u][tShade(j)]);
-    if(u<=T.WATER&&isLandT(t)){ g.strokeStyle='rgba(232,244,255,.32)'; g.lineWidth=.07; g.beginPath(); g.moveTo(cx-dx*.5,cy); g.lineTo(cx,cy-dy*.5); g.stroke(); } });
+    if(u<=T.WATER&&isLandT(t)){ g.strokeStyle='rgba(232,244,255,.34)'; g.lineWidth=.07; g.beginPath();
+      if(dy>0){ quad(g,cx,cy-.5,cx-dx*.5,cy,cx-dx*.3,cy,cx,cy-.3,cliffOf(t)); g.moveTo(cx,cy-.3); g.lineTo(cx-dx*.3,cy); } // a bank where the shore faces you
+      else { g.moveTo(cx-dx*.5,cy); g.lineTo(cx,cy-dy*.5); }
+      g.stroke(); } });
   switch(t){
-    case T.DEEP: case T.WATER: { // surf along the shore, following the rounded corners
-      const f='rgba(232,244,255,.32)', L=k=>cut[k]?.5:0, land=j=>isLandT(G.terr[j]);
-      if(gy>0&&land(i-W)) rect(g,x+L(0),y,1-L(0)-L(1),.07,f);
+    case T.DEEP: case T.WATER: {
+      const f='rgba(232,244,255,.34)', L=k=>cut[k]?.5:0, land=j=>isLandT(G.terr[j]), up=gy>0&&land(i-W), b=up?.2:0;
+      if(h<.6){ g.strokeStyle=`rgba(225,240,255,${t===T.DEEP?.13:.2})`; g.lineWidth=.045; g.beginPath(); const yy=y+.32+h*.55; g.moveTo(x+.04,yy); g.quadraticCurveTo(x+.45,yy-.2+h*.25,x+.97,yy+.05); g.stroke(); }
+      if(up){ const w=1-L(0)-L(1); rect(g,x+L(0),y,w,.2,cliffOf(G.terr[i-W])); rect(g,x+L(0),y+.17,w,.03,'rgba(0,0,0,.16)'); rect(g,x+L(0),y+.2,w,.12,'rgba(20,50,90,.16)'); rect(g,x+L(0),y+.2,w,.06,f); }
+      g.strokeStyle=f; g.lineWidth=.07;
+      for(const [ax,k] of [[0,0],[1,1]]) if(cut[k]&&isLandT(nt(ax?1:-1,0))){ const cx=x+ax*1.01, ex=cx+(ax?-.5:.5);
+        quad(g,ex,y,cx,y+.5,cx,y+.7,ex,y+.2,cliffOf(nt(ax?1:-1,0))); g.beginPath(); g.moveTo(ex,y+.2); g.lineTo(cx,y+.7); g.stroke(); }
       if(gy<H-1&&land(i+W)) rect(g,x+L(3),y+.93,1-L(3)-L(2),.07,f);
-      if(gx>0&&land(i-1)) rect(g,x,y+L(0),.07,1-L(0)-L(3),f);
-      if(gx<W-1&&land(i+1)) rect(g,x+.93,y+L(1),.07,1-L(1)-L(2),f);
-      g.strokeStyle=f; g.lineWidth=.07; g.beginPath();
-      [[0,0],[1,0],[1,1],[0,1]].forEach(([ax,ay],k)=>{ if(!cut[k]||!isLandT(nt(ax?1:-1,0))) return; const cx=x+ax, cy=y+ay; g.moveTo(cx+(ax?-.5:.5),cy); g.lineTo(cx,cy+(ay?-.5:.5)); });
+      if(gx>0&&land(i-1)) rect(g,x,y+Math.max(L(0),b),.07,1-Math.max(L(0),b)-L(3),f);
+      if(gx<W-1&&land(i+1)) rect(g,x+.93,y+Math.max(L(1),b),.07,1-Math.max(L(1),b)-L(2),f);
+      g.beginPath();
+      for(const [ax,k] of [[1,2],[0,3]]) if(cut[k]&&isLandT(nt(ax?1:-1,0))){ const cx=x+ax, cy=y+1; g.moveTo(cx+(ax?-.5:.5),cy); g.lineTo(cx,cy-.5); }
       g.stroke(); break; }
     case T.SAND: if(h<.5){ rect(g,x+h*1.6,y+.3,.06,.05,'#d2bd88'); rect(g,x+.7-h,y+.75,.05,.05,'#d2bd88'); } break;
     case T.GRASS:
-      if(h<.35){ const bx=x+.2+h, by=y+.82; tri(g,bx,by,bx+.04,by-.15,bx+.07,by,'#8dba69'); tri(g,bx+.05,by,bx+.1,by-.11,bx+.13,by,'#6a9a4c'); }
+      if(h<.35){ const bx=x+.2+h, by=y+.82; tri(g,bx,by,bx+.04,by-.15,bx+.07,by,'#a7c968'); tri(g,bx+.05,by,bx+.1,by-.11,bx+.13,by,'#7aa446'); }
       if(h>.93) rect(g,x+.62,y+.3,.07,.07,h>.965?'#f3dc86':'#f4efe4');
       break;
-    case T.DIRT: if(h<.6){ rect(g,x+.2+h*.5,y+.4,.08,.05,'#9a8463'); rect(g,x+.7-h*.3,y+.78,.06,.05,'#9a8463'); } break;
+    case T.DIRT: if(h<.6){ rect(g,x+.2+h*.5,y+.4,.08,.05,'#a8744a'); rect(g,x+.7-h*.3,y+.78,.06,.05,'#a8744a'); } break;
   }
 }
 function treeSpots(gx,gy,x,y){ const i=gy*W+gx, a=G.amt[i], h=hash2(gx,gy,G.seed), s=[];
@@ -2159,13 +2168,13 @@ function drawObjects(g,gx,gy,x,y){
   const i=gy*W+gx, t=G.terr[i], h=hash2(gx,gy,G.seed), sv=tShade(i);
   switch(t){
     case T.FOREST: { let k=0; for(const [cx,cy,s] of treeSpots(gx,gy,x,y)){ const r=hash2(gx*4+k++,gy,G.seed+3);
-      if(r<.55) pine(g,cx,cy,s,r<.25?'#38704a':'#3f7a4e'); else leafy(g,cx,cy,s,r<.8?'#4f8f47':'#609c4f'); } break; }
-    case T.HILL: if(G.amt[i]>0) for(const [cx,cy,w] of rockSpots(gx,gy,x,y)) boulder(g,cx,cy,w,w*.7,'#c2baa6'); break;
-    case T.GOLD: for(const [cx,cy,w] of rockSpots(gx,gy,x,y)) boulder(g,cx,cy,w*.9,w*.6,'#b8b09c');
+      if(r<.55) pine(g,cx,cy,s,r<.25?'#2f8240':'#389048'); else leafy(g,cx,cy,s,r<.8?'#4f9a44':'#62a84e'); } break; }
+    case T.HILL: if(G.amt[i]>0) for(const [cx,cy,w] of rockSpots(gx,gy,x,y)) boulder(g,cx,cy,w,w*.7,'#c0806a'); break;
+    case T.GOLD: for(const [cx,cy,w] of rockSpots(gx,gy,x,y)) boulder(g,cx,cy,w*.9,w*.6,'#b98a72');
       crystal(g,x+.58,y+.52,.1,.38); crystal(g,x+.7,y+.56,.07,.24); if(G.amt[i]>3) crystal(g,x+.28,y+.86,.08,.28); if(G.amt[i]>6) crystal(g,x+.84,y+.3,.06,.2); break;
     case T.MOUNT: case T.SNOW: { // broad overlapping peaks, mostly low humps with the odd tall one, so ranges look rugged
       const r=hash2(gx,gy,G.seed+7), snow=t===T.SNOW, ph=(snow?.55:.3)+.8*r*r+(sv===3?.2:0), ax=x+.5+(h-.5)*.5, ay=y+.55-ph+(r-.5)*.15;
-      peak(g,x-.22,y+.04,x+1.22,y+1.1,ax,ay,snow?['#d6dee6','#dbe2ea','#e0e7ee','#e5ebf1'][sv]:['#9c9384','#a09787','#a49b8b','#a89f8f'][sv],!snow&&ph>.85?.3+.1*r:0,'#f1f4f7'); break; }
+      peak(g,x-.22,y+.04,x+1.22,y+1.1,ax,ay,snow?['#d8e1ee','#dce4f0','#e0e8f2','#e4ebf4'][sv]:['#8e98b8','#929cbc','#96a0c0','#9aa4c4'][sv],!snow&&ph>.6?.34+.1*r:0,'#f4f7fb'); break; }
   }
 }
 
@@ -2902,11 +2911,27 @@ function buildFog(full){
   for(let y=b[1];y<=b[3];y++) for(let x=b[0];x<=b[2];x++) fogBase[y*W+x]=E[y*W+x]?0:1;
   // two 3×3 blurs: the first changes within a tile of the new ground, the second within two
   blur3(fogBase,fogP1,...R(1)); const [x0,y0,x1,y1]=R(2); blur3(fogP1,fogF,x0,y0,x1,y1);
-  const d=fogImg.data;
-  for(let y=y0;y<=y1;y++) for(let x=x0;x<=x1;x++){ const i=y*W+x, v=E[i]?fogF[i]*.8:Math.max(fogF[i],.6), o=i*4;
-    d[o]=16; d[o+1]=23; d[o+2]=34; d[o+3]=Math.round(255*Math.min(1,v*1.18)); }
-  fogCx.putImageData(fogImg,0,0,x0,y0,x1-x0+1,y1-y0+1); fogBox=null; fogG=G; fogT=performance.now();
+  const d=fogImg.data, l=landImg.data;
+  for(let y=y0;y<=y1;y++) for(let x=x0;x<=x1;x++){ const i=y*W+x, a=clamp((fogF[i]-.45)/.2,0,1), o=i*4;
+    d[o]=16; d[o+1]=23; d[o+2]=34; d[o+3]=Math.round(255*a); l[o]=40; l[o+1]=22; l[o+2]=8; l[o+3]=Math.round(185*(1-a)); }
+  fogCx.putImageData(fogImg,0,0,x0,y0,x1-x0+1,y1-y0+1); landCx.putImageData(landImg,0,0,x0,y0,x1-x0+1,y1-y0+1); fogBox=null; fogG=G; fogT=performance.now(); fogVer++;
 }
+// The world is a board laid on a wooden table: the table shows past the edge of the map and wherever the land is
+// still unexplored, and the explored land casts a shadow onto it, like board pieces set down one by one.
+const woodCv=document.createElement('canvas'); woodCv.width=woodCv.height=256;
+{ const g=woodCv.getContext('2d'), tones=['#b4834c','#a97a45','#b98a52','#a37543'];
+  for(let i=0;i<4;i++){ const y=i*64; g.fillStyle=tones[i]; g.fillRect(0,y,256,64);
+    for(let k=0;k<10;k++){ const yy=y+5+k*6, a=.08+.06*((k*7+i*3)%5)/4; g.strokeStyle=`rgba(96,58,26,${a})`; g.lineWidth=1+((k+i)%3)*.6; g.beginPath();
+      for(let x=0;x<=256;x+=8){ const w=Math.sin(x/256*6.283*2+k*1.3+i)*1.8+Math.sin(x/256*6.283*5+k)*.6; x?g.lineTo(x,yy+w):g.moveTo(x,yy+w); } g.stroke(); }
+    const sx=(i*97+40)%256; g.fillStyle='rgba(70,40,18,.5)'; g.fillRect(sx,y,2,64);                       // where two planks meet end to end
+    g.fillStyle='rgba(70,40,18,.55)'; g.fillRect(0,y,256,2); g.fillStyle='rgba(255,226,180,.16)'; g.fillRect(0,y+2,256,1); // the gap between rows
+    const kx=(i*61+150)%256, ky=y+20+(i*13)%24; g.fillStyle='rgba(110,66,30,.55)'; g.beginPath(); g.ellipse(kx,ky,7,3.5,0,0,6.283); g.fill(); // a knot
+    g.strokeStyle='rgba(96,58,26,.3)'; g.beginPath(); g.ellipse(kx,ky,12,6,0,0,6.283); g.stroke(); } }
+let woodPat=null, fogVer=0, tableKey='';
+const tableCv=document.createElement('canvas'), tableCx=tableCv.getContext('2d');
+const landCv=document.createElement('canvas'); landCv.width=W; landCv.height=H;
+const landCx=landCv.getContext('2d'), landImg=landCx.createImageData(W,H);
+function wood(q=1){ if(!woodPat) woodPat=ctx.createPattern(woodCv,'repeat'); const k=S*6.4/256*q; woodPat.setTransform(new DOMMatrix([k,0,0,k,OX*q,OY*q])); return woodPat; }
 let vignette=null, vigKey='';
 function nightFactor(){ const p=(G.time%DAY)/DAY; const ss=(a,b,v)=>clamp((v-a)/(b-a),0,1); return ss(.6,.72,p)*(1-ss(.9,1,p)); }
 
@@ -2914,7 +2939,11 @@ function render(t){
   const h=G.hero;
   NIGHT=nightFactor();
   OX=Math.round(cw/2-cam.x*S); OY=Math.round(chh*focusY-cam.y*S);
-  ctx.setTransform(1,0,0,1,0,0); ctx.fillStyle='#17304f'; ctx.fillRect(0,0,cw,chh);
+  ctx.setTransform(1,0,0,1,0,0);
+  if(OX>0||OY>0||OX+W*S<cw||OY+(H+.6)*S<chh){ ctx.fillStyle=wood(); ctx.fillRect(0,0,cw,chh);
+    ctx.setTransform(S,0,0,S,OX,OY); for(const k of [1.4,.9,.5]) { ctx.fillStyle=`rgba(40,22,8,${.12})`; ctx.fillRect(.3-k*.3,.5-k*.3,W+k*.6,H+.4+k*.6); }
+    ctx.fillStyle='#2f6797'; ctx.fillRect(0,H,W,.45); ctx.fillStyle='#4f8cc4'; ctx.fillRect(0,H,W,.06); ctx.fillStyle='rgba(0,0,0,.18)'; ctx.fillRect(0,H+.3,W,.15);
+    ctx.setTransform(1,0,0,1,0,0); }
   const x0=Math.max(0,Math.floor(-OX/S)), y0=Math.max(0,Math.floor(-OY/S)), x1=Math.min(W-1,Math.floor((cw-OX)/S)), y1=Math.min(H-1,Math.floor((chh-OY)/S));
   regenEnd=performance.now()+6; regenN=0; pending=false;
   const cy0=(y0/CH)|0, cy1=(Math.min(H-1,y1+Math.ceil(PADT))/CH)|0, cx0=(x0/CH)|0, cx1=(x1/CH)|0; // chunks just below the view reach up into it
@@ -2924,12 +2953,13 @@ function render(t){
   if(!pending) oldCache=null;
 
   ctx.setTransform(S,0,0,S,OX,OY);
-  // sparkles, territory, fog paths in one sweep
+  // sparkles and territory in one sweep, noting whether any unexplored table is in view
   const spark=new Path2D(), border=new Path2D(), terrFill=new Path2D();
-  const E=G.expl, tt=t*.25;
-  for(let y=y0;y<=y1;y++) for(let x=x0;x<=x1;x++){
+  const E=G.expl, tt=t*.25; let bare=false, bx0=W, by0=H, bx1=-1, by1=-1;
+  for(let y=Math.max(0,y0-1);y<=Math.min(H-1,y1+2);y++) for(let x=Math.max(0,x0-1);x<=Math.min(W-1,x1+1);x++){
     const i=y*W+x;
-    if(!E[i]) continue;
+    if(!E[i]){ bare=true; if(x<bx0) bx0=x; if(x>bx1) bx1=x; if(y<by0) by0=y; if(y>by1) by1=y; continue; }
+    if(x<x0||x>x1||y<y0||y>y1) continue;
     const tr=G.terr[i];
     if(tr<=T.WATER){ const hh=hash2(x,y,9); if(hh<.12){ const o=(hh*40+tt)%1; spark.rect(x+o*.8,y+.3+hh*3,.18,.04); } }
     if(terrT[i]){
@@ -3021,10 +3051,24 @@ function render(t){
     if(buildSel==='tower'||buildSel==='hall'){ ctx.strokeStyle='rgba(255,255,255,.25)'; ctx.beginPath(); ctx.arc(hover.x+.5,hover.y+.5,6.5,0,6.283); ctx.stroke(); }
   }
 
-  // fog
+  // the unexplored world is still bare table, shaded where the explored land stands up off it
   if(fogG!==G) buildFog(true); else if(fogBox&&performance.now()-fogT>100) buildFog(false);
-  { const fx=Math.max(0,x0-2), fy=Math.max(0,y0-2), fw=Math.min(W,x1+3)-fx, fh=Math.min(H,y1+3)-fy;
-    ctx.imageSmoothingEnabled=true; ctx.drawImage(fogCv,fx,fy,fw,fh,fx,fy,fw,fh); }
+  if(bare){
+    // only the part of the screen that shows table, and only redrawn when the view or the explored land changes
+    const fx=Math.max(0,bx0-2), fy=Math.max(0,by0-2), fw=Math.min(W,bx1+3)-fx, fh=Math.min(H,by1+3)-fy;
+    const rx=clamp(Math.floor(OX+fx*S),0,cw), ry=clamp(Math.floor(OY+fy*S),0,chh), rw=clamp(Math.ceil(OX+(fx+fw)*S),0,cw)-rx, rh=clamp(Math.ceil(OY+(fy+fh)*S),0,chh)-ry;
+    const key=`${OX},${OY},${S},${fogVer},${cw},${chh}`;
+    if(rw>0&&rh>0){
+      if(key!==tableKey){ tableKey=key;
+        // drawn at half size and stretched: its edges are soft anyway, and it costs a quarter as much
+        const Q=.5, tw=Math.ceil(cw*Q), th=Math.ceil(chh*Q); if(tableCv.width!==tw||tableCv.height!==th){ tableCv.width=tw; tableCv.height=th; }
+        const g=tableCx; g.setTransform(1,0,0,1,0,0); g.globalCompositeOperation='source-over'; g.clearRect(0,0,tw,th);
+        g.save(); g.beginPath(); g.rect(rx*Q,ry*Q,rw*Q,rh*Q); g.clip();
+        g.imageSmoothingEnabled=true; g.setTransform(S*Q,0,0,S*Q,OX*Q,OY*Q); g.drawImage(fogCv,fx,fy,fw,fh,fx,fy,fw,fh);
+        g.globalCompositeOperation='source-in'; g.setTransform(1,0,0,1,0,0); g.fillStyle=wood(Q); g.fillRect(rx*Q,ry*Q,rw*Q,rh*Q);
+        g.globalCompositeOperation='source-atop'; g.setTransform(S*Q,0,0,S*Q,(OX+.22*S)*Q,(OY+.38*S)*Q); g.drawImage(landCv,fx,fy,fw,fh,fx,fy,fw,fh);
+        g.restore(); g.globalCompositeOperation='source-over'; }
+      ctx.setTransform(1,0,0,1,0,0); ctx.imageSmoothingEnabled=true; ctx.drawImage(tableCv,rx*.5,ry*.5,rw*.5,rh*.5,rx,ry,rw,rh); ctx.setTransform(S,0,0,S,OX,OY); } }
 
   // night
   if(NIGHT>0.01){
